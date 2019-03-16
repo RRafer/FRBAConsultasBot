@@ -1,0 +1,12 @@
+{
+  "name": "telegrambot",
+  "version": "1.0.0",
+  "description": "Bot UTN - FRBA",
+  "main": "bot.js",
+  "author": "rafer",
+  "license": "ISC",
+  "dependencies": {
+    "node-telegram-bot-api": "^0.30.0",
+    "node-telegram-keyboard-wrapper": "^2.0.1"
+  }
+}
