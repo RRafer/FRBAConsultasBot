@@ -1,26 +1,12 @@
 {
   "name": "telegrambot",
-  "version": "0.0.2",
-  "description": "Telegram Bot UTN - FRBA",
+  "version": "1.0.0",
+  "description": "Bot UTN - FRBA",
   "main": "bot.js",
-  "author": "Loki2236/RRafer/PyriteWolf/Relar",
+  "author": "rafer",
   "license": "ISC",
   "dependencies": {
-    "dotenv": "^8.2.0",
-    "eslint-plugin-react": "^7.19.0",
-    "moment": "^2.24.0",
-    "mongodb": "^3.5.5",
-    "node-telegram-bot-api": "^0.40.0",
-    "request": "^2.88.2",
-    "sharp": "^0.25.1",
-    "uuid": "^3.4.0",
-    "winston": "^3.2.1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/RRafer/FRBAConsultasBot.git"
-  },
-  "devDependencies": {
-    "eslint": "^6.8.0"
+    "node-telegram-bot-api": "^0.30.0",
+    "node-telegram-keyboard-wrapper": "^2.0.1"
   }
 }
