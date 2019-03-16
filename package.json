@@ -1,7 +1,7 @@
 {
   "name": "telegrambot",
-  "version": "1.0.0",
-  "description": "Bot UTN - FRBA",
+  "version": "0.2",
+  "description": "Telegram Bot UTN - FRBA",
   "main": "bot.js",
   "author": "rafer",
   "license": "ISC",
