@@ -6,7 +6,8 @@ const bot = new TelegramBot(token, {polling: true});
 
 //Cuando aparece solo esa palabra
 bot.onText(/^\/empieza/, (msg) => {
-    bot.sendMessage(msg.chat.id, "Las materias de 2do a 6to año empiezan el 18\nFisica 1 curso Z empieza el 25\nRecursantes empiezan el 25 de marzo\nIngresantes empiezan el 1 de Abril\n");
+  //console.log(msg);
+    bot.sendMessage(msg.chat.id, "Las materias de 2do a 6to año empiezan el 18\nFisica 1 curso Z empieza el 25\nRecursantes empiezan el 25 de marzo\nIngresantes empiezan el 1 de Abril\n",{reply_to_message_id: msg.message_id});
 });
 
 // Responde cuando aparece una palabra en un mensaje
