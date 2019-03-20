@@ -6,26 +6,14 @@
   "author": "rafer",
   "license": "ISC",
   "dependencies": {
-    "eslint-plugin-react": "^7.16.0",
     "moment": "^2.24.0",
-    "mongodb": "^3.3.5",
-    "mongoose": "^5.7.12",
-    "node-telegram-bot-api": "^0.40.0",
-    "node-telegram-keyboard-wrapper": "^2.0.1",
-    "pg": "^7.14.0",
-    "request": "^2.88.0",
-    "sharp": "^0.22.1",
-    "string-similarity": "^3.0.0",
-    "uuid": "^3.3.3",
-    "winston": "^3.2.1"
+    "mongodb": "^3.1.13",
+    "mongoose": "^5.4.19",
+    "node-telegram-bot-api": "^0.30.0",
+    "node-telegram-keyboard-wrapper": "^2.0.1"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/RRafer/FRBAConsultasBot.git"
-  },
-  "devDependencies": {
-    "eslint": "^6.7.1",
-    "eslint-config-airbnb-base": "^14.0.0",
-    "eslint-plugin-import": "^2.18.2"
   }
 }
