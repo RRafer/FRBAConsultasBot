@@ -83,16 +83,4 @@ typings/
 # DynamoDB Local files
 .dynamodb/
 
-.idea/
-
-#Imagenes rotadas
-ImageRotate/
-
-# vs code config
-.vscode
-
-#Token
-token.js
-
-#build
-build/
+./idea
