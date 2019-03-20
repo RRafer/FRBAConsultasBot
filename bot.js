@@ -1,8 +1,10 @@
 const TelegramBot = require('node-telegram-bot-api');
+const moment = require('moment');
 //TOKEN Bot
 const token = '883966977:AAEKL2FShenvXov-h33BKDqikS8_BD0ft-Q';
 
 const bot = new TelegramBot(token, {polling: true});
+
 
 //Cuando aparece solo esa palabra
 bot.onText(/^\/empieza/, (msg) => {
