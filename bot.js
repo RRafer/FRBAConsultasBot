@@ -37,14 +37,14 @@ bot.onText(/^\/stadistics/, (msg) => {
 
         const db = client.db('BotTelegram');
 
-        db.collection("messages").find({"chat.id":msg.chat.id}).count((err, count) =>{
+        db.collection("messages").find({"chat.id":msg.chat.id,"from.id":msg.from.id}).count((err, count) =>{
             if (err) {
                 throw err;
 
                 client.close();
             }
 
-            bot.sendMessage(msg.chat.id, "Mensajes enviados: " +count,
+            bot.sendMessage(msg.chat.id, "Mensajes enviados: " +(count-1),
                 {reply_to_message_id: msg.message_id});
         })
     });
