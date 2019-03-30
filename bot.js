@@ -12,6 +12,7 @@ const token = '883966977:AAEKL2FShenvXov-h33BKDqikS8_BD0ft-Q';
 
 const bot = new TelegramBot(token, {polling: true});
 
+bot.on("polling_error", (msg) => console.log(msg));
 
 //Cuando aparece solo esa palabra
 bot.onText(/^\/empieza/, (msg) => {
@@ -68,44 +69,42 @@ bot.on('message', function(msg){
         "reply_markup": JSON.stringify(verify)
     };
  
-    /*const RemPerms = {
-	    perms.can_send_message = false,
-	    perms.can_send_media_messages = false,
-	    perms.can_send_other_messages = false,
-	    perms.can_add_web_page_previews = false
-	}
+    RemPerms = {
+	    perms:can_send_message = false,
+	    perms:can_send_media_messages = false,
+	    perms:can_send_other_messages = false,
+	    perms:can_add_web_page_previews = false,
+	};
 
-	const GivePerms = {
-	    perms.can_send_message = true,
-	    perms.can_send_media_messages = true,
-	    perms.can_send_other_messages = true,
-	    perms.can_add_web_page_previews = true
-	}*/
-
-    if (msg.new_chat_members != undefined){
-    //    bot.restrictChatMember(msg.chat.id, msg.new_chat_members[0].id, RemPerms).then(function(result){
+    GivePerms = {
+	    perms:can_send_message = true,
+	    perms:can_send_media_messages = true,
+	    perms:can_send_other_messages = true,
+	    perms:can_add_web_page_previews = true,
+	};
+    var userId = msg.new_chat_members[0].id;
+    if (msg.new_chat_members !== undefined){
+        bot.restrictChatMember(msg.chat.id, userId, RemPerms).then(function(result){
             bot.sendMessage(msg.chat.id, "Hola " + msg.new_chat_members[0].first_name + ", bienvenido al grupo de consultas " + msg.chat.title + " de la UTN - FRBA\n\nHaga clic en el boton de abajo para verificar que no sea un bot.", data);
-    		
-    		const msgBienvenida = msg.message_id;
-		 	console.log(msgBienvenida)
 		 	console.log(msg.new_chat_members[0].id)
-    //   })
+        })
     }
 
     bot.on('callback_query', function onCallbackQuery(accionboton){
-	    const data = accionboton.data
-	    const msg = accionboton.message
-	   	console.log(accionboton)
+	    const data = accionboton.data;
+	    const msg = accionboton.message;
+	   	console.log(accionboton);
 
-	    if (data == "verificarbot"){
-	    //    bot.restrictChatMember(msg.chat.id, msg.new_chat_members[0].id, perms).then(function(result){
-	            bot.editMessageText(msg.chat.id, msgBienvenida, msg.new_chat_members[0].first_name + " ¡Has sido verificado \u2705!\n\nEste mensaje se borrara en unos minutos")//.then(function (data){
+	    if (data === 'verificarbot'){
+	        bot.restrictChatMember(msg.chat.id, userId, GivePerms).then(function(result){
+                bot.deleteMessage(msg.chat.id, msg.message_id);
+	            bot.sendMessage(msg.chat.id, "¡Has sido verificado! \u2705\n\nEste mensaje se borrara en unos minutos");//.then(function (data){
 				/*    setTimeout(function(){
 				        bot.deleteMessage(data.chat.id, data.message_id);
 				    }, 60000);
 				}*/
-	    //  })
-	    };
+	      })
+	    }
 	})	
 });
  
