@@ -58,7 +58,6 @@ bot.onText(/^\/stadistics/, (msg) => {
 });
 
 bot.on('message', function(msg){
- 
     var verify = {
             "inline_keyboard": [
                 [
@@ -84,6 +83,7 @@ bot.on('message', function(msg){
 	    perms:can_send_other_messages = true,
 	    perms:can_add_web_page_previews = true
 	};
+
     var userId = msg.new_chat_members[0].id;
 
     if (msg.new_chat_members !== undefined){
@@ -101,8 +101,8 @@ bot.on('message', function(msg){
 
 	    if (data === 'verificarbot'){
 	        console.log("Cuando hizo clic en el boton: " + userId);
-	        bot.restrictChatMember(msg.chat.id, userId, GivePerms)//.then(function(result){
-	            console.log("Dentro del restrictChat: " + userId);
+	        bot.promoteChatMember(msg.chat.id, userId, GivePerms);
+	        console.log("Dentro del restrictChat: " + userId);
                 bot.deleteMessage(msg.chat.id, msg.message_id);
 	            bot.sendMessage(msg.chat.id, "¡Has sido verificado! \u2705\n\nEste mensaje se borrara en unos segundos").then(function (data){
 	                setTimeout(function(){
