@@ -98,12 +98,12 @@ bot.on('message', function(msg){
 	    if (data === 'verificarbot'){
 	        bot.restrictChatMember(msg.chat.id, userId, GivePerms).then(function(result){
                 bot.deleteMessage(msg.chat.id, msg.message_id);
-	            bot.sendMessage(msg.chat.id, "¡Has sido verificado! \u2705\n\nEste mensaje se borrara en unos minutos");//.then(function (data){
-				/*    setTimeout(function(){
+	            bot.sendMessage(msg.chat.id, "¡Has sido verificado! \u2705\n\nEste mensaje se borrara en unos minutos").then(function (data){
+	                setTimeout(function(){
 				        bot.deleteMessage(data.chat.id, data.message_id);
-				    }, 60000);
-				}*/
-	      })
+				    }, 10000);
+				})
+	        })
 	    }
 	})	
 });
