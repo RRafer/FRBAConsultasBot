@@ -64,25 +64,27 @@ bot.on('message', function(msg){
         "reply_markup": JSON.stringify(verify)
     };
  
-    /*const RemPerms = {};
-    perms.can_send_message = false;
-    perms.can_send_media_messages = false;
-    perms.can_send_other_messages = false;
-    perms.can_add_web_page_previews = false;
+    /*const RemPerms = {
+	    perms.can_send_message = false,
+	    perms.can_send_media_messages = false,
+	    perms.can_send_other_messages = false,
+	    perms.can_add_web_page_previews = false
+	}
 
-	const GivePerms = {};
-    perms.can_send_message = true;
-    perms.can_send_media_messages = true;
-    perms.can_send_other_messages = true;
-    perms.can_add_web_page_previews = true;*/
-
-    const msgBienvenida = msg.message_id + 1;
- 	console.log(msgBienvenida)
- 	console.log(msg.new_chat_members[0].id)
+	const GivePerms = {
+	    perms.can_send_message = true,
+	    perms.can_send_media_messages = true,
+	    perms.can_send_other_messages = true,
+	    perms.can_add_web_page_previews = true
+	}*/
 
     if (msg.new_chat_members != undefined){
     //    bot.restrictChatMember(msg.chat.id, msg.new_chat_members[0].id, RemPerms).then(function(result){
             bot.sendMessage(msg.chat.id, "Hola " + msg.new_chat_members[0].first_name + ", bienvenido al grupo de consultas " + msg.chat.title + " de la UTN - FRBA\n\nHaga clic en el boton de abajo para verificar que no sea un bot.", data);
+    		
+    		const msgBienvenida = msg.message_id;
+		 	console.log(msgBienvenida)
+		 	console.log(msg.new_chat_members[0].id)
     //   })
     }
 
