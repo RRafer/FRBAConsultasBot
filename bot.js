@@ -10,6 +10,12 @@ const bot = new TelegramBot(token, {polling: true});
 
 bot.on("polling_error", (msg) => console.log(msg));
 
+bot.on('message', (msg) => {
+    if(msg.new_chat_member !== undefined || msg.left_chat_member !== undefined){
+        setTimeout(() => { bot.deleteMessage(msg.chat.id, msg.message_id); }, 1500);
+    }
+});
+
 //Cuando aparece solo esa palabra
 bot.onText(/^\/empieza/, (msg) => {
   //console.log(msg);
@@ -65,24 +71,26 @@ bot.on('message', function(msg){
         "reply_markup": JSON.stringify(verify)
     };
  
-    RemPerms = {
+    const RemPerms = {
 	    perms:can_send_message = false,
 	    perms:can_send_media_messages = false,
 	    perms:can_send_other_messages = false,
-	    perms:can_add_web_page_previews = false,
+	    perms:can_add_web_page_previews = false
 	};
 
-    GivePerms = {
+    const GivePerms = {
 	    perms:can_send_message = true,
 	    perms:can_send_media_messages = true,
 	    perms:can_send_other_messages = true,
-	    perms:can_add_web_page_previews = true,
+	    perms:can_add_web_page_previews = true
 	};
     var userId = msg.new_chat_members[0].id;
+
     if (msg.new_chat_members !== undefined){
         bot.restrictChatMember(msg.chat.id, userId, RemPerms).then(function(result){
             bot.sendMessage(msg.chat.id, "Hola " + msg.new_chat_members[0].first_name + ", bienvenido al grupo de consultas " + msg.chat.title + " de la UTN - FRBA\n\nHaga clic en el boton de abajo para verificar que no sea un bot.", data);
-		 	console.log(msg.new_chat_members[0].id)
+
+            console.log("Una vez que ingreso: " + userId);
         })
     }
 
@@ -92,13 +100,15 @@ bot.on('message', function(msg){
 	   	console.log(accionboton);
 
 	    if (data === 'verificarbot'){
-	        bot.restrictChatMember(msg.chat.id, userId, GivePerms).then(function(result){
+	        console.log("Cuando hizo clic en el boton: " + userId);
+	        bot.restrictChatMember(msg.chat.id, userId, GivePerms)//.then(function(result){
+	            console.log("Dentro del restrictChat: " + userId);
                 bot.deleteMessage(msg.chat.id, msg.message_id);
-	            bot.sendMessage(msg.chat.id, "¡Has sido verificado! \u2705\n\nEste mensaje se borrara en unos minutos").then(function (data){
+	            bot.sendMessage(msg.chat.id, "¡Has sido verificado! \u2705\n\nEste mensaje se borrara en unos segundos").then(function (data){
 	                setTimeout(function(){
 				        bot.deleteMessage(data.chat.id, data.message_id);
 				    }, 10000);
-				})
+				//})
 	        })
 	    }
 	})	
