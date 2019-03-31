@@ -66,10 +66,6 @@ bot.on('message', function(msg){
             ]
         };
  
-    var data = {
-        "reply_markup": JSON.stringify(verify)
-    };
- 
     const RemPerms = {
 	    perms:can_send_message = false,
 	    perms:can_send_media_messages = false,
@@ -90,7 +86,7 @@ bot.on('message', function(msg){
     if (msg.new_chat_members !== undefined){
         userId = msg.new_chat_members[0].id;
         bot.restrictChatMember(msg.chat.id, userId, RemPerms).then(function(result){
-            bot.sendMessage(msg.chat.id, "Hola " + msg.new_chat_members[0].first_name + ", bienvenido al grupo de consultas " + msg.chat.title + " de la UTN - FRBA\n\nHaga clic en el boton de abajo para verificar que no sea un bot.", data);
+            bot.sendMessage(msg.chat.id, "Hola " + msg.new_chat_members[0].first_name + ", bienvenido al grupo de consultas " + msg.chat.title + " de la UTN - FRBA\n\nHaga clic en el boton de abajo para verificar que no sea un bot.", {"reply_markup": JSON.stringify(verify)});
             msgBienvenida = msg.message_id + 1;
         })
     }
