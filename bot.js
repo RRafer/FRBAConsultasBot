@@ -1,7 +1,18 @@
 const TelegramBot = require('node-telegram-bot-api');
-const moment = require('moment');
 const mongo = require('mongodb').MongoClient;
 var url = 'mongodb://localhost:27017';
+
+const { Client } = require('pg')
+
+const connectionData = {
+    user: 'bruno',
+    host: 'localhost',
+    database: 'encuesta_docente',
+    password: 'muabid',
+    port: 5432,
+}
+
+const client = new Client(connectionData)
 
 //TOKEN Bot
 const token = '883966977:AAEKL2FShenvXov-h33BKDqikS8_BD0ft-Q';
@@ -16,16 +27,19 @@ bot.on('message', (msg) => {
     }
 });
 
+
+
 //Cuando aparece solo esa palabra
 bot.onText(/^\/empieza/, (msg) => {
   //console.log(msg);
     bot.sendMessage(msg.chat.id, "Las materias de 2do a 6to año empiezan el 18\nFisica 1 curso Z empieza el 25\nRecursantes empiezan el 25 de marzo\nIngresantes empiezan el 1 de Abril\n",{reply_to_message_id: msg.message_id});
 });
 
+/*
 bot.onText(/[\s\S]+/g,(msg) => {
 
     mongo.connect(url, (err, client) => {
-        console.log(msg.from.first_name);
+
 
         const db = client.db('BotTelegram');
 
@@ -36,9 +50,9 @@ bot.onText(/[\s\S]+/g,(msg) => {
 
         });
     });
-});
+});*/
 
-bot.onText(/^\/stadistics/, (msg) => {
+/*bot.onText(/^\/stadistics/, (msg) => {
 
     mongo.connect(url, (err, client) => {
 
@@ -56,6 +70,20 @@ bot.onText(/^\/stadistics/, (msg) => {
         })
     });
 });
+*/
+
+
+
+bot.onText(/^\/links/, (msg) => {
+    let links = require('./resources/links.json')
+    bot.sendMessage(msg.chat.id,"LINKS", {
+        reply_markup: {
+            inline_keyboard: links
+        }
+    });
+});
+
+
 
 bot.on('message', function(msg){
     var verify = {
