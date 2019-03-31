@@ -6,17 +6,6 @@ const TelegramBot = require('node-telegram-bot-api');
 const mongo = require('mongodb').MongoClient;
 var url = 'mongodb://localhost:27017';
 
-const { Client } = require('pg')
-
-const connectionData = {
-    user: 'bruno',
-    host: 'localhost',
-    database: 'encuesta_docente',
-    password: 'muabid',
-    port: 5432,
-}
-
-const client = new Client(connectionData)
 
 //TOKEN Bot
 const token = '883966977:AAEKL2FShenvXov-h33BKDqikS8_BD0ft-Q';
@@ -30,7 +19,6 @@ bot.on('message', (msg) => {
         setTimeout(() => { bot.deleteMessage(msg.chat.id, msg.message_id); }, 1500);
     }
 });
-
 
 
 //Cuando aparece solo esa palabra
