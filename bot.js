@@ -88,13 +88,15 @@ bot.on('message', function(msg){
 	    perms:can_add_web_page_previews = true
 	};
 
-    var userId = msg.new_chat_members[0].id;
+    var userId;
+    var msgBienvenida;
 
     if (msg.new_chat_members !== undefined){
+        userId = msg.new_chat_members[0].id;
         bot.restrictChatMember(msg.chat.id, userId, RemPerms).then(function(result){
             bot.sendMessage(msg.chat.id, "Hola " + msg.new_chat_members[0].first_name + ", bienvenido al grupo de consultas " + msg.chat.title + " de la UTN - FRBA\n\nHaga clic en el boton de abajo para verificar que no sea un bot.", data);
+            msgBienvenida = msg.message_id + 1;
 
-            console.log("Una vez que ingreso: " + userId);
         })
     }
 
@@ -104,16 +106,35 @@ bot.on('message', function(msg){
 	   	console.log(accionboton);
 
 	    if (data === 'verificarbot'){
-	        console.log("Cuando hizo clic en el boton: " + userId);
-	        bot.promoteChatMember(msg.chat.id, userId, GivePerms);
-	        console.log("Dentro del restrictChat: " + userId);
-                bot.deleteMessage(msg.chat.id, msg.message_id);
-	            bot.sendMessage(msg.chat.id, "¡Has sido verificado! \u2705\n\nEste mensaje se borrara en unos segundos").then(function (data){
-	                setTimeout(function(){
-				        bot.deleteMessage(data.chat.id, data.message_id);
-				    }, 10000);
-				//})
-	        })
+            bot.on("callback_query", q => {
+                if(userId === q.from.id){
+                    var opts = {
+                        chat_id: msg.chat.id,
+                        message_id: msgBienvenida
+                    };
+                    var text = ("¡Has sido verificado! \u2705\n\nEste mensaje se borrara en unos segundos");
+
+                    bot.promoteChatMember(msg.chat.id, userId, GivePerms);
+                    bot.editMessageText(text, opts).then(function (data){
+                        setTimeout(function(){
+                            bot.deleteMessage(data.chat.id, data.message_id);
+                        }, 10000);
+                    })
+              /*    bot.deleteMessage(msg.chat.id, msgBienvenida);
+                    bot.sendMessage(msg.chat.id, "¡Has sido verificado! \u2705\n\nEste mensaje se borrara en unos segundos").then(function (data){
+                        setTimeout(function(){
+                            bot.deleteMessage(data.chat.id, data.message_id);
+                        }, 10000);
+                    })*/
+                }
+                else{
+                    bot.answerCallbackQuery({
+                        callback_query_id: q.id,
+                        text: "No puede verificar por otro usuario",
+                        show_alert: true
+                    });
+                }
+            });
 	    }
 	})	
 });
