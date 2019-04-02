@@ -1,14 +1,18 @@
-const users = require('./mongo/users');
-const errors = require('./mongo/errors');
+const mongo = require('mongodb').MongoClient;
+const url = 'mongodb://localhost:27017';
 
-exports.insertChatId = (userId, chatId) => users.insertChatId(userId, chatId).catch(err => errors.logError(err, chatId));
-exports.getGroupIds = (userId, chatId) => users.getGroupIds(userId).catch(err => errors.logError(err, chatId));
-exports.logError = (error, chatId) => errors.logError(error, chatId);
 
-//#region Comentarios
+exports.insertMessage =(msg) =>{
+    mongo.connect(url, (err, client) => {
 
-// exports.setStartedUser = (userId, chatId) => users.setStartedUser(userId).catch(err => errors.logError(err, chatId));
-// exports.getPrivateChatId = (userId, chatId) => users.getPrivateChatId(userId).catch(err => errors.logError(err, chatId));
-// exports.hasStarted = (userId, chatId) => users.hasStarted(userId).catch(err => errors.logError(err, chatId));
 
-//#endregion
+        const db = client.db('BotTelegram');
+
+        db.collection("messages").insertOne(msg, (err, res) => {
+            if (err) throw err;
+
+            client.close();
+
+        });
+    });
+}
