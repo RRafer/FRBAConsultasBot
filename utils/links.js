@@ -1,5 +1,3 @@
-
-
 exports.sendLinks = bot => msg => {
     bot.sendMessage(msg.chat.id, "LINKS", {
         reply_markup: {
@@ -52,4 +50,30 @@ exports.sendLinks = bot => msg => {
             });
         }
     })
+}
+
+
+exports.sendLinks2 = bot => msg => {
+
+
+    let words = msg.text.split(/(\s+)/).filter( e => e.trim().length > 0);
+    let linksMsg = require('../resources/links2.json');
+    let message;
+    console.log(words)
+
+    if(words.length > 1) {
+
+        let stringSimilarity = require('string-similarity');
+
+        let bestMatch =stringSimilarity.findBestMatch(words[1],linksMsg.map(link => link.departament)).bestMatch.target
+        console.log(bestMatch);
+        linksMsg = linksMsg.filter(link => link.departament === bestMatch );
+
+    }
+
+    message = linksMsg.map(link => "• ["+link.text+"]("+ link.url+")").reduce((x, y) => x +"\n"+y);
+
+    bot.sendMessage(msg.chat.id, message,{parse_mode : "Markdown"} );
+
+
 }
