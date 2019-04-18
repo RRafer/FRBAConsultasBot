@@ -25,6 +25,10 @@ bot.on('message', (msg) => {
     }
 });
 
+bot.onText(/^\/catedra/, (msg) => {
+    bot.deleteMessage(msg.chat.id, msg.message_id);
+    bot.sendPhoto(msg.chat.id, "AgADAQADEagxG_BImEVSfV4Gc0JIbXLqCjAABFlZxFZk81qhMjcDAAEC");
+});
 
 //Envia mensaje con el comando /empieza (Solo cuando esta eso en un mensaje)
 bot.onText(/^\/empieza/, (msg) => {
