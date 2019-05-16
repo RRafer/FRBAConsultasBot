@@ -1,79 +1,54 @@
-exports.sendLinks = bot => msg => {
-    bot.sendMessage(msg.chat.id, "LINKS", {
-        reply_markup: {
-            inline_keyboard: require('../resources/links.json')
-        },
-        reply_to_message_id: msg.message_id
-    });
+/* eslint-disable no-console */
+/* eslint-disable camelcase */
+const inlineKeyboard = require('../resources/links.json');
 
-    var msgLinks = msg.message_id + 1;
+exports.sendLinks = bot => (msg) => {
+  bot.sendMessage(msg.chat.id, 'LINKS', {
+    reply_markup: {
+      inline_keyboard: inlineKeyboard,
+    },
+    reply_to_message_id: msg.message_id,
+  });
 
-    bot.on('callback_query', (link) => {
-        console.log(msgLinks);
+  const msgLinks = msg.message_id + 1;
 
-        if (link.from.id === link.message.reply_to_message.from.id) {
+  bot.on('callback_query', (link) => {
+    console.log(msgLinks);
 
-
-            if(link.data == 0){
-                bot.editMessageText("LINKS", {
-                    reply_markup: {
-                        inline_keyboard: require('../resources/links.json')
-                    },
-                    message_id:msgLinks,
-                    chat_id: msg.chat.id
-                });
-            } else {
-
-                var groups = require('../resources/groups/' + link.data);
-                groups.push([
-                    {
-                        text: "Atras",
-                        callback_data: 0
-                    }
-                ])
-
-
-                bot.editMessageText("GRUPOS", {
-                    chat_id: msg.chat.id,
-                    message_id: msgLinks,
-                    reply_markup: {
-                        inline_keyboard: groups
-                    }
-                });
-            groups.pop();
-            }
-        } else {
-            bot.answerCallbackQuery({
-                callback_query_id: link.id,
-                text: "No puede verificar por otro usuario",
-                show_alert: true
-            });
-        }
-    })
-}
+    if (link.from.id === link.message.reply_to_message.from.id) {
+      if (link.data == 0) {
+        bot.editMessageText('LINKS', {
+          reply_markup: {
+            inline_keyboard: inlineKeyboard,
+          },
+          message_id: msgLinks,
+          chat_id: msg.chat.id,
+        });
+      } else {
+        let groups = require(`../resources/groups/${link.data}`);
+        groups.push([
+          {
+            text: 'Atras',
+            callback_data: 0,
+          },
+        ]);
 
 
-exports.sendLinks2 = bot => msg => {
-
-
-    let words = msg.text.split(/(\s+)/).filter( e => e.trim().length > 0);
-    let linksMsg = require('../resources/links2.json');
-    let message;
-    console.log(words)
-
-    if(words.length > 1) {
-
-        let stringSimilarity = require('string-similarity');
-
-        let bestMatch =stringSimilarity.findBestMatch(words[1],linksMsg.map(link => link.departament)).bestMatch.target
-        console.log(bestMatch);
-        linksMsg = linksMsg.filter(link => link.departament === bestMatch );
-
+        bot.editMessageText('GRUPOS', {
+          chat_id: msg.chat.id,
+          message_id: msgLinks,
+          reply_markup: {
+            inline_keyboard: groups,
+          },
+        });
+        groups.pop();
+      }
+    } else {
+      bot.answerCallbackQuery({
+        callback_query_id: link.id,
+        text: 'No puede verificar por otro usuario',
+        show_alert: true,
+      });
     }
-
-    message = linksMsg.map(link => "• ["+link.text+"]("+ link.url+")").reduce((x, y) => x +"\n"+y);
-
-    bot.sendMessage(msg.chat.id, message,{parse_mode : "Markdown"} );
-
-
-}
+  });
+};
