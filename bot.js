@@ -1,6 +1,7 @@
 const TelegramBot = require('node-telegram-bot-api');
 const linksUtils = require('./utils/links');
 const adminUtils = require('./utils/admin');
+const ms = require("ms");
 // const mongoUtils = require('./utils/mongo');
 const config = require('./utils/config');
 
@@ -9,7 +10,7 @@ let savedMsg = [];
 // Objeto con permisos. Es una negrada esto.
 
 // Muestra errores en consola
-bot.on('polling_error', msg => console.log(msg));
+//bot.on('polling_error', msg => console.log(msg));
 
 // Elimina mensajes de personas que se unen y abandonan el grupo
 bot.on('message', (msg) => {
@@ -42,9 +43,9 @@ bot.on('callback_query', (accionboton) => {
   if (accion === 'verificarbot') {
     const userId = accionboton.data.split('@')[1];
     const msgId = accionboton.data.split('@')[2];
-    console.log(`${accionboton.data}`);
-    console.log(`user: ${userId}msg: ${msgId}`);
-    console.log(`chatinstance: ${accionboton.chat_instance}`);
+    // console.log(`${accionboton.data}`);
+    // console.log(`user: ${userId}msg: ${msgId}`);
+    // console.log(`chatinstance: ${accionboton.chat_instance}`);
     if (userId == accionboton.from.id) {
       bot.promoteChatMember(accionboton.chat_instance, userId, adminUtils.GivePerms);
       bot.editMessageText('¡Has sido verificado! \u2705\n\nEste mensaje se borrara en unos segundos', {
@@ -66,10 +67,10 @@ bot.on('callback_query', (accionboton) => {
 });
 
 bot.on('new_member', (msg) => {
-  console.log(`Nuevo usuario: ${msg.from.id}`);
+//   console.log(`Nuevo usuario: ${msg.from.id}`);
   bot.sendMessage(msg.chat.id, `(TEST) Hola ${msg.from.first_name}  bienvenido al grupo de consultas ${msg.chat.title} de la UTN - FRBA\n\nHaga clic en el boton de abajo para verificar que no sea un bot.\nEste mensaje se eliminara en 30 segundos`, { reply_markup: JSON.stringify(adminUtils.verify(msg)) }).then((sentMsg) => {
     savedMsg.push(sentMsg.message_id);
-    console.log(`savedMsg: ${sentMsg.message_id}`);
+    // console.log(`savedMsg: ${sentMsg.message_id}`);
     setTimeout(() => {
       bot.deleteMessage(msg.chat.id, sentMsg.message_id);
       // Kick Only (El unban tiene que estar, si no no pueden volver a unirse)
@@ -82,6 +83,23 @@ bot.on('new_member', (msg) => {
 // Testing
 bot.onText(/^\/newmember/, (msg) => {
   bot.emit('new_member', msg);
+});
+
+bot.onText(/^\/ban(@[a-zA-Z0-9\.\-\_]*)*/, (msg) => {
+    if(msg.reply_to_message)
+    {
+        bot.kickChatMember(msg.chat.id, msg.reply_to_message.from.id);
+        // var topDate = Date.now() + 60000;
+        // bot.kickChatMember(msg.chat.id, msg.reply_to_message.from.id, {
+        //     until_date: topDate,
+        // });
+
+    }
+    // else
+    // {
+        //var userIds = msg.entities.filter(x => x.user != undefined).map(x => x.user.id);
+        //userIds.forEach(userId => bot.kickChatMember(msg.chat.id, userId));
+    // }
 });
 
 // Estadisticas
