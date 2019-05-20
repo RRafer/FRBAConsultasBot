@@ -13,7 +13,7 @@ exports.sendLinks = bot => (msg) => {
   const msgLinks = msg.message_id + 1;
 
   bot.on('callback_query', (link) => {
-    console.log(msgLinks);
+    //console.log(msgLinks);
 
     if (link.from.id === link.message.reply_to_message.from.id) {
       if (link.data == 0) {
