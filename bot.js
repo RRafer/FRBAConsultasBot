@@ -90,8 +90,10 @@ bot.onText(/^\/ban(.*)/, function(msg, match){
   var chatId = msg.chat.id;
   var userId = msg.from.id;
   var replyId = msg.reply_to_message.from.id;
-  var replyName = msg.reply_to_message.from.first_name;
-  var fromName = msg.from.first_name;
+  var replyName = msg.reply_to_message.from.first_name + ' ' + (msg.reply_to_message.from.last_name != undefined ? msg.reply_to_message.from.last_name : '');
+  var replyUsername = msg.reply_to_message.from.username;
+  var fromName = msg.from.first_name + ' ' + (msg.from.last_name != undefined ? msg.from.last_name : '');
+  var fromUsername = msg.from.username;
   var numberOfSeconds = match[1]; 
 
   if (msg.reply_to_message == undefined){
@@ -101,33 +103,77 @@ bot.onText(/^\/ban(.*)/, function(msg, match){
   bot.getChatMember(chatId, replyId).then(replyMember => {
     if(replyMember.user.username != 'frbaconsultas_bot')
     {
-      bot.getChatMember(chatId, userId).then(userMember => {
-        if(userMember.status == 'creator' || userMember.status == 'administrator')
-        {
-          if(!(replyMember.status == 'creator') || (replyMember.status == 'administrator')){
-            if(numberOfSeconds == '' || isNaN(numberOfSeconds))
-            {
-              bot.kickChatMember(chatId, replyId).then(() => {
-                bot.sendMessage(chatId, "El usuario " + replyName + " ha sido baneado indefinidamente.");
-              });
-            }
-            else
-            {
-              bot.kickChatMember(chatId, replyId, {until_date: Math.round((Date.now() + ms(numberOfSeconds + " seconds"))/1000)}).then(() => {
-                bot.sendMessage(chatId, "El usuario " + replyName + " ha sido baneado durante " + numberOfSeconds + " segundos.");
-              });
+      bot.getChatMember(chatId, userId).then(userMember => {        
+          if(userMember.status == 'creator' || userMember.status == 'administrator')
+          {
+            if(!(replyMember.status == 'creator') || (replyMember.status == 'administrator')){
+              if(numberOfSeconds == '' || isNaN(numberOfSeconds))
+              {
+                bot.kickChatMember(chatId, replyId).then(() => {
+                  bot.sendMessage(chatId, '[' + (fromUsername != undefined ? '@' + fromUsername : fromName) + '](tg://user?id=' + userId + ')'  + " ha baneado a " + (replyUsername != undefined ? '@' + replyUsername : replyName) + '](tg://user?id=' + replyId + ')' + " indefinidamente!");
+                });
+              }
+              else
+              {
+                bot.kickChatMember(chatId, replyId, {until_date: Math.round((Date.now() + ms(numberOfSeconds + " seconds"))/1000)}).then(() => {
+                  bot.sendMessage(chatId, '[' + (fromUsername != undefined ? '@' + fromUsername : fromName) + '](tg://user?id=' + userId + ')' + " ha baneado a " + (replyUsername != undefined ? '@' + replyUsername : replyName) + '](tg://user?id=' + replyId + ')' + "  durante " + numberOfSeconds + " segundos!");
+                });
+              }
             }
           }
-        }
-        else
-        {
-          bot.sendMessage(chatId, "Sory " + fromName + " pero no sos admin.");
-        }        
+          else
+          {
+            bot.sendMessage(chatId, "Sory " + '[' + (fromUsername != undefined ? '@' + fromUsername : fromName) + '](tg://user?id=' + userId + ')' + " pero no sos admin.");
+          }        
       });
     }
     else
     {
-      bot.sendMessage(chatId, "Sory " + fromName + " pero el bot no se puede auto-echar.")
+      bot.sendMessage(chatId, "Sory " + (fromUsername != undefined ? '@' + fromUsername : fromName) + '](tg://user?id=' + userId + ')' + " pero el bot no se puede auto-banear.")
+    }
+  });
+});
+
+bot.onText(/^\/kick(.*)/, function(msg, match){
+
+  var chatId = msg.chat.id;
+  var userId = msg.from.id;
+  var replyId = msg.reply_to_message.from.id;
+  var replyName = msg.reply_to_message.from.first_name + ' ' + (msg.reply_to_message.from.last_name != undefined ? msg.reply_to_message.from.last_name : '');
+  var replyUsername = msg.reply_to_message.from.username;
+  var fromName = msg.from.first_name + ' ' + (msg.from.last_name != undefined ? msg.from.last_name : '');
+  var fromUsername = msg.from.username;
+
+  if (msg.reply_to_message == undefined){
+      return;
+  }
+  
+  bot.getChatMember(chatId, replyId).then(replyMember => {
+    if(replyMember.user.username != 'frbaconsultas_bot')
+    {
+      if(replyMember.status != 'kicked' && replyMember.status != 'left')
+      {      
+        bot.getChatMember(chatId, userId).then(userMember => {
+            if(userMember.status == 'creator' || userMember.status == 'administrator')
+            {
+              if(!(replyMember.status == 'creator') || (replyMember.status == 'administrator'))
+              {              
+                bot.kickChatMember(chatId, replyId).then(() => {
+                  bot.unbanChatMember(chatId, replyId);                  
+                  bot.sendMessage(chatId, '[' + (fromUsername != undefined ? '@' + fromUsername : fromName) + '](tg://user?id=' + userId + ')' + ' ha kickeado a ' + '[' + (replyUsername != undefined ? '@' + replyUsername : replyName) + '](tg://user?id=' + replyId + ')', { parse_mode: 'Markdown' });
+                });
+              }            
+            }
+            else
+            {
+              bot.sendMessage(chatId, "Sory" + '[' + (fromUsername != undefined ? '@' + fromUsername : fromName) + '](tg://user?id=' + userId + ')' + " pero no sos admin.");
+            }        
+        });
+      }
+    }
+    else
+    {
+      bot.sendMessage(chatId, "Sory " + '[' + (fromUsername != undefined ? '@' + fromUsername : fromName) + '](tg://user?id=' + userId + ')' + " pero el bot no se puede auto-kickear.")
     }
   });
 });
