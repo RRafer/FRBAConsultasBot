@@ -10,6 +10,8 @@ const config = require('./utils/config');
 
 const bot = new TelegramBot(config.token, { polling: true });
 let savedMsg = [];
+var idPhoto = [];
+var idChatPhoto = [];
 // Objeto con permisos. Es una negrada esto.
 
 // Muestra errores en consola
@@ -30,8 +32,22 @@ bot.onText(/^\/links/, linksUtils.sendLinks(bot));
 
 bot.onText(/^\/validar/, adminUtils.validateUser(bot));
 
-bot.onText(/^\/catedra/, msg => {
-  bot.sendPhoto(msg.chat.id, 'AgADAQADEagxG_BImEVSfV4Gc0JIbXLqCjAABFlZxFZk81qhMjcDAAEC');
+bot.onText(/^\/catedra/, (msg) => {
+  var chatPos = idChatPhoto.indexOf(msg.chat.id);
+  if(chatPos === -1){
+    var auxid = bot.sendPhoto(msg.chat.id, 'AgADAQADEagxG_BImEVSfV4Gc0JIbXLqCjAABFlZxFZk81qhMjcDAAEC').then((auxid) => {
+      setTimeout(() => {
+        borrarchat = idChatPhoto.indexOf(auxid.chat.id);
+        idChatPhoto.splice(borrarchat, 1);
+        idPhoto.splice(borrarchat, 1)
+      }, 60000);
+      idChatPhoto.push(auxid.chat.id);
+      idPhoto.push(auxid.message_id)
+    });
+  }
+  else {
+    bot.sendMessage(idChatPhoto[chatPos], "Has solicitado el comando muy pronto. Aqui tienes la ultima vez que el comando ha sido usado", {reply_to_message_id: idPhoto[chatPos]});
+  }
 });
 
 bot.onText(/^\/help/, msg => {
@@ -42,6 +58,53 @@ bot.onText(/^\/help/, msg => {
   }).catch(() => {
     bot.sendMessage(msgChatId, 'Tenés que iniciarme por privado con /start.', {reply_to_message_id: msgId});
   });
+});
+
+bot.onText(/^\/id/, (msg) => {
+  bot.deleteMessage(msg.chat.id, msg.message_id);
+  bot.sendMessage(msg.chat.id, 'ID del chat: ' + msg.chat.id);
+});
+
+bot.onText(/^\/sticker/, (msg) => {
+  var stickerId = msg.from.id;
+  if(msg.chat.id === -1001214086516){
+    var r1 = Math.random();
+    console.log("Valor R1: " + r1);
+    if(r1 >= 0.5){
+      bot.sendMessage(msg.chat.id, 'Te salvaste, no te sacamos los stickers.\n\nPor ahora...').then((BorrarMensaje) => {
+        setTimeout(() => {
+          bot.deleteMessage(random.chat.id, random.message_id);
+        }, 30000);
+      });
+    }
+    else{
+      bot.deleteMessage(msg.chat.id, msg.message_id);
+      bot.sendMessage(msg.chat.id, 'Nv perro, te sacamo lo\' sticker loro').then((BorrarMensaje) => {
+        setTimeout(() => {
+          bot.deleteMessage(BorrarMensaje.chat.id, BorrarMensaje.message_id);
+        }, 30000);
+      });
+      bot.restrictChatMember(msg.chat.id, stickerId, {perms: {
+        can_send_message: true,
+        can_send_media_messages: true,
+        can_send_other_messages: false}}).then((QuitarSticker) => {
+        setTimeout(() => {
+          bot.promoteChatMember(QuitarSticker.chat.id, stickerId, {perms: {
+            can_send_message: true,
+            can_send_media_messages: true,
+            can_send_other_messages: true}});
+        }, 30000);
+      });
+    }
+  }
+  else{
+    bot.deleteMessage(msg.chat.id, msg.message_id);
+    bot.sendMessage(msg.chat.id, 'No puede realizar la acción en este grupo\n\nEste mensaje se borrara en unos instantes').then((NoChat) => {
+      setTimeout(() => {
+        bot.deleteMessage(NoChat.chat.id, NoChat.message_id);
+      }, 10000);
+    });
+  }
 });
 
 bot.on('callback_query', (accionboton) => {
@@ -72,9 +135,10 @@ bot.on('callback_query', (accionboton) => {
   }
 });
 
-bot.on('new_member', msg => {
-//   console.log(`Nuevo usuario: ${msg.from.id}`);
-  bot.sendMessage(msg.chat.id, `(TEST) Hola ${msg.from.first_name}  bienvenido al grupo de consultas ${msg.chat.title} de la UTN - FRBA\n\nHaga clic en el boton de abajo para verificar que no sea un bot.\nEste mensaje se eliminara en 30 segundos`, { reply_markup: JSON.stringify(adminUtils.verify(msg)) }).then((sentMsg) => {
+bot.on('new_member', (msg) => {
+  console.log(`Nuevo usuario: ${msg.from.id}`);
+  bot.restrictChatMember(msg.chat.id, msg.from.id, adminUtils.RemPerms);
+  bot.sendMessage(msg.chat.id, `Hola ${msg.from.first_name}  bienvenido al grupo de consultas ${msg.chat.title} de la UTN - FRBA\n\nHaga clic en el boton de abajo para verificar que no sea un bot.\nEste mensaje se eliminara en 30 segundos`, { reply_markup: JSON.stringify(adminUtils.verify(msg)) }).then((sentMsg) => {
     savedMsg.push(sentMsg.message_id);
     // console.log(`savedMsg: ${sentMsg.message_id}`);
     setTimeout(() => {
