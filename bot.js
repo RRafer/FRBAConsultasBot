@@ -10,7 +10,7 @@ let savedMsg = [];
 // Objeto con permisos. Es una negrada esto.
 
 // Muestra errores en consola
-//bot.on('polling_error', msg => console.log(msg));
+bot.on('polling_error', msg => console.log(msg));
 
 // Elimina mensajes de personas que se unen y abandonan el grupo
 bot.on('message', (msg) => {
@@ -85,53 +85,76 @@ bot.onText(/^\/newmember/, (msg) => {
   bot.emit('new_member', msg);
 });
 
-bot.onText(/^\/ban(.*)/, function(msg, match){
+bot.onText(/^\/(ban|kick)(.*)/, function(msg, match){
+  if(msg.reply_to_message == undefined)
+  {
+    return;
+  }
 
   var chatId = msg.chat.id;
   var userId = msg.from.id;
   var replyId = msg.reply_to_message.from.id;
-  var replyName = msg.reply_to_message.from.first_name;
-  var fromName = msg.from.first_name;
-  var numberOfSeconds = match[1]; 
+  var replyName = msg.reply_to_message.from.first_name + ' ' + (msg.reply_to_message.from.last_name != undefined ? msg.reply_to_message.from.last_name : '');
+  var replyUsername = msg.reply_to_message.from.username;
+  var fromName = msg.from.first_name + ' ' + (msg.from.last_name != undefined ? msg.from.last_name : '');
+  var fromUsername = msg.from.username;  
+  var banOrKick = match[1];
+  var numberOfSeconds = match[2];
+  numberOfSeconds.replace(' ', '');
 
-  if (msg.reply_to_message == undefined){
-      return;
-  }
-  
+  if (replyUsername == 'frbaconsultas_bot'){
+    return;
+  }  
+
   bot.getChatMember(chatId, replyId).then(replyMember => {
-    if(replyMember.user.username != 'frbaconsultas_bot')
+    switch(replyMember.status)
     {
-      bot.getChatMember(chatId, userId).then(userMember => {
-        if(userMember.status == 'creator' || userMember.status == 'administrator')
-        {
-          if(!(replyMember.status == 'creator') || (replyMember.status == 'administrator')){
-            if(numberOfSeconds == '' || isNaN(numberOfSeconds))
-            {
+      case 'kicked':
+      case 'left':
+      case 'creator':
+      case 'administrator':
+        return;
+    }
+
+    bot.getChatMember(chatId, userId).then(userMember => {
+      switch(userMember.status)
+      {
+        case 'creator':
+        case 'administrator':
+          switch (banOrKick)
+          {
+            case 'ban':
+              if(numberOfSeconds == '' || isNaN(numberOfSeconds))
+              {
+                bot.kickChatMember(chatId, replyId).then(() => {
+                  bot.sendMessage(chatId, '[' + (fromUsername != undefined ? '@' + fromUsername : fromName) + '](tg://user?id=' + userId + ')'  + " ha baneado a [" + (replyUsername != undefined ? '@' + replyUsername : replyName) + '](tg://user?id=' + replyId + ')' + " indefinidamente!", { parse_mode: 'Markdown' });
+                });
+              }
+              else
+              {
+                bot.kickChatMember(chatId, replyId, {until_date: Math.round((Date.now() + (parseInt(numberOfSeconds) * 1000)) / 1000)}).then(() => {
+                  bot.sendMessage(chatId, '[' + (fromUsername != undefined ? '@' + fromUsername : fromName) + '](tg://user?id=' + userId + ')' + " ha baneado a [" + (replyUsername != undefined ? '@' + replyUsername : replyName) + '](tg://user?id=' + replyId + ')' + "  durante " + numberOfSeconds + " segundos!", { parse_mode: 'Markdown' });
+                });
+              }
+              break;
+            case 'kick':
               bot.kickChatMember(chatId, replyId).then(() => {
-                bot.sendMessage(chatId, "El usuario " + replyName + " ha sido baneado indefinidamente.");
+                bot.unbanChatMember(chatId, replyId);                  
+                bot.sendMessage(chatId, '[' + (fromUsername != undefined ? '@' + fromUsername : fromName) + '](tg://user?id=' + userId + ')' + ' ha kickeado a ' + '[' + (replyUsername != undefined ? '@' + replyUsername : replyName) + '](tg://user?id=' + replyId + ')', { parse_mode: 'Markdown' });
               });
-            }
-            else
-            {
-              bot.kickChatMember(chatId, replyId, {until_date: Math.round((Date.now() + ms(numberOfSeconds + " seconds"))/1000)}).then(() => {
-                bot.sendMessage(chatId, "El usuario " + replyName + " ha sido baneado durante " + numberOfSeconds + " segundos.");
-              });
-            }
+              break;
           }
-        }
-        else
-        {
-          bot.sendMessage(chatId, "Sory " + fromName + " pero no sos admin.");
-        }        
-      });
-    }
-    else
-    {
-      bot.sendMessage(chatId, "Sory " + fromName + " pero el bot no se puede auto-echar.")
-    }
+          break;
+        default:
+          bot.sendMessage(chatId, "Sory" + '[' + (fromUsername != undefined ? '@' + fromUsername : fromName) + '](tg://user?id=' + userId + ')' + " pero no sos admin.", { parse_mode: 'Markdown' });
+          break;
+      }
+    });
   });
+  
 });
 
+//#region Comentarios
 // Estadisticas
 // bot.onText(/[\s\S]+/g, mongoUtils.insertMessage);
 
@@ -170,3 +193,6 @@ bot.onText(/^\/ban(.*)/, function(msg, match){
     });
 });
 */
+//#endregion
+
+
