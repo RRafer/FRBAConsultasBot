@@ -17,7 +17,7 @@ let savedMsg = [];
 bot.on('polling_error', msg => console.log(msg));
 
 // Elimina mensajes de personas que se unen y abandonan el grupo
-bot.on('message', (msg) => {
+bot.on('message', msg => {
   if (msg.new_chat_member !== undefined || msg.left_chat_member !== undefined) {
     bot.deleteMessage(msg.chat.id, msg.message_id);
   }
@@ -31,15 +31,18 @@ bot.onText(/^\/links/, linksUtils.sendLinks(bot));
 
 bot.onText(/^\/validar/, adminUtils.validateUser(bot));
 
-bot.onText(/^\/catedra/, (msg) => {
-  bot.deleteMessage(msg.chat.id, msg.message_id);
+bot.onText(/^\/catedra/, msg => {
   bot.sendPhoto(msg.chat.id, 'AgADAQADEagxG_BImEVSfV4Gc0JIbXLqCjAABFlZxFZk81qhMjcDAAEC');
 });
 
-// Envia mensaje con el comando /empieza (Solo cuando esta eso en un mensaje)
-bot.onText(/^\/empieza/, (msg) => {
-  bot.deleteMessage(msg.chat.id, msg.message_id);
-  bot.sendMessage(msg.chat.id, 'Las materias de 2do a 6to año empiezan el 18\nFisica 1 curso Z empieza el 25\nRecursantes empiezan el 25 de marzo\nIngresantes empiezan el 1 de Abril\n', { reply_to_message_id: msg.message_id });
+//Para implementar los comienzos de cuatrimestre.
+// bot.onText(/^\/empieza/, (msg) => {
+//   bot.deleteMessage(msg.chat.id, msg.message_id);
+//   bot.sendMessage(msg.chat.id, 'Las materias de 2do a 6to año empiezan el 18\nFisica 1 curso Z empieza el 25\nRecursantes empiezan el 25 de marzo\nIngresantes empiezan el 1 de Abril\n', { reply_to_message_id: msg.message_id });
+// });
+
+bot.onText(/^\/help/, msg => {
+  bot.sendMessage(msg.chat.id, 'Comando no implementado.', {reply_to_message_id: msg.message_id});
 });
 
 bot.on('callback_query', (accionboton) => {
@@ -70,7 +73,7 @@ bot.on('callback_query', (accionboton) => {
   }
 });
 
-bot.on('new_member', (msg) => {
+bot.on('new_member', msg => {
 //   console.log(`Nuevo usuario: ${msg.from.id}`);
   bot.sendMessage(msg.chat.id, `(TEST) Hola ${msg.from.first_name}  bienvenido al grupo de consultas ${msg.chat.title} de la UTN - FRBA\n\nHaga clic en el boton de abajo para verificar que no sea un bot.\nEste mensaje se eliminara en 30 segundos`, { reply_markup: JSON.stringify(adminUtils.verify(msg)) }).then((sentMsg) => {
     savedMsg.push(sentMsg.message_id);
@@ -85,11 +88,11 @@ bot.on('new_member', (msg) => {
 });
 
 // Testing
-bot.onText(/^\/newmember/, (msg) => {
+bot.onText(/^\/newmember/, msg => {
   bot.emit('new_member', msg);
 });
 
-bot.onText(/^\/(ban|kick)(.*)/, function(msg, match){
+bot.onText(/^\/(ban|kick)(.*)/, (msg, match) => {
   if(msg.reply_to_message == undefined)
   {
     return;
