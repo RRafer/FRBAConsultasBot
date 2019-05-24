@@ -243,6 +243,26 @@ bot.onText(/^\/remindme [0-9]+ (days|day|hours|hour|minutes|minute|seconds|secon
   }, 1000);
 });
 
+bot.onText(/^\/delete/, msg => {
+  var chatId = msg.chat.id;
+  var userId = msg.from.id;
+  var messageId = msg.message_id;
+  var replyMessageId = msg.reply_to_message.message_id;
+
+  bot.getChatMember(chatId, userId).then(res => {
+    switch(res.status)
+    {
+      case 'creator':
+      case 'administrator':
+        bot.deleteMessage(chatId, replyMessageId).then(() => {
+          bot.deleteMessage(chatId, messageId);
+        }).catch(() => {
+          return;
+        });        
+    }
+  });
+});
+
 //#region Comentarios
 // Estadisticas
 // bot.onText(/[\s\S]+/g, mongoUtils.insertMessage);
