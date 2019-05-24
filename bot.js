@@ -160,6 +160,89 @@ bot.onText(/^\/(ban|kick)(.*)/, (msg, match) => {
   
 });
 
+bot.onText(/^\/remindme [0-9]+ (days|day|hours|hour|minutes|minute|seconds|second|weeks|week)/, (msg, match) => {
+  var chatId = msg.chat.id;
+  var userId = msg.from.id;
+  var fromUsername = msg.from.username;
+  var fromName = msg.from.first_name + ' ' + msg.from.last_name;
+  var messageId = msg.message_id;
+  var typeOfUnit = match[1];
+  var amount = parseInt(match[0].substring(10, match[0].indexOf(typeOfUnit)));
+  var timeToSet = 0;
+  var spanishTypeOfUnit = ''; 
+  
+  //Esto es un asco, se modificará en breve.
+  //Javascript te odio.
+  //Todos putos.
+  switch(typeOfUnit)
+  {
+    case 'days':
+      timeToSet = amount * 24 * 60 * 60;
+      spanishTypeOfUnit = 'días';
+      break;
+    case 'day':
+      timeToSet = amount * 24 * 60 * 60;
+      spanishTypeOfUnit = 'día';
+      break;
+    case 'hours':
+      timeToSet = amount * 60 * 60;
+      spanishTypeOfUnit = 'horas';
+      break;
+    case 'hour':
+      timeToSet = amount * 60 * 60;
+      spanishTypeOfUnit = 'hora';
+      break;
+    case 'minutes':
+      timeToSet = amount * 60;
+      spanishTypeOfUnit = 'minutos';
+      break;
+    case 'minute':
+      timeToSet = amount * 60;
+      spanishTypeOfUnit = 'minuto';
+      break;
+    case 'seconds':
+      timeToSet = amount;
+      spanishTypeOfUnit = 'segundos';
+      break;
+    case 'second':
+      timeToSet = amount;
+      spanishTypeOfUnit = 'segundo';
+      break;
+    case 'weeks':
+      timeToSet = amount * 7 * 24 * 60 * 60;
+      spanishTypeOfUnit = 'semanas';
+      break;
+    case 'week':
+      timeToSet = amount * 7 * 24 * 60 * 60;
+      spanishTypeOfUnit = 'semana';
+      break;
+  }
+
+  bot.sendMessage(chatId, 'Te voy a recordar dentro de ' + amount + ' ' + spanishTypeOfUnit + ' ' + '[' + (fromUsername != undefined ? '@' + fromUsername : fromName) + '](tg://user?id=' + userId + ')' + '!', { parse_mode: 'Markdown' });
+  
+  var counter = 0;
+
+  setInterval(() => {
+    counter++;
+
+    if(counter == timeToSet)
+    {
+      bot.getChatMember(chatId, userId).then(member => {
+        switch(member.status)
+        {
+        case 'kicked':
+        case 'left':
+          return;
+        }
+        
+        bot.sendMessage(chatId, 'Te recuerdo!', {reply_to_message_id: messageId}).catch(() => {
+          return;
+        });
+      });
+    }
+  }, 1000);
+});
+
 //#region Comentarios
 // Estadisticas
 // bot.onText(/[\s\S]+/g, mongoUtils.insertMessage);
