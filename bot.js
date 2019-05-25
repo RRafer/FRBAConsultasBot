@@ -251,7 +251,7 @@ bot.onText(/^\/remindme [0-9]+ (days|day|hours|hour|minutes|minute|seconds|secon
           }
           else
           {
-            message = 'Te recuerdo ' + textToRemember + ' ' + mention + '!';
+            message = 'Te recuerdo' + textToRemember + ' ' + mention + '!';
           }
 
           bot.sendMessage(chatId, message, {parse_mode: 'Markdown'}).catch(() => {
