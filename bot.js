@@ -30,12 +30,6 @@ bot.onText(/^\/catedra/, msg => {
   bot.sendPhoto(msg.chat.id, 'AgADAQADEagxG_BImEVSfV4Gc0JIbXLqCjAABFlZxFZk81qhMjcDAAEC');
 });
 
-//Para implementar los comienzos de cuatrimestre.
-// bot.onText(/^\/empieza/, (msg) => {
-//   bot.deleteMessage(msg.chat.id, msg.message_id);
-//   bot.sendMessage(msg.chat.id, 'Las materias de 2do a 6to año empiezan el 18\nFisica 1 curso Z empieza el 25\nRecursantes empiezan el 25 de marzo\nIngresantes empiezan el 1 de Abril\n', { reply_to_message_id: msg.message_id });
-// });
-
 bot.onText(/^\/help/, msg => {
   msgChatId = msg.chat.id;
   msgId = msg.message_id;
@@ -301,6 +295,13 @@ bot.onText(/^\/start/, msg => {
     });
 });
 */
+
+//Para implementar los comienzos de cuatrimestre.
+// bot.onText(/^\/empieza/, (msg) => {
+//   bot.deleteMessage(msg.chat.id, msg.message_id);
+//   bot.sendMessage(msg.chat.id, 'Las materias de 2do a 6to año empiezan el 18\nFisica 1 curso Z empieza el 25\nRecursantes empiezan el 25 de marzo\nIngresantes empiezan el 1 de Abril\n', { reply_to_message_id: msg.message_id });
+// });
+
 //#endregion
 
 
