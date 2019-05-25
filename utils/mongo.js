@@ -14,27 +14,78 @@ exports.insertMessage = (msg) => {
 };
 
 exports.insertUser = (userId, privateChatId) => {
-  monog.connect(url, (err, client) => {
+ return new Promise((resolve, reject) => {
+  mongo.connect(url, (err, client) => {
     const db = client.db('telegram');
-    if(err) throw err;
-    db.collection('user').insertOne({"userId": userId, "privateChatId": privateChatId}, (error, result) => {
-      if(error) throw err;
+
+    if(err)
+    {
+      reject()
+    }
+
+    db.collection('users').insertOne({"userId": userId, "privateChatId": privateChatId}, (error, result) => {
+      if(error) 
+      {
+        reject();
+      }
 
       client.close();
+      resolve();
     });
   });
+ });
 }
 
 exports.getPrivateChatId = userId => {
-  mongo.connect(url, (err, client) => {
-    const db = client.db('telegram');
-    if(err) throw err;
-    db.collection('user').find({"userId": userId}, (error, result) => {
-      if(error) throw err;
-      
-      client.close();
+  return new Promise((resolve, reject) => {
+    mongo.connect(url, (err, client) => {
+      const db = client.db('telegram');
 
-      return result.privateChat;
+      if(err)
+      {
+        reject()
+      }
+
+      db.collection('users').findOne({"userId": userId}, (error, result) => {
+        if(error)
+        {
+          reject();
+        }
+  
+        client.close();
+        
+        if(result == null)
+        {
+          reject();
+        }
+        else
+        {
+          resolve(result.privateChatId);
+        }
+      });
     });
   });
 };
+
+exports.hasStarted = userId => {
+  return new Promise((resolve, reject) => {
+    mongo.connect(url, (err, client) => {
+      const db = client.db('telegram');
+
+      if(err)
+      {
+        reject()
+      }
+
+      db.collection('users').findOne({"userId": userId}, (error, result) => {
+        if(error)
+        {
+          reject();
+        }
+  
+        client.close();        
+        resolve(result != null);
+      });
+    });
+  });
+}
