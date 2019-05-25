@@ -8,6 +8,7 @@ const bot = new TelegramBot(config.token, { polling: true });
 let savedMsg = [];
 var idPhoto = [];
 var idChatPhoto = [];
+var stickerChat = [];
 // Objeto con permisos. Es una negrada esto.
 
 // Muestra errores en consola
@@ -62,42 +63,43 @@ bot.onText(/^\/id/, (msg) => {
 });
 
 bot.onText(/^\/sticker/, (msg) => {
-  var stickerId = msg.from.id;
-  if(msg.chat.id === -1001214086516){
-    var r1 = Math.random();
-    console.log("Valor R1: " + r1);
-    if(r1 >= 0.5){
-      bot.sendMessage(msg.chat.id, 'Te salvaste, no te sacamos los stickers.\n\nPor ahora...').then((BorrarMensaje) => {
-        setTimeout(() => {
-          bot.deleteMessage(random.chat.id, random.message_id);
-        }, 30000);
-      });
-    }
-    else{
-      bot.deleteMessage(msg.chat.id, msg.message_id);
-      bot.sendMessage(msg.chat.id, 'Nv perro, te sacamo lo\' sticker loro').then((BorrarMensaje) => {
-        setTimeout(() => {
-          bot.deleteMessage(BorrarMensaje.chat.id, BorrarMensaje.message_id);
-        }, 30000);
-      });
-      bot.restrictChatMember(msg.chat.id, stickerId, {perms: {
-        can_send_message: true,
-        can_send_media_messages: true,
-        can_send_other_messages: false}}).then((QuitarSticker) => {
-        setTimeout(() => {
-          bot.promoteChatMember(QuitarSticker.chat.id, stickerId, {perms: {
-            can_send_message: true,
-            can_send_media_messages: true,
-            can_send_other_messages: true}});
-        }, 30000);
-      });
-    }
+  if(msg.chat.id === -100121408651){
+      var posChat = stickerChat.indexOf(msg.from.id);
+      var stickerId = msg.from.id;
+      if(posChat === -1){
+          if(Math.random() >= 0.5){
+              bot.sendMessage(msg.chat.id, 'Cagaste bro, te re cagamo\' lo\' sticker');
+              bot.restrictChatMember(msg.chat.id, stickerId, {
+                  can_send_message: true,
+                  can_send_media_messages: true,
+                  can_send_other_messages: false,
+                  can_add_web_page_previews: false,
+              }).then(() => {
+                  setTimeout(() => {
+                      stickerChat.splice(posChat, 1);
+                  }, 432000000);
+                  stickerChat.push(stickerId);
+              })
+          }
+          else{
+              bot.sendMessage(msg.chat.id, 'Nos cagaste.\nTe devolvimos los permisos loro');
+              bot.promoteChatMember(msg.chat.id, stickerId, {
+                  can_send_message: true,
+                  can_send_media_messages: true,
+                  can_send_other_messages: true,
+                  can_add_web_page_previews: true,
+              });
+          }
+      }
+      else{
+          bot.sendMessage(msg.chat.id, 'No puedes utilizar este comando hasta dentro de 12hs despues de haber utilizado el comando')
+      }
   }
   else{
     bot.deleteMessage(msg.chat.id, msg.message_id);
-    bot.sendMessage(msg.chat.id, 'No puede realizar la acción en este grupo\n\nEste mensaje se borrara en unos instantes').then((NoChat) => {
+    var deleteMsg = bot.sendMessage(msg.chat.id, 'No puede realizar la acción en este grupo\n\nEste mensaje se borrara en unos instantes').then((deleteMsg) => {
       setTimeout(() => {
-        bot.deleteMessage(NoChat.chat.id, NoChat.message_id);
+        bot.deleteMessage(deleteMsg.chat.id, deleteMsg.message_id);
       }, 10000);
     });
   }
@@ -388,13 +390,3 @@ bot.onText(/^\/start/, msg => {
     });
 });
 */
-
-//Para implementar los comienzos de cuatrimestre.
-// bot.onText(/^\/empieza/, (msg) => {
-//   bot.deleteMessage(msg.chat.id, msg.message_id);
-//   bot.sendMessage(msg.chat.id, 'Las materias de 2do a 6to año empiezan el 18\nFisica 1 curso Z empieza el 25\nRecursantes empiezan el 25 de marzo\nIngresantes empiezan el 1 de Abril\n', { reply_to_message_id: msg.message_id });
-// });
-
-//#endregion
-
-
