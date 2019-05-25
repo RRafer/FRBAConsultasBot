@@ -1,18 +1,8 @@
 
 exports.validateUser = bot => (msg) => {
-
-  const RemPerms = {
-    perms: {
-      can_send_message: false,
-      can_send_media_messages: false,
-      can_send_other_messages: false,
-      can_add_web_page_previews: false,
-    },
-  };
-
   if (msg.new_chat_members !== undefined) {
     msg.new_chat_members.forEach((user) => {
-      bot.emit('new_member', user);
+      bot.emit('new_member', msg);
     });
   }
 };
@@ -26,6 +16,15 @@ exports.verify = (msg) => {
     ],
   };
   return (inlineKeyboard);
+};
+
+exports.RemPerms = {
+  perms: {
+    can_send_message: false,
+    can_send_media_messages: false,
+    can_send_other_messages: false,
+    can_add_web_page_previews: false,
+  },
 };
 
 exports.GivePerms = {
