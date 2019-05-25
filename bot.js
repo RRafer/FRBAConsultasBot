@@ -33,8 +33,7 @@ bot.onText(/^\/catedra/, msg => {
 bot.onText(/^\/help/, msg => {
   msgChatId = msg.chat.id;
   msgId = msg.message_id;
-  mongoUtils.getPrivateChatId(msg.from.id).then(chatId => {
-    //bot.sendMessage(msgChatId, 'Ahi te mando mis comandos al privado!', {reply_to_message_id: msgId});    
+  mongoUtils.getPrivateChatId(msg.from.id).then(chatId => {  
     bot.sendMessage(chatId, 'Mirá, por ahora tengo\n/catedra - Te paso una imagen de los horarios de cátedra.\n/links - Te paso un menú re piola para que obtengas los links que necesitas.\n/remindme <cantidad de tiempo> <unidad de tiempo en inglés> <mensaje> [opcional] - Te hago recordar algo después de una cantidad de tiempo, según la unidad. Si me mandás mensaje, te hago recordar el mensaje. Sino, te hago recordar el mensaje que estés respondiendo. Si no me mandás mensaje ni respondés alguno, te mando un recordatorio genérico.');
   }).catch(() => {
     bot.sendMessage(msgChatId, 'Tenés que iniciarme por privado con /start.', {reply_to_message_id: msgId});
