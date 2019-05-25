@@ -1,84 +1,111 @@
-// @ts-check
-// Refactor this
-/*
-const moment = require('moment');
+const generic = require('../generic');
 
 exports.execute = (bot, msg, match) => {
-    return new Promise((resolve, reject) => {
-        try
+    const chatId = msg.chat.id;
+    const userId = msg.from.id;    
+    const mention = generic.generateMention(msg);    
+    const replyMessageId = msg.reply_to_message != undefined ? msg.reply_to_message.message_id : null;
+    const typeOfUnit = match[1];
+    const textToRemember = match[2];
+    const amount = parseInt(match[0].substring(10, match[0].indexOf(typeOfUnit)));    
+    var spanishTypeOfUnit = '';
+    var timeToSet = 0;
+    var counter = 0;
+    
+    //Esto es un asco, se modificará en breve.
+    //Javascript te odio.
+    //Todos putos.
+    switch(typeOfUnit)
+    {
+        case 'days':
+        timeToSet = amount * 24 * 60 * 60;
+        spanishTypeOfUnit = 'días';
+        break;
+        case 'day':
+        timeToSet = amount * 24 * 60 * 60;
+        spanishTypeOfUnit = 'día';
+        break;
+        case 'hours':
+        timeToSet = amount * 60 * 60;
+        spanishTypeOfUnit = 'horas';
+        break;
+        case 'hour':
+        timeToSet = amount * 60 * 60;
+        spanishTypeOfUnit = 'hora';
+        break;
+        case 'minutes':
+        timeToSet = amount * 60;
+        spanishTypeOfUnit = 'minutos';
+        break;
+        case 'minute':
+        timeToSet = amount * 60;
+        spanishTypeOfUnit = 'minuto';
+        break;
+        case 'seconds':
+        timeToSet = amount;
+        spanishTypeOfUnit = 'segundos';
+        break;
+        case 'second':
+        timeToSet = amount;
+        spanishTypeOfUnit = 'segundo';
+        break;
+        case 'weeks':
+        timeToSet = amount * 7 * 24 * 60 * 60;
+        spanishTypeOfUnit = 'semanas';
+        break;
+        case 'week':
+        timeToSet = amount * 7 * 24 * 60 * 60;
+        spanishTypeOfUnit = 'semana';
+        break;
+    }
+
+    const message = 'Te voy a recordar dentro de ' + amount + generic.space + spanishTypeOfUnit + 
+        generic.space + mention + '!';
+
+    bot.sendMessage(chatId, message, { parse_mode: generic.markDownParseMode });
+    setInterval(() => {
+        counter++;
+
+        if(counter == timeToSet)
         {
-            const chatId = msg.chat.id;
-            const userId = msg.from.id;    
-            const mention = generic.generateMention(msg);    
-            const replyMessageId = msg.reply_to_message != undefined ? msg.reply_to_message.message_id : null;
-            //const possibleAmount = match[0].replace(/^([a-z]|[A-Z]| |\/)*/, '');
-            const typeOfUnit = match[1];
-            var possibleAmount = match[0];
+            bot.getChatMember(chatId, userId).then(member => {
+                switch(member.status)
+                {
+                case generic.statusKick:
+                case generic.statusLeft:
+                    return;
+                }
 
-            switch(typeOfUnit)
-            {
-                case 'm':
-                    possibleAmount = possibleAmount.substring(10, generic.getPosition(possibleAmount, typeOfUnit, 3));
-                    break;
-                case 'd':
-                    possibleAmount = possibleAmount.substring(10, generic.getPosition(possibleAmount, typeOfUnit, 2));
-                    break;
-                default:
-                    possibleAmount = possibleAmount.substring(10, possibleAmount.indexOf(typeOfUnit));
-                    break;
-            }
-            
-	// Esto es una negrada
-	if(!['days', 'hours', 'minutes', 'day','hour','minute'].includes(match[2]))
-		return;
+                var message = '';
 
-	const chatId = msg.chat.id;
-	const userId = msg.from.id;    
-	const mention = generic.generateMention(msg);    
-	const replyMessageId = (msg.reply_to_message) ? msg.reply_to_message.message_id : null;        
-	const textToRemember = match[3]; // extra text
-            
-	const timeToSet = moment().add(parseInt(match[1]), match[2]).unix();
-	// const spanishTypeOfUnit = results[1];
-            
-	//Que es esto? WHYYYYYYY
-	var counter = 0;
+                if(replyMessageId != null)
+                {
+                    message = 'Te recuerdo ' + mention + '!';
+                    bot.sendMessage(chatId, message, {
+                        reply_to_message_id: replyMessageId, 
+                        parse_mode: generic.markDownParseMode
+                    }).catch(() => {
+                        return;
+                    });
+                }
+                else
+                {
+                if(textToRemember == undefined || textToRemember == ' ')
+                {
+                    message = 'Te recuerdo' + mention + '!';
+                }
+                else
+                {
+                    message = 'Te recuerdo' + textToRemember + ' ' + mention + '!';
+                }
 
-    // Esta parte... esta bien. PONELE ahora que borre variables, no.
-	bot.sendMessage(chatId, `Te voy a recordar dentro de ${amount} ${spanishTypeOfUnit} ${mention}!`, { parse_mode: 'Markdown' }).catch(e => reject(e));
-	// Consultar a la DB aca
-    // Hay que guardar todo en la DB y hacer un job que la consulte cada TANTO para ver si tiene que tirar algun timeout
-    // O sea, cambiar todo de aca para abajo. Lo dejo de referencia
-	setInterval(() => {
-		counter++;
-
-		if(counter == timeToSet)
-		{
-			bot.getChatMember(chatId, userId).then(member => {
-				if(member.status == 'kicked' || member.status == 'left')
-					return;
-
-
-				if(replyMessageId != null)
-				{
-							
-					bot.sendMessage(chatId, `Te recuerdo ${mention}!`, {
-						reply_to_message_id: replyMessageId, 
-						parse_mode: generic.markDownParseMode
-					}).catch(() => {
-						reject();
-					});
-				}
-				else
-				{
-					bot.sendMessage(chatId, `Te recuerdo ${textToRemember || ''} ${mention} !`, {
-						parse_mode: generic.markDownParseMode
-					}).catch(() => {
-						reject();
-					});
-				}
-			}).catch(e => reject(e));
-		}
-	}, 1000);
-};
-*/
+                bot.sendMessage(chatId, message, {
+                    parse_mode: generic.markDownParseMode
+                }).catch(() => {
+                    return;
+                });
+                }
+            });
+        }
+    }, 1000);
+}
