@@ -38,7 +38,7 @@ bot.onText(/^\/help/, msg => {
   msgChatId = msg.chat.id;
   msgId = msg.message_id;
   mongoUtils.getPrivateChatId(msg.from.id).then(chatId => {  
-    bot.sendMessage(chatId, 'Mirá, por ahora tengo\n/catedra - Te paso una imagen de los horarios de cátedra.\n/links - Te paso un menú re piola para que obtengas los links que necesitas.\n/remindme <cantidad de tiempo> <unidad de tiempo en inglés> <mensaje> [opcional] - Te hago recordar algo después de una cantidad de tiempo, según la unidad. Si me mandás mensaje, te hago recordar el mensaje. Sino, te hago recordar el mensaje que estés respondiendo. Si no me mandás mensaje ni respondés alguno, te mando un recordatorio genérico.');
+    bot.sendMessage(chatId, 'Mirá, por ahora tengo\n/catedra - _Te paso una imagen de los horarios de cátedra._\n/links - _Te paso un menú re piola para que obtengas los links que necesitas._\n/remindme *<cantidad de tiempo> <unidad de tiempo en inglés> <mensaje> [opcional]* - _Te hago recordar algo después de una cantidad de tiempo, según la unidad. Si me mandás mensaje, te hago recordar el mensaje. Sino, te hago recordar el mensaje que estés respondiendo. Si no me mandás mensaje ni respondés alguno, te mando un recordatorio genérico._', {parse_mode: 'markdown'});
   }).catch(() => {
     bot.sendMessage(msgChatId, 'Tenés que iniciarme por privado con /start.', {reply_to_message_id: msgId});
   });
@@ -248,14 +248,20 @@ bot.onText(/^\/start/, msg => {
   var chatId = msg.chat.id;
 
   mongoUtils.hasStarted(userId).then(res => {
-    if(!res)
+    if(res)
+    {
+      bot.sendMessage(chatId, 'Utillza /help para ver todos los comandos disponibles.');      
+    }
+    else
     {
       mongoUtils.insertUser(userId, chatId).then(() => {
-        bot.sendMessage(chatId, 'Bienvenido!')
+        bot.sendMessage(chatId, 'Bienvenido!\nUtillza /help para ver todos los comandos disponibles.');
       }).catch(() => {
         bot.sendMessage(chatId, 'Hubo un error. Por favor, mandame /start en unos minutos.');
       });
     }
+  }).catch(() => {
+    bot.sendMessage(chatId, 'Hubo un error. Por favor, mandame /start en unos minutos.');
   });
 });
 
