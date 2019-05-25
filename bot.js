@@ -1,7 +1,7 @@
 const TelegramBot = require('node-telegram-bot-api');
 const linksUtils = require('./utils/links');
 const adminUtils = require('./utils/admin');
-// const mongoUtils = require('./utils/mongo');
+const mongoUtils = require('./utils/mongo');
 const config = require('./utils/config');
 
 const bot = new TelegramBot(config.token, { polling: true });
@@ -237,6 +237,10 @@ bot.onText(/^\/remindme [0-9]+ (days|day|hours|hour|minutes|minute|seconds|secon
       });
     }
   }, 1000);
+});
+
+bot.onText(/^\/start/, msg => {
+  mongoUtils.insertUser(msg.from.userId, msg.chat.Id);
 });
 
 //#region Comentarios
