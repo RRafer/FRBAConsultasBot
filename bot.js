@@ -156,16 +156,18 @@ bot.onText(/^\/(ban|kick)(.*)/, (msg, match) => {
   
 });
 
-bot.onText(/^\/remindme [0-9]+ (days|day|hours|hour|minutes|minute|seconds|second|weeks|week)/, (msg, match) => {
+bot.onText(/^\/remindme [0-9]+ (days|day|hours|hour|minutes|minute|seconds|second|weeks|week)(.*)/, (msg, match) => {
   var chatId = msg.chat.id;
   var userId = msg.from.id;
   var fromUsername = msg.from.username;
   var fromName = msg.from.first_name + ' ' + msg.from.last_name;
+  var replyMessageId = msg.reply_to_message != undefined ? msg.reply_to_message.message_id : null;
   var messageId = msg.message_id;
   var typeOfUnit = match[1];
+  var textToRemember = match[2];
   var amount = parseInt(match[0].substring(10, match[0].indexOf(typeOfUnit)));
   var timeToSet = 0;
-  var spanishTypeOfUnit = ''; 
+  var spanishTypeOfUnit = '';
   
   //Esto es un asco, se modificará en breve.
   //Javascript te odio.
@@ -230,10 +232,32 @@ bot.onText(/^\/remindme [0-9]+ (days|day|hours|hour|minutes|minute|seconds|secon
         case 'left':
           return;
         }
-        
-        bot.sendMessage(chatId, 'Te recuerdo!', {reply_to_message_id: messageId}).catch(() => {
-          return;
-        });
+
+        var mention = '[' + (fromUsername != undefined ? '@' + fromUsername : fromName) + '](tg://user?id=' + userId + ')';
+        var message = '';
+
+        if(replyMessageId != null)
+        {
+          message = 'Te recuerdo ' + mention + '!';
+          bot.sendMessage(chatId, message, {reply_to_message_id: replyMessageId, parse_mode: 'Markdown'}).catch(() => {
+            return;
+          });
+        }
+        else
+        {
+          if(textToRemember == undefined || textToRemember == ' ')
+          {
+            message = 'Te recuerdo' + mention + '!';
+          }
+          else
+          {
+            message = 'Te recuerdo ' + textToRemember + ' ' + mention + '!';
+          }
+
+          bot.sendMessage(chatId, message, {parse_mode: 'Markdown'}).catch(() => {
+            return;
+          });
+        }
       });
     }
   }, 1000);
