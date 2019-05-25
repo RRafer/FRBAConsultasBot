@@ -41,7 +41,14 @@ bot.onText(/^\/catedra/, msg => {
 // });
 
 bot.onText(/^\/help/, msg => {
-  bot.sendMessage(msg.chat.id, 'Comando no implementado.', {reply_to_message_id: msg.message_id});
+  msgChatId = msg.chat.id;
+  msgId = msg.message_id;
+  mongoUtils.getPrivateChatId(msg.from.id).then(chatId => {
+    //bot.sendMessage(msgChatId, 'Ahi te mando mis comandos al privado!', {reply_to_message_id: msgId});    
+    bot.sendMessage(chatId, 'Mirá, por ahora tengo\n/catedra - Te paso una imagen de los horarios de cátedra.\n/links - Te paso un menú re piola para que obtengas los links que necesitas.\n/remindme <cantidad de tiempo> <unidad de tiempo en inglés> <mensaje> [opcional] - Te hago recordar algo después de una cantidad de tiempo, según la unidad. Si me mandás mensaje, te hago recordar el mensaje. Sino, te hago recordar el mensaje que estés respondiendo. Si no me mandás mensaje ni respondés alguno, te mando un recordatorio genérico.');
+  }).catch(() => {
+    bot.sendMessage(msgChatId, 'Tenés que iniciarme por privado con /start.', {reply_to_message_id: msgId});
+  });
 });
 
 bot.on('callback_query', (accionboton) => {
@@ -244,7 +251,19 @@ bot.onText(/^\/remindme [0-9]+ (days|day|hours|hour|minutes|minute|seconds|secon
 });
 
 bot.onText(/^\/start/, msg => {
-  mongoUtils.insertUser(msg.from.userId, msg.chat.Id);
+  var userId = msg.from.id;
+  var chatId = msg.chat.id;
+
+  mongoUtils.hasStarted(userId).then(res => {
+    if(!res)
+    {
+      mongoUtils.insertUser(userId, chatId).then(() => {
+        bot.sendMessage(chatId, 'Bienvenido!')
+      }).catch(() => {
+        bot.sendMessage(chatId, 'Hubo un error. Por favor, mandame /start en unos minutos.');
+      });
+    }
+  });
 });
 
 //#region Comentarios
