@@ -1,4 +1,3 @@
-/*
 let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
 
@@ -11,4 +10,3 @@ let userSchema = new Schema({
 let User = mongoose.model('Users', userSchema);
 
 module.exports = User;
-*/
