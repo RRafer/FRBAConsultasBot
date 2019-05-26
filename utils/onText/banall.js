@@ -30,6 +30,7 @@ exports.execute = (bot, msg) => {
 
         bot.getChatMember(chatId, userId).then(userMember => {
             const userMention = generic.generateMention(msg);
+
             switch(userMember.status)
             {
                 case generic.statusCreator:
@@ -41,7 +42,8 @@ exports.execute = (bot, msg) => {
                                 bot.sendMessage(chatGroupId, userMention + ' ha kickeado a ' + replyMention + '!', { parse_mode: generic.markDownParseMode });
                             });
                         });
-                    });                    
+                    });
+                    break;
                 default:
                     bot.sendMessage(chatId, "Sory" + userMention + " pero no sos admin.", { parse_mode: generic.markDownParseMode });
                     break;
