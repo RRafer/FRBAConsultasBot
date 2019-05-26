@@ -162,7 +162,7 @@ bot.onText(/^\/prueba/, msg => {
   });
 });
 
-bot.onText(/^\/(ban|kick)(.*)/, (msg, match) => banKick.execute(bot, msg, match));
+bot.onText(/^\/(ban|kick) (.*)/, (msg, match) => banKick.execute(bot, msg, match));
 
 bot.onText(/^\/remindme [0-9]+ (days|day|hours|hour|minutes|minute|seconds|second|weeks|week)(.*)/, 
   (msg, match) => remindme.execute(bot, msg, match));
