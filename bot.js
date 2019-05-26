@@ -1,14 +1,9 @@
 const TelegramBot = require('node-telegram-bot-api');
 const linksUtils = require('./utils/links');
 const adminUtils = require('./utils/admin');
-const mongoUtils = require('./utils/mongo');
+const mongo = require('./utils/mongo');
 const config = require('./utils/config');
-const catedra = require('./utils/onText/catedra');
-const help = require('./utils/onText/help');
-const banKick = require('./utils/onText/banKick');
-const remindme = require('./utils/onText/remindme');
-const start = require('./utils/onText/start');
-const banall = require('./utils/onText/banall');
+const onText = require('./utils/onText/onText');
 const bot = new TelegramBot(config.token, { polling: true });
 let savedMsg = [];
 var idPhoto = [];
@@ -52,13 +47,6 @@ bot.onText(/^\/catedra/, msg => {
     {
         bot.sendMessage(idChatPhoto[chatPos], "Has solicitado el comando muy pronto. Aqui tienes la ultima vez que el comando ha sido usado", {reply_to_message_id: idPhoto[chatPos]});
     }
-});
-
-bot.onText(/^\/help/, msg => help.execute(bot, msg, mongoUtils));
-
-bot.onText(/^\/id/, (msg) => {
-  bot.deleteMessage(msg.chat.id, msg.message_id);
-  bot.sendMessage(msg.chat.id, 'ID del chat: ' + msg.chat.id);
 });
 
 bot.onText(/^\/sticker/, (msg) => {
@@ -152,24 +140,39 @@ bot.onText(/^\/newmember/, msg => {
   bot.emit('new_member', msg);
 });
 
+//Para implementar en newmember cuando funque bien.
 bot.onText(/^\/prueba/, msg => {
-  mongoUtils.insertChatId(msg.from.id, msg.chat.id).catch(err => {
-    mongoUtils.logError(msg.chat.id, err);
+  mongo.insertChatId(msg.from.id, msg.chat.id).catch(err => {
+    mongo.logError(msg.chat.id, err);
   });
 });
 
-bot.onText(/^\/(ban|kick) (.*)/, (msg, match) => banKick.execute(bot, msg, match));
+bot.onText(/^\/(ban|kick) (.*)/, (msg, match) => onText.banKick(bot, msg, match));
 
-bot.onText(/^\/remindme [0-9]+ (days|day|hours|hour|minutes|minute|seconds|second|weeks|week)(.*)/, 
-  (msg, match) => remindme.execute(bot, msg, match));
+bot.onText(/^\/remindme [0-9]+ (days|day|hours|hour|minutes|minute|seconds|second|weeks|week)(.*)/, (msg, match) => onText.remindme(bot, msg, match));
 
-bot.onText(/^\/start/, msg => start.execute(bot, msg));
+bot.onText(/^\/start/, msg => onText.start(bot, msg));
 
-bot.onText(/^\/banall/, msg => banall.execute(bot, msg, mongoUtils));
+bot.onText(/^\/banall/, msg => onText.banall(bot, msg));
 
+bot.onText(/^\/help/, msg => onText.help(bot, msg));
 //#region Comentarios
+
+//Útil pero no debe exponerse.
+// bot.onText(/^\/id/, (msg) => {
+//   bot.deleteMessage(msg.chat.id, msg.message_id);
+//   bot.sendMessage(msg.chat.id, 'ID del chat: ' + msg.chat.id);
+// });
+
+//Para registrar a todos una vez implementado el bot.
+// bot.onText(/^\/.*/, msg => {
+//   mongo.insertChatId(msg.from.id, msg.chat.id).catch(err => {
+//     mongo.logError(msg.chat.id, err);
+//   });
+// });
+
 // Estadisticas
-// bot.onText(/[\s\S]+/g, mongoUtils.insertMessage);
+// bot.onText(/[\s\S]+/g, mongo.insertMessage);
 
 
 // Responde cuando aparece una palabra en un mensaje
