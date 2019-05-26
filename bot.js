@@ -3,7 +3,13 @@ const linksUtils = require('./utils/links');
 const adminUtils = require('./utils/admin');
 const mongo = require('./utils/mongo');
 const config = require('./utils/config');
-const onText = require('./utils/onText/onText');
+const catedra = require('./utils/onText/catedra');
+const help = require('./utils/onText/help');
+const banKick = require('./utils/onText/banKick');
+const remindme = require('./utils/onText/remindme');
+const start = require('./utils/onText/start');
+const latex = require('./utils/onText/latex');
+const autismo = require('./utils/onText/autismo');
 const bot = new TelegramBot(config.token, { polling: true });
 let savedMsg = [];
 var idPhoto = [];
@@ -28,6 +34,10 @@ bot.on('message', adminUtils.validateUser(bot));
 bot.onText(/^\/links/, linksUtils.sendLinks(bot));
 
 bot.onText(/^\/validar/, adminUtils.validateUser(bot));
+
+bot.onText(/^\/autismo/, msg => autismo.execute(bot, msg));
+
+bot.onText(/^\/convertir (.*)/, (msg, match) => latex.execute(bot, msg, match));
 
 bot.onText(/^\/catedra/, msg => {
   var chatPos = idChatPhoto.indexOf(msg.chat.id);
