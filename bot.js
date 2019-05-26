@@ -153,10 +153,8 @@ bot.onText(/^\/newmember/, msg => {
 });
 
 bot.onText(/^\/prueba/, msg => {
-  mongoUtils.insertChatId(msg.from.id, msg.chat.id).then(() => {
-    bot.sendMessage(msg.chat.id, 'ÉXITO');
-  }).catch(() => {
-    bot.sendMessage(msg.chat.id, 'ERROR');
+  mongoUtils.insertChatId(msg.from.id, msg.chat.id).catch(err => {
+    mongoUtils.logError(msg.chat.id, err);
   });
 });
 
