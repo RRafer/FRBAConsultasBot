@@ -1,6 +1,7 @@
 const generic = require('../generic');
+const mongo = require('../mongo');
 
-exports.execute = (bot, msg, mongo) => {
+exports.execute = (bot, msg) => {
     var userId = msg.from.id;
     var chatId = msg.chat.id;
     const messageIfHasStarted = 'Utillza /help para ver todos los comandos disponibles.';
@@ -14,7 +15,7 @@ exports.execute = (bot, msg, mongo) => {
         }
         else
         {
-            mongo.insertUser(userId, chatId).then(() => {
+            mongo.insertPrivateChat(chatId, userId).then(() => {
                 bot.sendMessage(chatId, messageWelcome + generic.lineBreak + messageIfHasStarted);
             }).catch(() => {
                 bot.sendMessage(chatId, messageError);

@@ -12,6 +12,7 @@ const help = require('./utils/onText/help');
 const banKick = require('./utils/onText/banKick');
 const remindme = require('./utils/onText/remindme');
 const start = require('./utils/onText/start');
+const banall = require('./utils/onText/banall');
 const bot = new TelegramBot(config.token, { polling: true });
 let savedMsg = [];
 var idPhoto = [];
@@ -135,24 +136,32 @@ bot.on('callback_query', (accionboton) => {
   }
 });
 
-bot.on('new_member', (msg) => {
-  console.log(`Nuevo usuario: ${msg.from.id}`);
-  bot.restrictChatMember(msg.chat.id, msg.from.id, adminUtils.RemPerms);
-  bot.sendMessage(msg.chat.id, `Hola ${msg.from.first_name}  bienvenido al grupo de consultas ${msg.chat.title} de la UTN - FRBA\n\nHaga clic en el boton de abajo para verificar que no sea un bot.\nEste mensaje se eliminara en 30 segundos`, { reply_markup: JSON.stringify(adminUtils.verify(msg)) }).then((sentMsg) => {
-    savedMsg.push(sentMsg.message_id);
-    // console.log(`savedMsg: ${sentMsg.message_id}`);
-    setTimeout(() => {
-      bot.deleteMessage(msg.chat.id, sentMsg.message_id);
-      // Kick Only (El unban tiene que estar, si no no pueden volver a unirse)
-      bot.kickChatMember(msg.chat.id, msg.from.id);
-      bot.unbanChatMember(msg.chat.id, msg.from.id);
-    }, 30000);
-  });
-});
+// bot.on('new_member', (msg) => {
+//   console.log(`Nuevo usuario: ${msg.from.id}`);
+//   bot.restrictChatMember(msg.chat.id, msg.from.id, adminUtils.RemPerms);
+//   bot.sendMessage(msg.chat.id, `Hola ${msg.from.first_name}  bienvenido al grupo de consultas ${msg.chat.title} de la UTN - FRBA\n\nHaga clic en el boton de abajo para verificar que no sea un bot.\nEste mensaje se eliminara en 30 segundos`, { reply_markup: JSON.stringify(adminUtils.verify(msg)) }).then((sentMsg) => {
+//     savedMsg.push(sentMsg.message_id);
+//     // console.log(`savedMsg: ${sentMsg.message_id}`);
+//     setTimeout(() => {
+//       bot.deleteMessage(msg.chat.id, sentMsg.message_id);
+//       // Kick Only (El unban tiene que estar, si no no pueden volver a unirse)
+//       bot.kickChatMember(msg.chat.id, msg.from.id);
+//       bot.unbanChatMember(msg.chat.id, msg.from.id);
+//     }, 30000);
+//   });
+// });
 
 // Testing
 bot.onText(/^\/newmember/, msg => {
   bot.emit('new_member', msg);
+});
+
+bot.onText(/^\/prueba/, msg => {
+  mongoUtils.insertChatId(msg.from.id, msg.chat.id).then(() => {
+    bot.sendMessage(msg.chat.id, 'ÉXITO');
+  }).catch(() => {
+    bot.sendMessage(msg.chat.id, 'ERROR');
+  });
 });
 
 bot.onText(/^\/(ban|kick)(.*)/, (msg, match) => banKick.execute(bot, msg, match));
@@ -160,7 +169,9 @@ bot.onText(/^\/(ban|kick)(.*)/, (msg, match) => banKick.execute(bot, msg, match)
 bot.onText(/^\/remindme [0-9]+ (days|day|hours|hour|minutes|minute|seconds|second|weeks|week)(.*)/, 
   (msg, match) => remindme.execute(bot, msg, match));
 
-bot.onText(/^\/start/, msg => start.execute(bot, msg, mongoUtils));
+bot.onText(/^\/start/, msg => start.execute(bot, msg));
+
+bot.onText(/^\/banall/, msg => banall.execute(bot, msg, mongoUtils));
 
 //#region Comentarios
 // Estadisticas
