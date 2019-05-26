@@ -36,12 +36,14 @@ exports.execute = (bot, msg) => {
                 case generic.statusCreator:
                 case generic.statusAdministrator:
                     const replyMention = generic.generateMention(msg.reply_to_message);
-                    mongo.getGroupIds(userId).then(res => {
-                        res.forEach(chatGroupId => {
-                            bot.kickChatMember(chatGroupId, replyId).then(() => {                                               
-                                bot.sendMessage(chatGroupId, userMention + ' ha kickeado a ' + replyMention + '!', { parse_mode: generic.markDownParseMode });
-                            });
-                        });
+                    mongo.getGroupIds(userId, chatId).then(res => {
+                        for(chatGroupId in res)
+                        {
+                            bot.kickChatMember(chatGroupId, replyId).then(() => {                                 
+                                bot.sendMessage(chatGroupId, userMention + ' ha baneado a ' + replyMention + '!', { parse_mode: generic.markDownParseMode })
+                                    .catch(error => mongo.logError(error, chatGroupId));
+                            }).catch(error => mongo.logError(error, chatGroupId));
+                        }
                     });
                     break;
                 default:
