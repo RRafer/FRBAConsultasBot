@@ -36,13 +36,33 @@ exports.execute = (bot, msg) => {
                 case generic.statusCreator:
                 case generic.statusAdministrator:
                     const replyMention = generic.generateMention(msg.reply_to_message);
+
                     mongo.getGroupIds(userId, chatId).then(res => {
-                        for(chatGroupId in res)
-                        {
-                            bot.kickChatMember(chatGroupId, replyId).then(() => {                                 
-                                bot.sendMessage(chatGroupId, userMention + ' ha baneado a ' + replyMention + '!', { parse_mode: generic.markDownParseMode })
-                                    .catch(error => mongo.logError(error, chatGroupId));
-                            }).catch(error => mongo.logError(error, chatGroupId));
+                        for(var i = 0; i < res.length; i++)
+                        {                            
+                            var chatGroupId = res[i];
+                            bot.getChatMember(chatGroupId, replyId).then(member => {
+                                console.log(JSON.stringify(member));
+                                switch(member.status)
+                                {
+                                    case generic.statusCreator:
+                                    case generic.statusAdministrator:
+                                        return;
+                                }
+
+                                try
+                                {
+                                    bot.kickChatMember(chatGroupId, replyId).then(() => {
+                                        console.log("HOLA");                               
+                                        bot.sendMessage(chatGroupId, userMention + ' ha baneado a ' + replyMention + '!', { parse_mode: generic.markDownParseMode });
+                                        setTimeout(function(){}, 3000);
+                                    });                                    
+                                }
+                                catch(err)
+                                {
+                                    mongo.logError(err, chatGroupId);
+                                }                                
+                            });                            
                         }
                     });
                     break;
