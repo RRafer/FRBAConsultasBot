@@ -1,11 +1,14 @@
 const TelegramBot = require('node-telegram-bot-api');
 const linksUtils = require('./utils/links');
 const adminUtils = require('./utils/admin');
-// const mongoUtils = require('./utils/mongo');
+const mongo = require('./utils/mongo');
 const config = require('./utils/config');
-
+const onText = require('./utils/onText/onText');
 const bot = new TelegramBot(config.token, { polling: true });
 let savedMsg = [];
+var idPhoto = [];
+var idChatPhoto = [];
+var stickerChat = [];
 // Objeto con permisos. Es una negrada esto.
 
 // Muestra errores en consola
@@ -27,17 +30,66 @@ bot.onText(/^\/links/, linksUtils.sendLinks(bot));
 bot.onText(/^\/validar/, adminUtils.validateUser(bot));
 
 bot.onText(/^\/catedra/, msg => {
-  bot.sendPhoto(msg.chat.id, 'AgADAQADEagxG_BImEVSfV4Gc0JIbXLqCjAABFlZxFZk81qhMjcDAAEC');
+  var chatPos = idChatPhoto.indexOf(msg.chat.id);
+    if(chatPos === -1)
+    {
+        bot.sendPhoto(msg.chat.id, 'AgADAQADEagxG_BImEVSfV4Gc0JIbXLqCjAABFlZxFZk81qhMjcDAAEC').then((auxid) => {
+          setTimeout(() => {
+              borrarchat = idChatPhoto.indexOf(auxid.chat.id);
+              idChatPhoto.splice(borrarchat, 1);
+              idPhoto.splice(borrarchat, 1)
+          }, 60000);
+          idChatPhoto.push(auxid.chat.id);
+          idPhoto.push(auxid.message_id);
+        });
+    }
+    else
+    {
+        bot.sendMessage(idChatPhoto[chatPos], "Has solicitado el comando muy pronto. Aqui tienes la ultima vez que el comando ha sido usado", {reply_to_message_id: idPhoto[chatPos]});
+    }
 });
 
-//Para implementar los comienzos de cuatrimestre.
-// bot.onText(/^\/empieza/, (msg) => {
-//   bot.deleteMessage(msg.chat.id, msg.message_id);
-//   bot.sendMessage(msg.chat.id, 'Las materias de 2do a 6to año empiezan el 18\nFisica 1 curso Z empieza el 25\nRecursantes empiezan el 25 de marzo\nIngresantes empiezan el 1 de Abril\n', { reply_to_message_id: msg.message_id });
-// });
-
-bot.onText(/^\/help/, msg => {
-  bot.sendMessage(msg.chat.id, 'Comando no implementado.', {reply_to_message_id: msg.message_id});
+bot.onText(/^\/sticker/, (msg) => {
+  if(msg.chat.id === -1001214086516){
+      var posChat = stickerChat.indexOf(msg.from.id);
+      var stickerId = msg.from.id;
+      if(posChat === -1){
+          if(Math.random() >= 0.5){
+              bot.sendMessage(msg.chat.id, 'Cagaste bro, te re cagamo\' lo\' sticker');
+              bot.restrictChatMember(msg.chat.id, stickerId, {
+                  can_send_message: true,
+                  can_send_media_messages: true,
+                  can_send_other_messages: false,
+                  can_add_web_page_previews: false,
+              }).then(() => {
+                  setTimeout(() => {
+                      stickerChat.splice(posChat, 1);
+                  }, 432000000);
+                  stickerChat.push(stickerId);
+              })
+          }
+          else{
+              bot.sendMessage(msg.chat.id, 'Nos cagaste.\nTe devolvimos los permisos loro');
+              bot.promoteChatMember(msg.chat.id, stickerId, {
+                  can_send_message: true,
+                  can_send_media_messages: true,
+                  can_send_other_messages: true,
+                  can_add_web_page_previews: true,
+              });
+          }
+      }
+      else{
+          bot.sendMessage(msg.chat.id, 'No puedes utilizar este comando hasta dentro de 12hs despues de haber utilizado el comando')
+      }
+  }
+  else{
+    bot.deleteMessage(msg.chat.id, msg.message_id);
+    var deleteMsg = bot.sendMessage(msg.chat.id, 'No puede realizar la acción en este grupo\n\nEste mensaje se borrara en unos instantes').then((deleteMsg) => {
+      setTimeout(() => {
+        bot.deleteMessage(deleteMsg.chat.id, deleteMsg.message_id);
+      }, 10000);
+    });
+  }
 });
 
 bot.on('callback_query', (accionboton) => {
@@ -68,200 +120,64 @@ bot.on('callback_query', (accionboton) => {
   }
 });
 
-bot.on('new_member', msg => {
+// bot.on('new_member', (msg) => {
 //   console.log(`Nuevo usuario: ${msg.from.id}`);
-  bot.sendMessage(msg.chat.id, `(TEST) Hola ${msg.from.first_name}  bienvenido al grupo de consultas ${msg.chat.title} de la UTN - FRBA\n\nHaga clic en el boton de abajo para verificar que no sea un bot.\nEste mensaje se eliminara en 30 segundos`, { reply_markup: JSON.stringify(adminUtils.verify(msg)) }).then((sentMsg) => {
-    savedMsg.push(sentMsg.message_id);
-    // console.log(`savedMsg: ${sentMsg.message_id}`);
-    setTimeout(() => {
-      bot.deleteMessage(msg.chat.id, sentMsg.message_id);
-      // Kick Only (El unban tiene que estar, si no no pueden volver a unirse)
-      bot.kickChatMember(msg.chat.id, msg.from.id);
-      bot.unbanChatMember(msg.chat.id, msg.from.id);
-    }, 30000);
-  });
-});
+//   bot.restrictChatMember(msg.chat.id, msg.from.id, adminUtils.RemPerms);
+//   bot.sendMessage(msg.chat.id, `Hola ${msg.from.first_name}  bienvenido al grupo de consultas ${msg.chat.title} de la UTN - FRBA\n\nHaga clic en el boton de abajo para verificar que no sea un bot.\nEste mensaje se eliminara en 30 segundos`, { reply_markup: JSON.stringify(adminUtils.verify(msg)) }).then((sentMsg) => {
+//     savedMsg.push(sentMsg.message_id);
+//     // console.log(`savedMsg: ${sentMsg.message_id}`);
+//     setTimeout(() => {
+//       bot.deleteMessage(msg.chat.id, sentMsg.message_id);
+//       // Kick Only (El unban tiene que estar, si no no pueden volver a unirse)
+//       bot.kickChatMember(msg.chat.id, msg.from.id);
+//       bot.unbanChatMember(msg.chat.id, msg.from.id);
+//     }, 30000);
+//   });
+// });
 
 // Testing
 bot.onText(/^\/newmember/, msg => {
   bot.emit('new_member', msg);
 });
 
-bot.onText(/^\/(ban|kick)(.*)/, (msg, match) => {
-  if(msg.reply_to_message == undefined)
+//Para implementar en newmember cuando funque bien.
+bot.onText(/^\/prueba/, msg => {
+  try
   {
-    return;
+    mongo.insertChatId(msg.from.id, msg.chat.id);
   }
-
-  var chatId = msg.chat.id;
-  var userId = msg.from.id;
-  var replyId = msg.reply_to_message.from.id;
-  var replyName = msg.reply_to_message.from.first_name + ' ' + (msg.reply_to_message.from.last_name != undefined ? msg.reply_to_message.from.last_name : '');
-  var replyUsername = msg.reply_to_message.from.username;
-  var fromName = msg.from.first_name + ' ' + (msg.from.last_name != undefined ? msg.from.last_name : '');
-  var fromUsername = msg.from.username;  
-  var banOrKick = match[1];
-  var numberOfSeconds = match[2];
-  numberOfSeconds.replace(' ', '');
-
-  if (replyUsername == 'frbaconsultas_bot'){
-    return;
+  catch(error)
+  {
+    mongo.logError(msg.chat.id, error);
   }  
-
-  bot.getChatMember(chatId, replyId).then(replyMember => {
-    switch(replyMember.status)
-    {
-      case 'kicked':
-      case 'left':
-      case 'creator':
-      case 'administrator':
-        return;
-    }
-
-    bot.getChatMember(chatId, userId).then(userMember => {
-      switch(userMember.status)
-      {
-        case 'creator':
-        case 'administrator':
-          switch (banOrKick)
-          {
-            case 'ban':
-              if(numberOfSeconds == '' || isNaN(numberOfSeconds))
-              {
-                bot.kickChatMember(chatId, replyId).then(() => {
-                  bot.sendMessage(chatId, '[' + (fromUsername != undefined ? '@' + fromUsername : fromName) + '](tg://user?id=' + userId + ')'  + " ha baneado a [" + (replyUsername != undefined ? '@' + replyUsername : replyName) + '](tg://user?id=' + replyId + ')' + " indefinidamente!", { parse_mode: 'Markdown' });
-                });
-              }
-              else
-              {
-                bot.kickChatMember(chatId, replyId, {until_date: Math.round((Date.now() + (parseInt(numberOfSeconds) * 1000)) / 1000)}).then(() => {
-                  bot.sendMessage(chatId, '[' + (fromUsername != undefined ? '@' + fromUsername : fromName) + '](tg://user?id=' + userId + ')' + " ha baneado a [" + (replyUsername != undefined ? '@' + replyUsername : replyName) + '](tg://user?id=' + replyId + ')' + "  durante " + numberOfSeconds + " segundos!", { parse_mode: 'Markdown' });
-                });
-              }
-              break;
-            case 'kick':
-              bot.kickChatMember(chatId, replyId).then(() => {
-                bot.unbanChatMember(chatId, replyId);                  
-                bot.sendMessage(chatId, '[' + (fromUsername != undefined ? '@' + fromUsername : fromName) + '](tg://user?id=' + userId + ')' + ' ha kickeado a ' + '[' + (replyUsername != undefined ? '@' + replyUsername : replyName) + '](tg://user?id=' + replyId + ')', { parse_mode: 'Markdown' });
-              });
-              break;
-          }
-          break;
-        default:
-          bot.sendMessage(chatId, "Sory" + '[' + (fromUsername != undefined ? '@' + fromUsername : fromName) + '](tg://user?id=' + userId + ')' + " pero no sos admin.", { parse_mode: 'Markdown' });
-          break;
-      }
-    });
-  });
-  
 });
 
-bot.onText(/^\/remindme [0-9]+ (days|day|hours|hour|minutes|minute|seconds|second|weeks|week)/, (msg, match) => {
-  var chatId = msg.chat.id;
-  var userId = msg.from.id;
-  var fromUsername = msg.from.username;
-  var fromName = msg.from.first_name + ' ' + msg.from.last_name;
-  var messageId = msg.message_id;
-  var typeOfUnit = match[1];
-  var amount = parseInt(match[0].substring(10, match[0].indexOf(typeOfUnit)));
-  var timeToSet = 0;
-  var spanishTypeOfUnit = ''; 
-  
-  //Esto es un asco, se modificará en breve.
-  //Javascript te odio.
-  //Todos putos.
-  switch(typeOfUnit)
-  {
-    case 'days':
-      timeToSet = amount * 24 * 60 * 60;
-      spanishTypeOfUnit = 'días';
-      break;
-    case 'day':
-      timeToSet = amount * 24 * 60 * 60;
-      spanishTypeOfUnit = 'día';
-      break;
-    case 'hours':
-      timeToSet = amount * 60 * 60;
-      spanishTypeOfUnit = 'horas';
-      break;
-    case 'hour':
-      timeToSet = amount * 60 * 60;
-      spanishTypeOfUnit = 'hora';
-      break;
-    case 'minutes':
-      timeToSet = amount * 60;
-      spanishTypeOfUnit = 'minutos';
-      break;
-    case 'minute':
-      timeToSet = amount * 60;
-      spanishTypeOfUnit = 'minuto';
-      break;
-    case 'seconds':
-      timeToSet = amount;
-      spanishTypeOfUnit = 'segundos';
-      break;
-    case 'second':
-      timeToSet = amount;
-      spanishTypeOfUnit = 'segundo';
-      break;
-    case 'weeks':
-      timeToSet = amount * 7 * 24 * 60 * 60;
-      spanishTypeOfUnit = 'semanas';
-      break;
-    case 'week':
-      timeToSet = amount * 7 * 24 * 60 * 60;
-      spanishTypeOfUnit = 'semana';
-      break;
-  }
+bot.onText(/^\/(ban|kick) (.*)/, (msg, match) => onText.banKick(bot, msg, match));
 
-  bot.sendMessage(chatId, 'Te voy a recordar dentro de ' + amount + ' ' + spanishTypeOfUnit + ' ' + '[' + (fromUsername != undefined ? '@' + fromUsername : fromName) + '](tg://user?id=' + userId + ')' + '!', { parse_mode: 'Markdown' });
-  
-  var counter = 0;
+bot.onText(/^\/remindme [0-9]+ (days|day|hours|hour|minutes|minute|seconds|second|weeks|week)(.*)/, (msg, match) => onText.remindme(bot, msg, match));
 
-  setInterval(() => {
-    counter++;
+bot.onText(/^\/start/, msg => onText.start(bot, msg));
 
-    if(counter == timeToSet)
-    {
-      bot.getChatMember(chatId, userId).then(member => {
-        switch(member.status)
-        {
-        case 'kicked':
-        case 'left':
-          return;
-        }
-        
-        bot.sendMessage(chatId, 'Te recuerdo!', {reply_to_message_id: messageId}).catch(() => {
-          return;
-        });
-      });
-    }
-  }, 1000);
-});
+bot.onText(/^\/banall/, msg => onText.banall(bot, msg));
 
-bot.onText(/^\/delete/, msg => {
-  var chatId = msg.chat.id;
-  var userId = msg.from.id;
-  var messageId = msg.message_id;
-  var replyMessageId = msg.reply_to_message.message_id;
-
-  bot.getChatMember(chatId, userId).then(res => {
-    switch(res.status)
-    {
-      case 'creator':
-      case 'administrator':
-        bot.deleteMessage(chatId, replyMessageId).then(() => {
-          bot.deleteMessage(chatId, messageId);
-        }).catch(() => {
-          return;
-        });        
-    }
-  });
-});
-
+bot.onText(/^\/help/, msg => onText.help(bot, msg));
 //#region Comentarios
+
+//Útil pero no debe exponerse.
+// bot.onText(/^\/id/, (msg) => {
+//   bot.deleteMessage(msg.chat.id, msg.message_id);
+//   bot.sendMessage(msg.chat.id, 'ID del chat: ' + msg.chat.id);
+// });
+
+//Para registrar a todos una vez implementado el bot.
+// bot.onText(/^\/.*/, msg => {
+//   mongo.insertChatId(msg.from.id, msg.chat.id).catch(err => {
+//     mongo.logError(msg.chat.id, err);
+//   });
+// });
+
 // Estadisticas
-// bot.onText(/[\s\S]+/g, mongoUtils.insertMessage);
+// bot.onText(/[\s\S]+/g, mongo.insertMessage);
 
 
 // Responde cuando aparece una palabra en un mensaje
@@ -297,7 +213,14 @@ bot.onText(/^\/delete/, msg => {
         })
     });
 });
-*/
-//#endregion
 
+*/
+
+//Para implementar los comienzos de cuatrimestre.
+// bot.onText(/^\/empieza/, (msg) => {
+//   bot.deleteMessage(msg.chat.id, msg.message_id);
+//   bot.sendMessage(msg.chat.id, 'Las materias de 2do a 6to año empiezan el 18\nFisica 1 curso Z empieza el 25\nRecursantes empiezan el 25 de marzo\nIngresantes empiezan el 1 de Abril\n', { reply_to_message_id: msg.message_id });
+// });
+
+//#endregion
 
