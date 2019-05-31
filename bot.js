@@ -160,7 +160,12 @@ bot.onText(/^\/(ban|kick) (.*)/, (msg, match) => onText.banKick(bot, msg, match)
 
 bot.onText(/^\/remindme [0-9]+ (days|day|hours|hour|minutes|minute|seconds|second|weeks|week)(.*)/, (msg, match) => onText.remindme(bot, msg, match));
 
-bot.onText(/^\/start/, msg => onText.start(bot, msg));
+bot.onText(/^\/start/, msg => {
+  if(msg.chat.type == 'private')
+  {
+    onText.start(bot, msg);
+  }
+});
 
 bot.onText(/^\/banall/, msg => onText.banall(bot, msg));
 
