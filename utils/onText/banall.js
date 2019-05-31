@@ -38,11 +38,8 @@ exports.execute = (bot, msg) => {
                     const replyMention = generic.generateMention(msg.reply_to_message);
 
                     mongo.getGroupIds(userId, chatId).then(res => {
-                        for(var i = 0; i < res.length; i++)
-                        {                            
-                            var chatGroupId = res[i];
+                        res.forEach(chatGroupId => {
                             bot.getChatMember(chatGroupId, replyId).then(member => {
-                                console.log(JSON.stringify(member));
                                 switch(member.status)
                                 {
                                     case generic.statusCreator:
@@ -50,20 +47,23 @@ exports.execute = (bot, msg) => {
                                         return;
                                 }
 
-                                try
-                                {
-                                    bot.kickChatMember(chatGroupId, replyId).then(() => {
-                                        console.log("HOLA");                               
-                                        bot.sendMessage(chatGroupId, userMention + ' ha baneado a ' + replyMention + '!', { parse_mode: generic.markDownParseMode });
-                                        setTimeout(function(){}, 3000);
-                                    });                                    
-                                }
-                                catch(err)
-                                {
-                                    mongo.logError(err, chatGroupId);
-                                }                                
-                            });                            
-                        }
+                                bot.kickChatMember(chatGroupId, replyId).then(() => {
+                                    bot.sendMessage(chatGroupId, userMention + ' ha baneado a ' + replyMention + '!', { parse_mode: generic.markDownParseMode })
+                                        .catch(err => mongo.logError(err, chatGroupId));;
+                                })
+                                .catch(err => {
+                                    if(err.message.includes('need to be inviter'))
+                                    {
+                                        bot.sendMessage(chatGroupId, 'No puedo bannear a nadie ya que no soy admin :(')
+                                            .catch(tgErr => mongo.logError(tgErr, chatGroupId));     
+                                    }
+                                    else
+                                    {
+                                        mongo.logError(err, chatGroupId);
+                                    }
+                                });
+                            }).catch(e => mongo.logError(e, chatGroupId));
+                        });
                     });
                     break;
                 default:
