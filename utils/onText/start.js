@@ -14,7 +14,7 @@ exports.execute = (bot, msg) => {
         }
         else
         {
-            mongo.insertPrivateChat(chatId, userId).then(() => {
+            mongo.setStartedUser(userId, chatId).then(() => {
                 bot.sendMessage(chatId, messageWelcome + generic.lineBreak + messageIfHasStarted);                    
             });
         }
