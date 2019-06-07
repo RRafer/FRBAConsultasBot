@@ -4,9 +4,9 @@ const url = 'mongodb://localhost:27017';
 //Estructura:
 //userId - number
 //chatIds - array de number
-//privateChatId - number
+//hasStarted - boolean
 
-exports.insertPrivateChat = (userId, privateChatId) => {  
+exports.setStartedUser = userId => {  
   return new Promise((resolve, reject) => {
     mongo.connect(url, (err, client) => {
       const db = client.db('telegram');
@@ -17,19 +17,19 @@ exports.insertPrivateChat = (userId, privateChatId) => {
       col.find({'userId': userId}).count((error, result) => {
         if(error) reject();
   
-        if(result > 0)
+        if(result == 1)
         {
-          col.findOneAndUpdate({'userId': userId}, {$set: {'privateChatId': privateChatId}}, (findError, result) => {            
-            client.close()
+          col.findOneAndUpdate({'userId': userId}, {$set: {'hasStarted': true}}, (findError, result) => {            
+            client.close();
   
-            if(findError) reject()
+            if(findError) reject();
   
             resolve();
           });
         }
-        else
+        else if(result == 0)
         {
-          col.insertOne({'userId': userId, 'chatIds': [], 'privateChatId': privateChatId}, (insertError, result) => {            
+          col.insertOne({'userId': userId, 'chatIds': [], 'hasStarted': true}, (insertError, result) => {            
             client.close();
   
             if(insertError) reject();
@@ -67,7 +67,7 @@ exports.insertChatId = (userId, chatId) => {
         }
         else
         {
-          col.insertOne({'userId': userId, 'chatIds': [chatId], 'privateChatId': 0}, (error, result) => {
+          col.insertOne({'userId': userId, 'chatIds': [chatId], 'hasStarted': false}, (error, result) => {
             client.close();
 
             if(error) reject();
