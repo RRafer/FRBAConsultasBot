@@ -159,14 +159,14 @@ bot.onText(/^\/newmember/, msg => {
 
 bot.onText(/^\/(ban|kick)(.*)/, (msg, match) => banKick.execute(bot, msg, match));
 
-bot.onText(/^\/remindme [0-9]+ (days|day|hours|hour|minutes|minute|seconds|second|weeks|week)(.*)/, 
+bot.onText(/^\/remindme [0-9]+ (days|day|hours|hour|minutes|minute|seconds|second|weeks|week)(.*)/,
   (msg, match) => remindme.execute(bot, msg, match));
 
 bot.onText(/^\/start/, msg => start.execute(bot, msg, mongoUtils));
 
 //#region Comentarios
 // Estadisticas
-// bot.onText(/[\s\S]+/g, mongoUtils.insertMessage);
+//bot.on('message', mongoUtils.insertMessage);
 
 
 // Responde cuando aparece una palabra en un mensaje
