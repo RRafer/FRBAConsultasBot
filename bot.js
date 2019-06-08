@@ -153,7 +153,8 @@ bot.onText(/^\/newmember/, msg => {
 //Para implementar en newmember cuando funque bien.
 bot.onText(/^\/prueba/, msg => mongo.insertChatId(msg.from.id, msg.chat.id));
 
-bot.onText(/^\/(ban|kick)( .*)?/, (msg, match) => onText.banKick(bot, msg, match));
+bot.onText(/^\/remindme [0-9]+ (days|day|hours|hour|minutes|minute|seconds|second|weeks|week)(.*)/,
+  (msg, match) => remindme.execute(bot, msg, match));
 
 bot.onText(/^\/remindme [0-9]+ (d|h|m|s|w)( .*)?/, (msg, match) => onText.remindme(bot, msg, match));
 
@@ -183,7 +184,7 @@ bot.onText(/^\/help/, msg => onText.help(bot, msg));
 // });
 
 // Estadisticas
-// bot.onText(/[\s\S]+/g, mongo.insertMessage);
+//bot.on('message', mongoUtils.insertMessage);
 
 
 // Responde cuando aparece una palabra en un mensaje
