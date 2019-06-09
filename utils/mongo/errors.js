@@ -8,6 +8,8 @@ const url = 'mongodb://localhost:27017';
 
 exports.logError = (error, chatId) => {
     mongo.connect(url, (err, client) => {
+        if(client == undefined || client == null) return;
+        
         const db = client.db('telegram');
         const col = db.collection('errors');
   
