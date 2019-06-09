@@ -4,43 +4,6 @@ const url = 'mongodb://localhost:27017';
 //Estructura:
 //userId - number
 //chatIds - array de number
-//hasStarted - boolean
-
-exports.setStartedUser = userId => {  
-  return new Promise((resolve, reject) => {
-    mongo.connect(url, (err, client) => {
-      const db = client.db('telegram');
-      const col = db.collection('users');
-  
-      if(err) reject();
-  
-      col.find({'userId': userId}).count((error, result) => {
-        if(error) reject();
-  
-        if(result == 1)
-        {
-          col.findOneAndUpdate({'userId': userId}, {$set: {'hasStarted': true}}, (findError, result) => {            
-            client.close();
-  
-            if(findError) reject();
-  
-            resolve();
-          });
-        }
-        else if(result == 0)
-        {
-          col.insertOne({'userId': userId, 'chatIds': [], 'hasStarted': true}, (insertError, result) => {            
-            client.close();
-  
-            if(insertError) reject();
-  
-            resolve();
-          });
-        }        
-      });    
-    });
-  });    
-}
 
 exports.insertChatId = (userId, chatId) => {
   return new Promise((resolve, reject) => {
@@ -67,7 +30,7 @@ exports.insertChatId = (userId, chatId) => {
         }
         else
         {
-          col.insertOne({'userId': userId, 'chatIds': [chatId], 'hasStarted': false}, (error, result) => {
+          col.insertOne({'userId': userId, 'chatIds': [chatId]}, (error, result) => {
             client.close();
 
             if(error) reject();
@@ -79,60 +42,6 @@ exports.insertChatId = (userId, chatId) => {
     });  
   });
 }
-
-exports.getPrivateChatId = userId => {
-  return new Promise((resolve, reject) => {
-    mongo.connect(url, (err, client) => {
-      const db = client.db('telegram');
-
-      if(err)
-      {
-        reject()
-      }
-
-      db.collection('users').findOne({"userId": userId}, (error, result) => {
-        if(error)
-        {
-          reject();
-        }
-  
-        client.close();
-        
-        if(result == null)
-        {
-          reject();
-        }
-        else
-        {
-          resolve(result.privateChatId);
-        }
-      });
-    });
-  });
-};
-
-exports.hasStarted = userId => {
-  return new Promise((resolve, reject) => {
-    mongo.connect(url, (err, client) => {
-      const db = client.db('telegram');
-
-      if(err)
-      {
-        reject()
-      }
-
-      db.collection('users').findOne({"userId": userId}, (error, result) => {
-        if(error)
-        {
-          reject();
-        }
-  
-        client.close();        
-        resolve(result != undefined && result.privateChatId != 0);
-      });
-    });
-  });
-};
 
 exports.getGroupIds = userId => {
   return new Promise((resolve, reject) => {
@@ -166,6 +75,7 @@ exports.getGroupIds = userId => {
 }
 
 //#region Comentarios
+
 // exports.insertMessage = (msg) => {
 //   mongo.connect(url, (err, client) => {
 //     const db = client.db('telegram');
@@ -177,4 +87,95 @@ exports.getGroupIds = userId => {
 //     });
 //   });
 // };
+
+// exports.hasStarted = userId => {
+//   return new Promise((resolve, reject) => {
+//     mongo.connect(url, (err, client) => {
+//       const db = client.db('telegram');
+
+//       if(err)
+//       {
+//         reject()
+//       }
+
+//       db.collection('users').findOne({"userId": userId}, (error, result) => {
+//         if(error)
+//         {
+//           reject();
+//         }
+  
+//         client.close();        
+//         resolve(result != undefined && result.privateChatId != 0);
+//       });
+//     });
+//   });
+// };
+
+// exports.setStartedUser = userId => {  
+//   return new Promise((resolve, reject) => {
+//     mongo.connect(url, (err, client) => {
+//       const db = client.db('telegram');
+//       const col = db.collection('users');
+  
+//       if(err) reject();
+  
+//       col.find({'userId': userId}).count((error, result) => {
+//         if(error) reject();
+  
+//         if(result == 1)
+//         {
+//           col.findOneAndUpdate({'userId': userId}, {$set: {'hasStarted': true}}, (findError, result) => {            
+//             client.close();
+  
+//             if(findError) reject();
+  
+//             resolve();
+//           });
+//         }
+//         else if(result == 0)
+//         {
+//           col.insertOne({'userId': userId, 'chatIds': [], 'hasStarted': true}, (insertError, result) => {            
+//             client.close();
+  
+//             if(insertError) reject();
+  
+//             resolve();
+//           });
+//         }        
+//       });    
+//     });
+//   });    
+// }
+
+// exports.getPrivateChatId = userId => {
+//   return new Promise((resolve, reject) => {
+//     mongo.connect(url, (err, client) => {
+//       const db = client.db('telegram');
+
+//       if(err)
+//       {
+//         reject()
+//       }
+
+//       db.collection('users').findOne({"userId": userId}, (error, result) => {
+//         if(error)
+//         {
+//           reject();
+//         }
+  
+//         client.close();
+        
+//         if(result == null)
+//         {
+//           reject();
+//         }
+//         else
+//         {
+//           resolve(result.privateChatId);
+//         }
+//       });
+//     });
+//   });
+// };
+
 //#endregion
