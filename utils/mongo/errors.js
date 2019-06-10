@@ -15,7 +15,7 @@ exports.logError = (error, chatId) => {
   
         if(err) return;
         
-        col.insertOne({'chatId': chatId, 'errorMsg': error}, (err, result) => {
+        col.insertOne({'chatId': chatId, 'errorMsg': error.message, 'date': new Date().toDateString()}, (err, result) => {
             client.close();
 
             if(err) return;
