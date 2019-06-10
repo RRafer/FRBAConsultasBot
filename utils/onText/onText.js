@@ -17,36 +17,12 @@ exports.start = (bot, msg) => {
   });
 }
 
-exports.banall = (bot, msg) => {
-  try
-  {
-    banall.execute(bot, msg);
-  }
-  catch(err)
-  {
-    mongo.logError(err, msg.chat.id);
-  }
-}
-exports.remindme = (bot, msg, match) => {
-  try
-  {
-    remindme.execute(bot, msg, match);
-  }
-  catch(err)
-  {
-    mongo.logError(err, msg.chat.id)
-  }
-}
-exports.banKick = (bot, msg, match) => {
-  try
-  {
-    banKick.execute(bot, msg, match);
-  }
-  catch(err)
-  {
-    mongo.logError(err, msg.chat.id);
-  }
-}
+exports.banall = (bot, msg) => banall.execute(bot, msg).catch(err => mongo.logError(err, msg.chat.id));  
+
+exports.remindme = (bot, msg, match) => remindme.execute(bot, msg, match).catch(err => mongo.logError(err, msg.chat.id));
+
+exports.banKick = (bot, msg, match) => banKick.execute(bot, msg, match).catch(err => mongo.logError(err, msg.chat.id));
+
 exports.help = (bot, msg) => help.execute(bot, msg, mongo).catch(err => mongo.logError(err, msg.chat.id));
 
 //exports.catedra
