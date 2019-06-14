@@ -7,6 +7,7 @@ exports.execute = (bot, msg) => {
         if(msg.reply_to_message == undefined)
         {
             resolve();
+            return;
         }
 
         var chatId = msg.chat.id;
@@ -18,17 +19,24 @@ exports.execute = (bot, msg) => {
         {
             case generic.botUserName:
                 resolve();
+                return;
         }
 
         const replyMention = generic.generateMention(msg.reply_to_message);
         const userMention = generic.generateMention(msg);
 
-        mongo.getGroupIds(userId, chatId).then(res => {
+        mongo.getGroupIds(replyId, chatId).then(res => {
+            if(res == undefined)
+            {
+                reject();
+                return;
+            }
+
             res.forEach(chatGroupId => {
                 bot.getChatMember(chatGroupId, replyId).then(member => {
                     switch(member.status)
                     {
-                        case generic.statusKick:
+                        case generic.statusKicked:
                         case generic.statusLeft:
                         case generic.statusCreator:
                         case generic.statusAdministrator:
@@ -56,9 +64,6 @@ exports.execute = (bot, msg) => {
                                         mongo.logError(err, chatGroupId);
                                     }
                                 });
-                                break;
-                            default:
-                                bot.sendMessage(chatId, "Sory" + userMention + " pero no sos admin.", { parse_mode: generic.markDownParseMode });
                                 break;
                         }
                     }).catch(e => mongo.logError(e, chatGroupId));     
