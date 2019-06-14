@@ -7,6 +7,7 @@ const url = 'mongodb://localhost:27017';
 //type - string
 
 exports.logError = (error, chatId) => {
+    console.log("HUBO UN ERROR: " + error);
     mongo.connect(url, (err, client) => {
         if(client == undefined || client == null) return;
         
