@@ -60,7 +60,7 @@ exports.getPosition = (string, subString, index) => {
 exports.space = ' ';
 exports.lineBreak = '\n';
 exports.markDownParseMode = 'Markdown';
-exports.statusKick = 'kick';
+exports.statusKicked = 'kicked';
 exports.statusLeft = 'left';
 exports.statusCreator = 'creator';
 exports.statusAdministrator = 'administrator';

@@ -11,21 +11,34 @@ exports.insertChatId = (userId, chatId) => {
       const db = client.db('telegram');
       const col = db.collection('users');
 
-      if(err) reject();
+      if(err) reject(new Error('Error de conexión con Mongo.'));
       
       col.findOne({'userId': userId}, (error, result) => {
-        if(error) reject();
+        if(error)
+        {
+          reject(error);
+          return;
+        }
 
         if(result != null)
         {
-          if(result.chatIds.includes(chatId)) resolve();
+          if(result.chatIds.includes(chatId))
+          {
+            resolve();
+            return;
+          }
           
           col.findOneAndUpdate({'userId': userId}, {$push: {'chatIds': chatId}}, (findErr, result) => {
             client.close()
 
-            if(findErr) reject();
+            if(findErr)
+            {
+              reject(findErr);
+              return;
+            }
 
             resolve();
+            return;
           });
         }
         else
@@ -33,9 +46,14 @@ exports.insertChatId = (userId, chatId) => {
           col.insertOne({'userId': userId, 'chatIds': [chatId]}, (error, result) => {
             client.close();
 
-            if(error) reject();
+            if(error)
+            {
+              reject(error);
+              return;
+            }
 
             resolve();
+            return;
           });
         }        
       });    
@@ -50,25 +68,28 @@ exports.getGroupIds = userId => {
 
       if(err)
       {
-        reject()
+        reject(err);
+        return;
       }
-
       db.collection('users').findOne({"userId": userId}, (error, result) => {
         if(error)
         {
-          reject();
-        }
-  
-        client.close();
-        
+          reject(error);
+          return;
+        }  
+
         if(result == null)
         {
-          reject();
+          reject(new Error('No hay chatIds registrados para el userId ' + userId));
         }
         else
         {
           resolve(result.chatIds);
         }
+
+        client.close();
+
+        return;
       });
     });
   });
