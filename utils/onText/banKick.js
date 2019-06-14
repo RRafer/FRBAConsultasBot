@@ -2,7 +2,7 @@ const generic = require('../generic');
 
 exports.execute = (bot, msg, match) => {
     return new Promise((resolve, reject) => {
-        if(msg.reply_to_message == undefined)
+        if(msg.reply_to_message == undefined || msg.text == '/banall')
         {
             resolve();
             return;

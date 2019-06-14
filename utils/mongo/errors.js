@@ -13,7 +13,7 @@ exports.logError = (error, chatId) => {
         const db = client.db('telegram');
         const col = db.collection('errors');
   
-        if(err) return;
+        if(err || !error) return;
         
         col.insertOne({'chatId': chatId, 'errorMsg': error.message, 'date': new Date().toDateString()}, (err, result) => {
             client.close();

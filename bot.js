@@ -141,9 +141,7 @@ bot.onText(/^\/newmember/, msg => {
 });
 
 //Para implementar en newmember cuando funque bien.
-bot.onText(/^\/prueba/, msg => {  
-  mongo.insertChatId(msg.from.id, msg.chat.id).catch(error =>  mongo.logError(msg.chat.id, error));   
-});
+bot.onText(/^\/prueba/, msg => mongo.insertChatId(msg.from.id, msg.chat.id));
 
 bot.onText(/^\/(ban|kick)( .*)?/, (msg, match) => onText.banKick(bot, msg, match));
 
