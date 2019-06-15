@@ -3,11 +3,7 @@ const linksUtils = require('./utils/links');
 const adminUtils = require('./utils/admin');
 const mongo = require('./utils/mongo');
 const config = require('./utils/config');
-const catedra = require('./utils/onText/catedra');
-const help = require('./utils/onText/help');
-const banKick = require('./utils/onText/banKick');
-const remindme = require('./utils/onText/remindme');
-const start = require('./utils/onText/start');
+const onText = require('./utils/onText/onText');
 const latex = require('./utils/onText/latex');
 const autismo = require('./utils/onText/autismo');
 const bot = new TelegramBot(config.token, { polling: true });
@@ -184,7 +180,7 @@ bot.onText(/^\/help/, msg => onText.help(bot, msg));
 // });
 
 // Estadisticas
-//bot.on('message', mongoUtils.insertMessage);
+// bot.onText(/[\s\S]+/g, mongo.insertMessage);
 
 
 // Responde cuando aparece una palabra en un mensaje
