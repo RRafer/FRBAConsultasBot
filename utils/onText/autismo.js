@@ -4,9 +4,9 @@ exports.execute = (bot, msg) => {
                          //Catastrofico                                              Extremo
                          //Severo                                                    Muy alto
                          //Alto                                                      Moderado
-    const afoto = ['AgADAQADVagxG9iVWEfBGd3_oi5dAbAaFDAABA6aRQ1tE2q4KFgCAAEC','AgADAQADVqgxG9iVWEewbTuaghY_BBa_CjAABKKDnjeLmz6XvgQEAAEC',
-                   'AgADAQADaqgxGwABWVhHFNdnkjgtaMcidQwwAASOOxj5UvvNdtDVBAABAg','AgADAQAD7qcxGyYkWUc7coxe4QhqEnFsDDAABGyaB_S3CKrJAAHgBAABAg',
-                   'AgADAQADa6gxGwABWVhHBbWUKf3hQZRkBAswAATWEYRToX2MKS3kAwABAg','AgADAQADbKgxGwABWVhHT79nQu5RG_0wwAowAAQ1SJHg2KjA1P4GBAABAg'];
+    const afoto = ['AgADAQADcagxG103QUShJ6MUbp94kTUDCzAABK5Bb9yYzqSqKDIEAAEC','AgADAQADcKgxG103QUQEKPb4Kd2Wol1qDDAABJb5vSt4ZJPcjSYFAAEC',
+                   'AgADAQADb6gxG103QURebVjZb7wf93N3DDAABMiZCdDYON1_hx8FAAEC','AgADAQADbqgxG103QURKqTz8_eESdoATFDAABN8q3Lw6C43_6qoCAAEC',
+                   'AgADAQADbagxG103QUQm45ryhPzPC8_rCjAABF_LKtdfbL1b6gsEAAEC','AgADAQADWKgxGxI_QUSALO31gYZJeIZwDDAABA8GzpPULWDQmyUFAAEC'];
 
     if(msg.chat.id === -1001214086516){
         if(autismoid === 0){
