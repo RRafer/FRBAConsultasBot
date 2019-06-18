@@ -39,7 +39,7 @@ bot.onText(/^\/catedra/, msg => {
   var chatPos = idChatPhoto.indexOf(msg.chat.id);
     if(chatPos === -1)
     {
-        bot.sendPhoto(msg.chat.id, 'AgADAQADEagxG_BImEVSfV4Gc0JIbXLqCjAABFlZxFZk81qhMjcDAAEC').then((auxid) => {
+        bot.sendPhoto(msg.chat.id, 'AgADAQADbKgxG103QUQeGv8r315mbltxDDAABECS2Sc_YjetEiQFAAEC').then((auxid) => {
           setTimeout(() => {
               borrarchat = idChatPhoto.indexOf(auxid.chat.id);
               idChatPhoto.splice(borrarchat, 1);
