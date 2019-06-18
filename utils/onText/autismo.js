@@ -15,7 +15,7 @@ exports.execute = (bot, msg) => {
             var Autismo = bot.sendPhoto(msg.chat.id, afoto[nivelRandom]).then((autismo) => {
                 setTimeout(() => {
                     autismoid = 0;
-                }, 30000)
+                }, 86400000)
                 autismoid = autismo.message_id;
             })
         }
