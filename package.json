@@ -12,6 +12,7 @@
     "node-telegram-bot-api": "^0.30.0",
     "node-telegram-keyboard-wrapper": "^2.0.1",
     "pg": "^7.9.0",
+    "request": "^2.88.0",
     "string-similarity": "^3.0.0"
   },
   "repository": {

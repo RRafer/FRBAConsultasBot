@@ -1,17 +1,24 @@
+const callbackObject = {
+  action: '',
+  params: [],
+};
 
 exports.validateUser = bot => (msg) => {
   if (msg.new_chat_members !== undefined) {
-    msg.new_chat_members.forEach((user) => {
+    msg.new_chat_members.forEach(() => {
       bot.emit('new_member', msg);
     });
   }
 };
 
 exports.verify = (msg) => {
+  callbackObject.action = 'verificarbot';
+  callbackObject.params.push(msg.from.id);
+  callbackObject.params.push(msg.message_id);
   const inlineKeyboard = {
     inline_keyboard: [
       [
-        { text: 'Haga clic aquí', callback_data: `verificarbot@${msg.from.id}@${msg.message_id}` },
+        { text: 'Haga clic aquí', callback_data: JSON.stringify(callbackObject) },
       ],
     ],
   };
