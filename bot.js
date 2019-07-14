@@ -111,6 +111,7 @@ bot.on('callback_query', (json) => {
         // El usuario es Admin/Creator
         // El usuario se va del chat antes de que el comando sea ejecutado
         console.log(e);
+        
       });
       console.log(savedMsg);
       bot.editMessageText('¡Has sido verificado! \u2705\n\nEste mensaje se borrara en unos segundos', {
