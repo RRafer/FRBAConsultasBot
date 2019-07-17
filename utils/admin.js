@@ -1,17 +1,24 @@
+let callbackObject = {
+  a: '', // Action
+  p: [], // Parameters
+};
 
 exports.validateUser = bot => (msg) => {
   if (msg.new_chat_members !== undefined) {
-    msg.new_chat_members.forEach((user) => {
+    msg.new_chat_members.forEach(() => {
       bot.emit('new_member', msg);
     });
   }
 };
 
 exports.verify = (msg) => {
+  callbackObject.action = 'v';
+  callbackObject.p[0] = msg.from.id;
+  callbackObject.p[1] = msg.message_id;
   const inlineKeyboard = {
     inline_keyboard: [
       [
-        { text: 'Haga clic aquí', callback_data: `verificarbot@${msg.from.id}@${msg.message_id}` },
+        { text: 'Haga clic aquí', callback_data: JSON.stringify(callbackObject) },
       ],
     ],
   };
@@ -30,8 +37,8 @@ exports.RemPerms = {
 exports.GivePerms = {
   perms: {
     can_send_message: true,
-    can_send_media_messages: true,
-    can_send_other_messages: true,
-    can_add_web_page_previews: true,
+    can_send_media_messages: false,
+    can_send_other_messages: false,
+    can_add_web_page_previews: false,
   },
 };
