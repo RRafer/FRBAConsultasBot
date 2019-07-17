@@ -27,7 +27,9 @@ bot.on('polling_error', msg => console.log(msg));
 
 // Elimina mensajes de personas que se unen y abandonan el grupo
 bot.on('message', (msg) => {
-  if (config.features[msg.chat.id].enableDeleteSystemMessages) {
+  if ((config.features[msg.chat.id]
+    && config.features[msg.chat.id].enableDeleteSystemMessages)
+    || config.features[0].enableDeleteSystemMessages) {
     if (msg.new_chat_member !== undefined || msg.left_chat_member !== undefined) {
       bot.deleteMessage(msg.chat.id, msg.message_id);
     }
@@ -36,7 +38,11 @@ bot.on('message', (msg) => {
 
 // Verificación usuarios
 bot.on('message', (msg) => {
-  if (config.features[msg.chat.id].enableValidateUsers) {
+
+  if ((config.features[msg.chat.id]
+    && config.features[msg.chat.id].enableValidateUsers)
+    || config.features[0].enableValidateUsers) {
+    console.log('b');
     adminUtils.validateUser(bot);
   }
 });
@@ -44,7 +50,9 @@ bot.on('message', (msg) => {
 // Envia links de grupos y otros
 bot.onText(/^\/links/,
   (msg) => {
-    if (config.features[msg.chat.id].enableLinks) {
+    if ((config.features[msg.chat.id]
+      && config.features[msg.chat.id].enableLinks)
+      || config.features[0].enableLinks) {
       linksUtils.sendLinks(bot);
     }
   });
