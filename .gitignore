@@ -86,4 +86,4 @@ typings/
 .idea/
 
 #config..js
-utils/config.js
+utils/token.js
