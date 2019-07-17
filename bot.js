@@ -18,7 +18,7 @@ const savedTimers = new Map();
 // let stickerChat = [];
 /* const callbackObject = {
   action: '',
-  params: [],
+  p: [],
 };
 */
 
@@ -110,10 +110,10 @@ bot.onText(/^\/sticker/, (msg) => {
 
 bot.on('callback_query', (json) => {
   const CBObject = JSON.parse(json.data);
-  if (CBObject.action === 'verificarbot') {
-    // CBObject.params[0] = userId;
-    if (parseInt(CBObject.params[0], 10) === json.from.id) {
-      bot.promoteChatMember(json.message.chat.id, CBObject.params[0], adminUtils.GivePerms).catch((e) => {
+  if (CBObject.action === 'v') {
+    // CBObject.p[0] = userId;
+    if (parseInt(CBObject.p[0], 10) === json.from.id) {
+      bot.promoteChatMember(json.message.chat.id, CBObject.p[0], adminUtils.GivePerms).catch((e) => {
         // Catch obligatorio. Posibles casos de Falla:
         // El usuario es Admin/Creator
         // El usuario se va del chat antes de que el comando sea ejecutado
@@ -121,14 +121,14 @@ bot.on('callback_query', (json) => {
       });
       bot.editMessageText('¡Has sido verificado! \u2705\n\nEste mensaje se borrara en unos segundos', {
         chat_id: json.message.chat.id,
-        message_id: savedMsg.get(CBObject.params[0]),
+        message_id: savedMsg.get(CBObject.p[0]),
       }).then((data) => {
         setTimeout(() => {
           bot.deleteMessage(data.chat.id, data.message_id);
         }, 10000);
-        clearTimeout(savedTimers.get(CBObject.params[0]));
-        savedMsg.delete(CBObject.params[0]);
-        savedTimers.delete(CBObject.params[0]);
+        clearTimeout(savedTimers.get(CBObject.p[0]));
+        savedMsg.delete(CBObject.p[0]);
+        savedTimers.delete(CBObject.p[0]);
       }).catch((e) => {
         console.log(`Falla al editar mensaje de verificacion ${e}`);
       });
@@ -156,6 +156,8 @@ bot.on('new_member', (msg) => {
         savedMsg.delete(msg.from.id);
         savedTimers.delete(msg.from.id);
       }, 30000));
+    }).catch((e) => {
+      console.log(e);
     });
   } else {
     console.log('Intento de verificacion doble.');
@@ -170,6 +172,7 @@ bot.onText(/^\/newmember/, (msg) => {
 // Para implementar en newmember cuando funque bien.
 // bot.onText(/^\/prueba/, msg => mongo.insertChatId(msg.from.id, msg.chat.id));
 /*
+
 bot.onText(/^\/(ban|kick)( .*)?/, (msg, match) => onText.banKick(bot, msg, match));
 
 bot.onText(/^\/remindme [0-9]+ (d|h|m|s|w)( .*)?/, (msg, match) => onText.remindme(bot, msg, match));
