@@ -4,10 +4,9 @@ let callbackObject = {
 };
 
 exports.validateUser = bot => (msg) => {
-  if (msg.new_chat_members !== undefined) {
-    msg.new_chat_members.forEach(() => {
-      bot.emit('new_member', msg);
-    });
+  console.log(msg);
+  if (msg.new_chat_member !== undefined) {
+    bot.emit('new_member', msg);
   }
 };
 
