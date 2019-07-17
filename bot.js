@@ -3,43 +3,51 @@ const TelegramBot = require('node-telegram-bot-api');
 const linksUtils = require('./utils/links');
 const adminUtils = require('./utils/admin');
 const mongo = require('./utils/mongo');
-const config = require('./utils/config');
+const { config } = require('./utils/config');
+const { token } = require('./utils/token');
 const onText = require('./utils/onText/onText');
 const latex = require('./utils/onText/latex');
 const autismo = require('./utils/onText/autismo');
 
-const bot = new TelegramBot(config.token, { polling: true });
+const bot = new TelegramBot(token, { polling: true });
 const savedMsg = new Map();
+// Juro que esto es una negrada, pero no se me ocurre
+const savedTimers = new Map();
 // let idPhoto = [];
 // let idChatPhoto = [];
 // let stickerChat = [];
-const callbackObject = {
+/* const callbackObject = {
   action: '',
   params: [],
 };
+*/
 
 // Muestra errores en consola
 bot.on('polling_error', msg => console.log(msg));
 
-/*
 // Elimina mensajes de personas que se unen y abandonan el grupo
 bot.on('message', (msg) => {
-  if (msg.new_chat_member !== undefined || msg.left_chat_member !== undefined) {
-    bot.deleteMessage(msg.chat.id, msg.message_id);
+  if (config.features[msg.chat.id].enableDeleteSystemMessages) {
+    if (msg.new_chat_member !== undefined || msg.left_chat_member !== undefined) {
+      bot.deleteMessage(msg.chat.id, msg.message_id);
+    }
   }
 });
-*/
+
 // Verificación usuarios
-bot.on('message', adminUtils.validateUser(bot));
+bot.on('message', (msg) => {
+  if (config.features[msg.chat.id].enableValidateUsers) {
+    adminUtils.validateUser(bot);
+  }
+});
 
 // Envia links de grupos y otros
-// bot.onText(/^\/links/, linksUtils.sendLinks(bot));
-
-// bot.onText(/^\/validar/, adminUtils.validateUser(bot));
-
-// bot.onText(/^\/autismo/, msg => autismo.execute(bot, msg));
-
-// bot.onText(/^\/convertir (.*)/, (msg, match) => latex.execute(bot, msg, match));
+bot.onText(/^\/links/,
+  (msg) => {
+    if (config.features[msg.chat.id].enableLinks) {
+      linksUtils.sendLinks(bot);
+    }
+  });
 
 /*
 bot.onText(/^\/catedra/, (msg) => {
@@ -68,7 +76,7 @@ bot.onText(/^\/sticker/, (msg) => {
         bot.sendMessage(msg.chat.id, 'Cagaste bro, te re cagamo\' lo\' sticker');
         bot.restrictChatMember(msg.chat.id, stickerId, {
           can_send_message: true,
-          can_send_media_messages: true,
+          can_send_media_messages: false,
           can_send_other_messages: false,
           can_add_web_page_previews: false,
         }).then(() => {
@@ -102,18 +110,15 @@ bot.onText(/^\/sticker/, (msg) => {
 
 bot.on('callback_query', (json) => {
   const CBObject = JSON.parse(json.data);
-  console.log(json);
   if (CBObject.action === 'verificarbot') {
     // CBObject.params[0] = userId;
     if (parseInt(CBObject.params[0], 10) === json.from.id) {
-      bot.promoteChatMember(json.message.chat.id, CBObject.params[0], adminUtils.GivePerms).catch((e) => { 
+      bot.promoteChatMember(json.message.chat.id, CBObject.params[0], adminUtils.GivePerms).catch((e) => {
         // Catch obligatorio. Posibles casos de Falla:
         // El usuario es Admin/Creator
         // El usuario se va del chat antes de que el comando sea ejecutado
         console.log(e);
-        
       });
-      console.log(savedMsg);
       bot.editMessageText('¡Has sido verificado! \u2705\n\nEste mensaje se borrara en unos segundos', {
         chat_id: json.message.chat.id,
         message_id: savedMsg.get(CBObject.params[0]),
@@ -121,6 +126,9 @@ bot.on('callback_query', (json) => {
         setTimeout(() => {
           bot.deleteMessage(data.chat.id, data.message_id);
         }, 10000);
+        clearTimeout(savedTimers.get(CBObject.params[0]));
+        savedMsg.delete(CBObject.params[0]);
+        savedTimers.delete(CBObject.params[0]);
       }).catch((e) => {
         console.log(`Falla al editar mensaje de verificacion ${e}`);
       });
@@ -137,16 +145,17 @@ bot.on('callback_query', (json) => {
 
 bot.on('new_member', (msg) => {
   if (savedMsg.get(msg.from.id) === undefined) {
-    console.log(`Nuevo usuario: ${msg.from.id}`);
     bot.sendMessage(msg.chat.id, `Hola ${msg.from.first_name}${msg.from.last_name || ''} bienvenido al grupo de consultas ${msg.chat.title} de la UTN - FRBA\n\nHaga clic en el boton de abajo para verificar que no sea un bot.\nEste mensaje se eliminara en 30 segundos`, { reply_markup: JSON.stringify(adminUtils.verify(msg)) }).then((sentMsg) => {
       savedMsg.set(msg.from.id, sentMsg.message_id);
-      setTimeout(() => {
+      savedTimers.set(msg.from.id, setTimeout(() => {
       // Borro el mensaje si no verifico
         bot.deleteMessage(msg.chat.id, sentMsg.message_id);
         // Kick Only (El unban tiene que estar, si no no pueden volver a unirse)
         bot.kickChatMember(msg.chat.id, msg.from.id);
         bot.unbanChatMember(msg.chat.id, msg.from.id);
-      }, 30000);
+        savedMsg.delete(msg.from.id);
+        savedTimers.delete(msg.from.id);
+      }, 30000));
     });
   } else {
     console.log('Intento de verificacion doble.');
