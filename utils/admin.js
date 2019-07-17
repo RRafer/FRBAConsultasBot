@@ -1,6 +1,6 @@
-const callbackObject = {
-  action: '',
-  params: [],
+let callbackObject = {
+  a: '', // Action
+  p: [], // Parameters
 };
 
 exports.validateUser = bot => (msg) => {
@@ -12,9 +12,9 @@ exports.validateUser = bot => (msg) => {
 };
 
 exports.verify = (msg) => {
-  callbackObject.action = 'verificarbot';
-  callbackObject.params.push(msg.from.id);
-  callbackObject.params.push(msg.message_id);
+  callbackObject.action = 'v';
+  callbackObject.p[0] = msg.from.id;
+  callbackObject.p[1] = msg.message_id;
   const inlineKeyboard = {
     inline_keyboard: [
       [
@@ -37,8 +37,8 @@ exports.RemPerms = {
 exports.GivePerms = {
   perms: {
     can_send_message: true,
-    can_send_media_messages: true,
-    can_send_other_messages: true,
-    can_add_web_page_previews: true,
+    can_send_media_messages: false,
+    can_send_other_messages: false,
+    can_add_web_page_previews: false,
   },
 };
