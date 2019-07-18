@@ -50,8 +50,8 @@ bot.on('message', (msg) => {
 	if ((config.features[msg.chat.id]
     && config.features[msg.chat.id].enableValidateUsers)
     || config.features[0].enableValidateUsers) {
-		adminUtils.validateUser(bot);
-	}
+    adminUtils.validateUser(bot);
+  }
 });
 
 // Envia links de grupos y otros
@@ -63,6 +63,12 @@ bot.onText(/^\/links/,
 			linksUtils.sendLinks(bot);
 		}
 	});
+
+// LMGTFY
+bot.onText(/^\/google (.*)/ , (msg, match) => {
+  bot.sendMessage(msg.chat.id, `https://lmgtfy.com/?q=${encodeURIComponent(match[1])}`, {reply_to_message_id: msg.message_id});
+});
+
 
 /*
 bot.onText(/^\/catedra/, (msg) => {
