@@ -66,7 +66,9 @@ bot.onText(/^\/links/,
 
 // LMGTFY
 bot.onText(/^\/google (.*)/ , (msg, match) => {
-  if ((config.features[msg.chat.id] && config.features[msg.chat.id].enableGoogle) || config.features[0].enableGoogle) {
+  if ((config.features[msg.chat.id] 
+       && config.features[msg.chat.id].enableGoogle) 
+       || config.features[0].enableGoogle) {
     bot.sendMessage(msg.chat.id, `https://lmgtfy.com/?q=${encodeURIComponent(match[1])}`, {reply_to_message_id: msg.message_id});
   }
 });
