@@ -85,5 +85,8 @@ typings/
 
 .idea/
 
+#Imagenes rotadas
+ImageRotate/
+
 #config..js
 utils/token.js
