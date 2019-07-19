@@ -27,35 +27,35 @@ bot.on('polling_error', msg => console.log(msg));
 
 // Elimina mensajes de personas que se unen y abandonan el grupo
 bot.on('message', (msg) => {
-  if ((config.features[msg.chat.id]
+	if ((config.features[msg.chat.id]
     && config.features[msg.chat.id].enableDeleteSystemMessages)
     || config.features[0].enableDeleteSystemMessages) {
-    if (msg.new_chat_member !== undefined || msg.left_chat_member !== undefined) {
-      bot.deleteMessage(msg.chat.id, msg.message_id);
-    }
-  }
+		if (msg.new_chat_member !== undefined || msg.left_chat_member !== undefined) {
+			bot.deleteMessage(msg.chat.id, msg.message_id);
+		}
+	}
 });
 
 // Verificación usuarios
 bot.on('message', (msg) => {
 
-  if ((config.features[msg.chat.id]
+	if ((config.features[msg.chat.id]
     && config.features[msg.chat.id].enableValidateUsers)
     || config.features[0].enableValidateUsers) {
-    console.log('b');
-    adminUtils.validateUser(bot);
-  }
+		console.log('b');
+		adminUtils.validateUser(bot);
+	}
 });
 
 // Envia links de grupos y otros
 bot.onText(/^\/links/,
-  (msg) => {
-    if ((config.features[msg.chat.id]
+	(msg) => {
+		if ((config.features[msg.chat.id]
       && config.features[msg.chat.id].enableLinks)
       || config.features[0].enableLinks) {
-      linksUtils.sendLinks(bot);
-    }
-  });
+			linksUtils.sendLinks(bot);
+		}
+	});
 
 /*
 bot.onText(/^\/catedra/, (msg) => {
@@ -117,64 +117,64 @@ bot.onText(/^\/sticker/, (msg) => {
 */
 
 bot.on('callback_query', (json) => {
-  const CBObject = JSON.parse(json.data);
-  if (CBObject.action === 'v') {
-    // CBObject.p[0] = userId;
-    if (parseInt(CBObject.p[0], 10) === json.from.id) {
-      bot.promoteChatMember(json.message.chat.id, CBObject.p[0], adminUtils.GivePerms).catch((e) => {
-        // Catch obligatorio. Posibles casos de Falla:
-        // El usuario es Admin/Creator
-        // El usuario se va del chat antes de que el comando sea ejecutado
-        console.log(e);
-      });
-      bot.editMessageText('¡Has sido verificado! \u2705\n\nEste mensaje se borrara en unos segundos', {
-        chat_id: json.message.chat.id,
-        message_id: savedMsg.get(CBObject.p[0]),
-      }).then((data) => {
-        setTimeout(() => {
-          bot.deleteMessage(data.chat.id, data.message_id);
-        }, 10000);
-        clearTimeout(savedTimers.get(CBObject.p[0]));
-        savedMsg.delete(CBObject.p[0]);
-        savedTimers.delete(CBObject.p[0]);
-      }).catch((e) => {
-        console.log(`Falla al editar mensaje de verificacion ${e}`);
-      });
-    } else {
-      bot.answerCallbackQuery({
-        callback_query_id: json.id,
-        text: 'No puede verificar por otro usuario',
-        show_alert: true,
-      });
-    }
-  }
+	const CBObject = JSON.parse(json.data);
+	if (CBObject.action === 'v') {
+		// CBObject.p[0] = userId;
+		if (parseInt(CBObject.p[0], 10) === json.from.id) {
+			bot.promoteChatMember(json.message.chat.id, CBObject.p[0], adminUtils.GivePerms).catch((e) => {
+				// Catch obligatorio. Posibles casos de Falla:
+				// El usuario es Admin/Creator
+				// El usuario se va del chat antes de que el comando sea ejecutado
+				console.log(e);
+			});
+			bot.editMessageText('¡Has sido verificado! \u2705\n\nEste mensaje se borrara en unos segundos', {
+				chat_id: json.message.chat.id,
+				message_id: savedMsg.get(CBObject.p[0]),
+			}).then((data) => {
+				setTimeout(() => {
+					bot.deleteMessage(data.chat.id, data.message_id);
+				}, 10000);
+				clearTimeout(savedTimers.get(CBObject.p[0]));
+				savedMsg.delete(CBObject.p[0]);
+				savedTimers.delete(CBObject.p[0]);
+			}).catch((e) => {
+				console.log(`Falla al editar mensaje de verificacion ${e}`);
+			});
+		} else {
+			bot.answerCallbackQuery({
+				callback_query_id: json.id,
+				text: 'No puede verificar por otro usuario',
+				show_alert: true,
+			});
+		}
+	}
 });
 
 
 bot.on('new_member', (msg) => {
-  if (savedMsg.get(msg.from.id) === undefined) {
-    bot.sendMessage(msg.chat.id, `Hola ${msg.from.first_name}${msg.from.last_name || ''} bienvenido al grupo de consultas ${msg.chat.title} de la UTN - FRBA\n\nHaga clic en el boton de abajo para verificar que no sea un bot.\nEste mensaje se eliminara en 30 segundos`, { reply_markup: JSON.stringify(adminUtils.verify(msg)) }).then((sentMsg) => {
-      savedMsg.set(msg.from.id, sentMsg.message_id);
-      savedTimers.set(msg.from.id, setTimeout(() => {
-      // Borro el mensaje si no verifico
-        bot.deleteMessage(msg.chat.id, sentMsg.message_id);
-        // Kick Only (El unban tiene que estar, si no no pueden volver a unirse)
-        bot.kickChatMember(msg.chat.id, msg.from.id);
-        bot.unbanChatMember(msg.chat.id, msg.from.id);
-        savedMsg.delete(msg.from.id);
-        savedTimers.delete(msg.from.id);
-      }, 30000));
-    }).catch((e) => {
-      console.log(e);
-    });
-  } else {
-    console.log('Intento de verificacion doble.');
-  }
+	if (savedMsg.get(msg.from.id) === undefined) {
+		bot.sendMessage(msg.chat.id, `Hola ${msg.from.first_name}${msg.from.last_name || ''} bienvenido al grupo de consultas ${msg.chat.title} de la UTN - FRBA\n\nHaga clic en el boton de abajo para verificar que no sea un bot.\nEste mensaje se eliminara en 30 segundos`, { reply_markup: JSON.stringify(adminUtils.verify(msg)) }).then((sentMsg) => {
+			savedMsg.set(msg.from.id, sentMsg.message_id);
+			savedTimers.set(msg.from.id, setTimeout(() => {
+				// Borro el mensaje si no verifico
+				bot.deleteMessage(msg.chat.id, sentMsg.message_id);
+				// Kick Only (El unban tiene que estar, si no no pueden volver a unirse)
+				bot.kickChatMember(msg.chat.id, msg.from.id);
+				bot.unbanChatMember(msg.chat.id, msg.from.id);
+				savedMsg.delete(msg.from.id);
+				savedTimers.delete(msg.from.id);
+			}, 30000));
+		}).catch((e) => {
+			console.log(e);
+		});
+	} else {
+		console.log('Intento de verificacion doble.');
+	}
 });
 
 // Test: funcion Validar
 bot.onText(/^\/newmember/, (msg) => {
-  bot.emit('new_member', msg);
+	bot.emit('new_member', msg);
 });
 
 // Para implementar en newmember cuando funque bien.
