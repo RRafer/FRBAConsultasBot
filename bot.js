@@ -42,7 +42,6 @@ bot.on('message', (msg) => {
 	if ((config.features[msg.chat.id]
     && config.features[msg.chat.id].enableValidateUsers)
     || config.features[0].enableValidateUsers) {
-		console.log('b');
 		adminUtils.validateUser(bot);
 	}
 });
@@ -177,13 +176,16 @@ bot.onText(/^\/newmember/, (msg) => {
 	bot.emit('new_member', msg);
 });
 
+// test
+bot.onText(/^\/remindme ([0-9]+) (d\w+|h\w+|m\w+|s\w+|w\w+)(.*)?/, (msg, match) => onText.remindme(bot, msg, match));
+
 // Para implementar en newmember cuando funque bien.
 // bot.onText(/^\/prueba/, msg => mongo.insertChatId(msg.from.id, msg.chat.id));
 /*
 
 bot.onText(/^\/(ban|kick)( .*)?/, (msg, match) => onText.banKick(bot, msg, match));
 
-bot.onText(/^\/remindme [0-9]+ (d|h|m|s|w)( .*)?/, (msg, match) => onText.remindme(bot, msg, match));
+
 
 */
 /* bot.onText(/^\/start/, (msg) => {
