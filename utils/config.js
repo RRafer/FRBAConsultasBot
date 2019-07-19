@@ -10,12 +10,14 @@ if (config.mongoEnabled) {
     enableDeleteSystemMessages: false,
     enableLinks: false,
     enableValidateUsers: true,
+    enableGoogle: false,
   };
   // defaults
   config.features[0] = {
     enableDeleteSystemMessages: false,
     enableLinks: false,
     enableValidateUsers: true,
+    enableGoogle: false,
   };
 }
 module.exports = { config };
