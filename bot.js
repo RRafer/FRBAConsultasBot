@@ -8,6 +8,7 @@ const { token } = require('./utils/token');
 const onText = require('./utils/onText/onText');
 const latex = require('./utils/onText/latex');
 const autismo = require('./utils/onText/autismo');
+const status = require('./utils/onText/ServiceStatus');
 
 const bot = new TelegramBot(token, { polling: true });
 const savedMsg = new Map();
@@ -42,8 +43,8 @@ bot.on('message', (msg) => {
 	if ((config.features[msg.chat.id]
     && config.features[msg.chat.id].enableValidateUsers)
     || config.features[0].enableValidateUsers) {
-    adminUtils.validateUser(bot);
-  }
+		adminUtils.validateUser(bot);
+	}
 });
 
 // Envia links de grupos y otros
@@ -58,11 +59,19 @@ bot.onText(/^\/links/,
 
 // LMGTFY
 bot.onText(/^\/google (.*)/ , (msg, match) => {
-  if ((config.features[msg.chat.id] 
+	if ((config.features[msg.chat.id] 
        && config.features[msg.chat.id].enableGoogle) 
        || config.features[0].enableGoogle) {
-    bot.sendMessage(msg.chat.id, `https://lmgtfy.com/?q=${encodeURIComponent(match[1])}`, {reply_to_message_id: msg.message_id});
-  }
+		bot.sendMessage(msg.chat.id, `https://lmgtfy.com/?q=${encodeURIComponent(match[1])}`, {reply_to_message_id: msg.message_id});
+	}
+});
+
+bot.onText(/^\/estado/ , (msg, match) => {
+	if ((config.features[msg.chat.id] 
+       && config.features[msg.chat.id].enableStatus) 
+       || config.features[0].enableStatus) {
+        status.execute(bot, msg, match);
+	}
 });
 
 
@@ -160,7 +169,7 @@ bot.on('callback_query', (json) => {
 });
 
 
-bot.on('new_member', (msg) => {
+/*bot.on('new_member', (msg) => {
 	if (savedMsg.get(msg.from.id) === undefined) {
 		bot.sendMessage(msg.chat.id, `Hola ${msg.from.first_name}${msg.from.last_name || ''} bienvenido al grupo de consultas ${msg.chat.title} de la UTN - FRBA\n\nHaga clic en el boton de abajo para verificar que no sea un bot.\nEste mensaje se eliminara en 30 segundos`, { reply_markup: JSON.stringify(adminUtils.verify(msg)) }).then((sentMsg) => {
 			savedMsg.set(msg.from.id, sentMsg.message_id);
@@ -179,7 +188,7 @@ bot.on('new_member', (msg) => {
 	} else {
 		console.log('Intento de verificacion doble.');
 	}
-});
+});*/
 
 // Test: funcion Validar
 bot.onText(/^\/newmember/, (msg) => {
