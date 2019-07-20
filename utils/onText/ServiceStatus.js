@@ -17,7 +17,7 @@ exports.execute = (bot, msg, match) => {
 	request({
 		url: `https://apitransporte.buenosaires.gob.ar/${transporte}/serviceAlerts?json=1&client_id=${clientId}&client_secret=${clientSecret}`,
 		json: true
-	}, function(e, response, body){
+	}, (e, response, body) => {
 		if(!e && response.statusCode === 200){
 			if(transporte === 'subtes'){
 				if(body.entity.header_text){
