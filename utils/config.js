@@ -13,7 +13,7 @@ if (config.mongoEnabled) {
 		enableGoogle: false,
 		enableStatus: true,
 		enableEcoBici: true,
-		enableBiciCerca: true,
+		enableBici: true,
 	};
 	// defaults
 	config.features[0] = {
@@ -23,7 +23,7 @@ if (config.mongoEnabled) {
 		enableGoogle: false,
 		enableStatus: true,
 		enableEcoBici: true,
-		enableBiciCerca: true,
+		enableBici: true,
 	};
 }
 module.exports = { config };
