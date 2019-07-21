@@ -41,7 +41,6 @@ bot.on('message', (msg) => {
 
 // Verificación usuarios
 bot.on('message', (msg) => {
-
 	if ((config.features[msg.chat.id]
     && config.features[msg.chat.id].enableValidateUsers)
     || config.features[0].enableValidateUsers) {
@@ -90,6 +89,10 @@ bot.onText(/^\/ecobici (.*)/ , (msg, match) => {
        || config.features[0].enableEcoBici) {
         ecobici.execute(bot, msg, match);
 	}
+});
+
+bot.onText(/^\/ping/ , (msg, match) => {
+	bot.sendMessage(msg.chat.id, "Pong!");
 });
 
 
