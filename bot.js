@@ -75,7 +75,7 @@ bot.onText(/^\/estado (.*)/ , (msg, match) => {
 	}
 });
 
-bot.onText(/^\/bicimascerca/ , (msg) => {
+bot.onText(/^\/bici/ , (msg) => {
 	if ((config.features[msg.chat.id] 
        && config.features[msg.chat.id].enableBiciCerca) 
        || config.features[0].enableBiciCerca) {

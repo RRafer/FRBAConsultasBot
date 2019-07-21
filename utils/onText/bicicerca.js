@@ -48,30 +48,23 @@ exports.execute = (bot, msg) => {
 							.filter(s => stationsWithBikes.includes(s.station_id))
 							.reduce((station1, station2) => nearestStation(locationUsr, station1, station2));
                             
-						request({
-							url: `http://ws.usig.buenosaires.gob.ar/geocoder/2.2/reversegeocoding?x=${station.lon}&y=${station.lat}`,
-							json: true
-						}, (e2, response2, body2) => {
-							if(!e2 && response2.statusCode === 200){
-								let unit = false;
-								console.log(body2.puerta);
+						let unit = false;
                                 
-								let dist = getDistanceFromLatLonInKm(locationUsr.latitude, locationUsr.longitude, station.lat, station.lon);
-								if(dist < 1){
-									dist = Math.round(dist*1000);
-									unit = true;
-								}
-								else if(dist >= 1){
-									dist = Math.round(dist*100)/100;
-								}                                        
+						let dist = getDistanceFromLatLonInKm(locationUsr.latitude, locationUsr.longitude, station.lat, station.lon);
+						if(dist < 1){
+							dist = Math.round(dist*1000);
+							unit = true;
+						}
+						else if(dist >= 1){
+							dist = Math.round(dist*100)/100;
+						}                                        
         
-								let GetStation = body.data.stations.find(Selected => Selected.station_id === station.station_id);
-								bot.sendLocation(msg.chat.id, station.lat, station.lon).then(() => {
-									bot.sendMessage(msg.chat.id, `La estación mas cercana esta a ${dist} ${unit?'metros':'kilometros'} sobre ${body2.puerta} con ${GetStation.num_bikes_available} ${GetStation.num_bikes_available===1?'bicicleta':'bicicletas'}`);
-								});
-							}
-						}); 
-					}
+						let GetStation = body.data.stations.find(Selected => Selected.station_id === station.station_id);
+                            
+						bot.sendLocation(msg.chat.id, station.lat, station.lon).then(() => {
+							bot.sendMessage(msg.chat.id, `La estación mas cercana esta a ${dist} ${unit?'metros':'kilometros'} en ${station.address} con ${GetStation.num_bikes_available} ${GetStation.num_bikes_available===1?'bici':'bicis'}`);
+						});
+					} 
 				});
 			}
 		});
