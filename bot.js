@@ -9,6 +9,8 @@ const onText = require('./utils/onText/onText');
 const latex = require('./utils/onText/latex');
 const autismo = require('./utils/onText/autismo');
 const status = require('./utils/onText/ServiceStatus');
+const ecobici = require('./utils/onText/ecobici');
+const bicicerca = require('./utils/onText/bicicerca');
 
 const bot = new TelegramBot(token, { polling: true });
 const savedMsg = new Map();
@@ -66,11 +68,27 @@ bot.onText(/^\/google (.*)/ , (msg, match) => {
 	}
 });
 
-bot.onText(/^\/estado/ , (msg, match) => {
+bot.onText(/^\/estado (.*)/ , (msg, match) => {
 	if ((config.features[msg.chat.id] 
        && config.features[msg.chat.id].enableStatus) 
        || config.features[0].enableStatus) {
         status.execute(bot, msg, match);
+	}
+});
+
+bot.onText(/^\/bicimascerca/ , (msg) => {
+	if ((config.features[msg.chat.id] 
+       && config.features[msg.chat.id].enableBiciCerca) 
+       || config.features[0].enableBiciCerca) {
+        bicicerca.execute(bot, msg);
+	}
+});
+
+bot.onText(/^\/ecobici (.*)/ , (msg, match) => {
+	if ((config.features[msg.chat.id] 
+       && config.features[msg.chat.id].enableEcoBici) 
+       || config.features[0].enableEcoBici) {
+        ecobici.execute(bot, msg, match);
 	}
 });
 

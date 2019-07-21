@@ -12,6 +12,8 @@ if (config.mongoEnabled) {
 		enableValidateUsers: true,
 		enableGoogle: false,
 		enableStatus: true,
+		enableEcoBici: true,
+		enableBiciCerca: true,
 	};
 	// defaults
 	config.features[0] = {
@@ -20,6 +22,8 @@ if (config.mongoEnabled) {
 		enableValidateUsers: true,
 		enableGoogle: false,
 		enableStatus: true,
+		enableEcoBici: true,
+		enableBiciCerca: true,
 	};
 }
 module.exports = { config };
