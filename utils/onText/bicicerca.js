@@ -46,27 +46,38 @@ function stationsWithBikes(station) {
 exports.execute = (bot, msg) => {
     if (msg.reply_to_message.location) {
         //bot.deleteMessage(msg.chat.id, msg.reply_to_message.message_id);
+
         request({
-            url: `https://apitransporte.buenosaires.gob.ar/ecobici/gbfs/stationInformation?client_id=${clientId}&client_secret=${clientSecret}`,
+            url: `https://apitransporte.buenosaires.gob.ar/ecobici/gbfs/stationStatus?client_id=${clientId}&client_secret=${clientSecret}`,
             json: true
         }, (e, response, body) => {
 
             if (!e && response.statusCode === 200) {
 
-                let locationUsr = msg.reply_to_message.location
-                console.log(locationUsr)
-                let station = body.data.stations
-                    .reduce((station1, station2) => nearestStation(locationUsr, station1, station2))
+                let stationsWithBikes = body.data.stations.filter(s => s.num_bikes_available > 0).map(s => s.station_id)
 
-                bot.sendLocation(msg.chat.id, station.lat, station.lon).then(value => {
+                request({
+                    url: `https://apitransporte.buenosaires.gob.ar/ecobici/gbfs/stationInformation?client_id=${clientId}&client_secret=${clientSecret}`,
+                    json: true
+                }, (e1, response1, body1) => {
 
-                    //TODO: Deberiamos mandar la cantidad de bicis disponibles
-                })
+                    if (!e1 && response1.statusCode === 200) {
 
+                        let locationUsr = msg.reply_to_message.location
+
+                        let station = body1.data.stations
+                            .filter(s => stationsWithBikes.includes(s.station_id))
+                            .reduce((station1, station2) => nearestStation(locationUsr, station1, station2))
+
+                        bot.sendLocation(msg.chat.id, station.lat, station.lon).then(value => {
+
+                            //TODO: Deberiamos mandar la cantidad de bicis disponibles
+                        })
+                    }
+                });
             }
         });
     }
-
 };
 
 
