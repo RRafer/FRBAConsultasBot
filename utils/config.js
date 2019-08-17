@@ -14,6 +14,8 @@ if (config.mongoEnabled) {
 		enableStatus: true,
 		enableEcoBici: true,
 		enableBici: true,
+		enableSubte: true,
+		enableFacts: true,
 	};
 	// defaults
 	config.features[0] = {
@@ -24,6 +26,8 @@ if (config.mongoEnabled) {
 		enableStatus: true,
 		enableEcoBici: true,
 		enableBici: true,
+		enableSubte: true,
+		enableFacts: true,
 	};
 }
 module.exports = { config };

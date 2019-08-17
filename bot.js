@@ -67,32 +67,35 @@ bot.onText(/^\/google (.*)/ , (msg, match) => {
 	}
 });
 
+// Envia un mensaje con el estado de los trenes / subtes
 bot.onText(/^\/estado (.*)/ , (msg, match) => {
 	if ((config.features[msg.chat.id] 
        && config.features[msg.chat.id].enableStatus) 
        || config.features[0].enableStatus) {
-        status.execute(bot, msg, match);
+		status.execute(bot, msg, match);
 	}
 });
 
+// Envia la ubicación de las estaciones de ecobici mas cerca
 bot.onText(/^\/bici/ , (msg) => {
 	if ((config.features[msg.chat.id] 
        && config.features[msg.chat.id].enableBici) 
        || config.features[0].enableBici) {
-        bici.execute(bot, msg);
+		bici.execute(bot, msg);
 	}
 });
 
+// Devuelve la información de la estación de la EcoBici
 bot.onText(/^\/ecobici (.*)/ , (msg, match) => {
 	if ((config.features[msg.chat.id] 
        && config.features[msg.chat.id].enableEcoBici) 
        || config.features[0].enableEcoBici) {
-        ecobici.execute(bot, msg, match);
+		ecobici.execute(bot, msg, match);
 	}
 });
 
-bot.onText(/^\/ping/ , (msg, match) => {
-	bot.sendMessage(msg.chat.id, "Pong!");
+bot.onText(/^\/ping/ , msg => {
+	bot.sendMessage(msg.chat.id, 'Pong!');
 });
 
 
