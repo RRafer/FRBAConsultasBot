@@ -11,7 +11,7 @@ if (config.mongoEnabled) {
 		enableLinks: false,
 		enableValidateUsers: true,
 		enableGoogle: false,
-		enableAdmin: true,
+		enableAdmin: false,
 	};
 	// defaults
 	config.features[0] = {
@@ -19,7 +19,7 @@ if (config.mongoEnabled) {
 		enableLinks: false,
 		enableValidateUsers: true,
 		enableGoogle: false,
-		enableAdmin: true,
+		enableAdmin: false,
 	};
 }
 
