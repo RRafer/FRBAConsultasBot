@@ -11,11 +11,10 @@ if (config.mongoEnabled) {
 		enableLinks: false,
 		enableValidateUsers: true,
 		enableGoogle: false,
-		enableStatus: true,
-		enableEcoBici: true,
-		enableBici: true,
-		enableSubte: true,
-		enableFacts: true,
+		enableStatus: false,
+		enableEcoBici: false,
+		enableBici: false,
+		enableSubte: false,
 	};
 	// defaults
 	config.features[0] = {
@@ -23,11 +22,11 @@ if (config.mongoEnabled) {
 		enableLinks: false,
 		enableValidateUsers: true,
 		enableGoogle: false,
-		enableStatus: true,
-		enableEcoBici: true,
-		enableBici: true,
-		enableSubte: true,
-		enableFacts: true,
+		enableStatus: false,
+		enableEcoBici: false,
+		enableBici: false,
+		enableSubte: false,
+		enableFacts: false,
 	};
 }
 module.exports = { config };
