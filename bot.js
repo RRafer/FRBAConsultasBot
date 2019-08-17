@@ -9,6 +9,7 @@ const onText = require('./utils/onText/onText');
 const latex = require('./utils/onText/latex');
 const autismo = require('./utils/onText/autismo');
 const rotate = require('./utils/onText/rotate');
+const callAdmin = require('./utils/onText/CallAdmin');
 
 const bot = new TelegramBot(token, { polling: true });
 const savedMsg = new Map();
@@ -65,11 +66,19 @@ bot.onText(/^\/links/,
 
 // LMGTFY
 bot.onText(/^\/google (.*)/ , (msg, match) => {
-  if ((config.features[msg.chat.id] 
+	if ((config.features[msg.chat.id] 
        && config.features[msg.chat.id].enableGoogle) 
        || config.features[0].enableGoogle) {
-    bot.sendMessage(msg.chat.id, `https://lmgtfy.com/?q=${encodeURIComponent(match[1])}`, {reply_to_message_id: msg.message_id});
-  }
+		bot.sendMessage(msg.chat.id, `https://lmgtfy.com/?q=${encodeURIComponent(match[1])}`, {reply_to_message_id: msg.message_id});
+	}
+});
+
+bot.onText(/^\/admin/ , (msg) => {
+	if ((config.features[msg.chat.id] 
+       && config.features[msg.chat.id].enableAdmin) 
+       || config.features[0].enableAdmin) {
+		callAdmin.execute(bot, msg);
+	}
 });
 
 /*
