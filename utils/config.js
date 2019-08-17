@@ -26,7 +26,6 @@ if (config.mongoEnabled) {
 		enableEcoBici: false,
 		enableBici: false,
 		enableSubte: false,
-		enableFacts: false,
 	};
 }
 module.exports = { config };
