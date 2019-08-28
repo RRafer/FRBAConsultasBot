@@ -18,4 +18,12 @@ const config = (mongoEnabled) => {
     },
   };
 }
-module.exports = { features: config(false) };
+
+isEnabledFor = (feature, chatId) => 
+  (config.features[chatId] && config.features[chatId][feature])
+  || config.features[0][feature];
+
+module.exports = {
+  features: config(false),
+  isEnabledFor: isEnabledFor,
+};

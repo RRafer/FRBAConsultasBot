@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 const TelegramBot = require('node-telegram-bot-api');
-const linksUtils = require('./utils/links');
-const adminUtils = require('./utils/admin');
-const mongo = require('./utils/mongo');
+const linksController = require('./controllers/links');
+const adminControllers = require('./controllers/admin');
+// const mongo = require('./utils/mongo');
 const { config } = require('./utils/config');
 const { token } = require('./utils/token');
 const onText = require('./utils/onText/onText');
@@ -26,50 +26,34 @@ const savedTimers = new Map();
 // Muestra errores en consola
 bot.on('polling_error', msg => console.log(msg));
 
-// Elimina mensajes de personas que se unen y abandonan el grupo
 bot.on('message', (msg) => {
-	if ((config.features[msg.chat.id]
-    && config.features[msg.chat.id].enableDeleteSystemMessages)
-    || config.features[0].enableDeleteSystemMessages) {
-		if (msg.new_chat_member !== undefined || msg.left_chat_member !== undefined) {
+  // Elimina mensajes de personas que se unen y abandonan el grupo
+	if (config.isEnabledFor('enableDeleteSystemMessages', msg.chat.id)) {
+		if (msg.new_chat_member !== undefined || msg.left_chat_member !== undefined) 
 			bot.deleteMessage(msg.chat.id, msg.message_id);
-		}
-	}
+  }
+
+  // verificacion de usuarios
+  if (config.isEnabledFor('enableValidateUsers', msg.chat.id))
+    adminControllers.validateUser(bot);
 });
 
 bot.onText(/^\/rotar (.*)/, (msg, match) => {
-	if ((config.features[msg.chat.id]
-    && config.features[msg.chat.id].enableRotate)
-    || config.features[0].enableRotate) {
+	if (config.isEnabledFor('enableRotate', msg.chat.id)) 
 		rotate.execute(bot, msg, match);
-	}
-});
-
-// Verificación usuarios
-bot.on('message', (msg) => {
-	if ((config.features[msg.chat.id]
-    && config.features[msg.chat.id].enableValidateUsers)
-    || config.features[0].enableValidateUsers)
-		adminUtils.validateUser(bot);
 });
 
 // Envia links de grupos y otros
 bot.onText(/^\/links/,
-	(msg) => {
-		if ((config.features[msg.chat.id]
-      && config.features[msg.chat.id].enableLinks)
-      || config.features[0].enableLinks) {
-			linksUtils.sendLinks(bot);
-		}
+	({chat}) => {
+		if (config.isEnabledFor('enableLinks', chat.id)) 
+			linksController.sendLinks(bot);
 	});
 
 // LMGTFY
 bot.onText(/^\/google (.*)/ , (msg, match) => {
-  if ((config.features[msg.chat.id] 
-       && config.features[msg.chat.id].enableGoogle) 
-       || config.features[0].enableGoogle) {
+  if (config.isEnabledFor('enableGoogle', msg.chat.id)) 
     bot.sendMessage(msg.chat.id, `https://lmgtfy.com/?q=${encodeURIComponent(match[1])}`, {reply_to_message_id: msg.message_id});
-  }
 });
 
 /*
