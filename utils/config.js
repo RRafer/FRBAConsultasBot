@@ -1,21 +1,21 @@
-let config = {
-  mongoEnabled: false,
-  features: {},
+const config = (mongoEnabled) => {
+    if (mongoEnabled) return loadConfigFromDB();
+    return {
+        '-1001262375149': {
+            enableDeleteSystemMessages: false,
+            enableLinks: false,
+            enableValidateUsers: true,
+            enableRotate: false,
+            enableGoogle: false,
+        },
+        // defaults
+        '0': {
+            enableDeleteSystemMessages: false,
+            enableLinks: false,
+            enableValidateUsers: true,
+            enableRotate: false,
+            enableGoogle: false,
+        },
+    };
 };
-
-if (config.mongoEnabled) {
-  config.features = loadConfigFromDB();
-} else {
-  config.features[-1001262375149] = {
-    enableDeleteSystemMessages: false,
-    enableLinks: false,
-    enableValidateUsers: true,
-  };
-  // defaults
-  config.features[0] = {
-    enableDeleteSystemMessages: false,
-    enableLinks: false,
-    enableValidateUsers: true,
-  };
-}
-module.exports = { config };
+module.exports = { features: config(false) };

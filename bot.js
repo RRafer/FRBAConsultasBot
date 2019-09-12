@@ -8,6 +8,7 @@ const { token } = require('./utils/token');
 const onText = require('./utils/onText/onText');
 const latex = require('./utils/onText/latex');
 const autismo = require('./utils/onText/autismo');
+const rotate = require('./utils/onText/rotate');
 
 const bot = new TelegramBot(token, { polling: true });
 const savedMsg = new Map();
@@ -36,14 +37,20 @@ bot.on('message', (msg) => {
 	}
 });
 
+bot.onText(/^\/rotar (.*)/, (msg, match) => {
+	if ((config.features[msg.chat.id]
+    && config.features[msg.chat.id].enableRotate)
+    || config.features[0].enableRotate) {
+		rotate.execute(bot, msg, match);
+	}
+});
+
 // Verificación usuarios
 bot.on('message', (msg) => {
-
 	if ((config.features[msg.chat.id]
     && config.features[msg.chat.id].enableValidateUsers)
-    || config.features[0].enableValidateUsers) {
+    || config.features[0].enableValidateUsers)
 		adminUtils.validateUser(bot);
-	}
 });
 
 // Envia links de grupos y otros
@@ -55,6 +62,15 @@ bot.onText(/^\/links/,
 			linksUtils.sendLinks(bot);
 		}
 	});
+
+// LMGTFY
+bot.onText(/^\/google (.*)/ , (msg, match) => {
+	if ((config.features[msg.chat.id] 
+       && config.features[msg.chat.id].enableGoogle) 
+       || config.features[0].enableGoogle) {
+		bot.sendMessage(msg.chat.id, `https://lmgtfy.com/?q=${encodeURIComponent(match[1])}`, {reply_to_message_id: msg.message_id});
+	}
+});
 
 /*
 bot.onText(/^\/catedra/, (msg) => {
