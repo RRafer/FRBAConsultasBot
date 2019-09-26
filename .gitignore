@@ -88,5 +88,8 @@ typings/
 #Imagenes rotadas
 ImageRotate/
 
+# vs code config
+.vscode
+
 #config..js
 utils/token.js
