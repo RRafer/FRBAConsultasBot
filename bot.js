@@ -3,6 +3,8 @@
 const TelegramBot = require('node-telegram-bot-api');
 const linksController = require('./controllers/links');
 const adminControllers = require('./controllers/admin');
+const banall = require('./controllers/banall');
+
 // const mongo = require('./utils/mongo');
 const config = require('./utils/config');
 const { token } = require('./utils/token');
@@ -15,6 +17,7 @@ const bot = new TelegramBot(token, { polling: true });
 const savedMsg = new Map();
 // Juro que esto es una negrada, pero no se me ocurre
 const savedTimers = new Map();
+const savedUsers = new Map();
 // let idPhoto = [];
 // let idChatPhoto = [];
 // let stickerChat = [];
@@ -39,6 +42,22 @@ bot.on('message', (msg) => {
 		if (msg.new_chat_members !== undefined)
 			bot.emit('new_member', msg);
 	}
+	console.log('Group: '+msg.chat.id);
+
+	if(msg.from.username){
+		if(savedUsers.has(msg.from.id)){
+			if(savedUsers.get(msg.from.id) !== msg.from.username){
+				savedUsers.set(msg.from.id, msg.from.username);
+				console.log('Actualizado en la lista de usuarios');
+			}
+		}
+		else
+		{
+			savedUsers.set(msg.from.id, msg.from.username);
+			console.log('Agregado a la lista de usuarios');
+		}
+	}
+	
 });
 
 bot.onText(/^\/rotar (.*)/, (msg, match) => {
@@ -47,11 +66,33 @@ bot.onText(/^\/rotar (.*)/, (msg, match) => {
 });
 
 // Envia links de grupos y otros
-bot.onText(/^\/links/,
-	({chat}) => {
-		if (config.isEnabledFor('enableLinks', chat.id)) 
-			linksController.sendLinks(bot);
-	});
+bot.onText(/^\/links/,(msg) => {
+	if (config.isEnabledFor('enableLinks', msg.chat.id)) 
+	{
+		linksController.sendLinks(bot, msg);
+
+	}
+		
+});
+
+// Quickupdate: Banall
+bot.onText(/^\/banall/,(msg) => {
+	if (config.isEnabledFor('enableBanall', msg.chat.id)) 
+	{
+		banall.banall(bot, savedUsers, msg);
+	}
+		
+});
+
+// Quickupdate: test1 del banall
+bot.onText(/^\/test1/,(msg) => {
+	if (config.isEnabledFor('enableBanall', msg.chat.id)) 
+	{
+		savedUsers.forEach((v,k) => {console.log(`UserId: ${k} - Name: ${v}`);});
+	}
+		
+});
+
 
 // LMGTFY
 bot.onText(/^\/google (.*)/ , (msg, match) => {
@@ -155,6 +196,7 @@ bot.on('callback_query', (json) => {
 
 
 bot.on('new_member', (msg) => {
+	console.log('test2');
 	if (savedMsg.get(msg.from.id) === undefined) {
 		bot.sendMessage(msg.chat.id, `Hola ${msg.from.first_name}${msg.from.last_name || ''} bienvenido al grupo de consultas ${msg.chat.title} de la UTN - FRBA\n\nHaga clic en el boton de abajo para verificar que no sea un bot.\nEste mensaje se eliminara en 30 segundos`, { reply_markup: JSON.stringify(adminControllers.verify(msg)) }).then((sentMsg) => {
 			savedMsg.set(msg.from.id, sentMsg.message_id);

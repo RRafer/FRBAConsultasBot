@@ -9,17 +9,19 @@ const config = (mongoEnabled) => {
 		'-1001262375149': {
 			enableDeleteSystemMessages: false,
 			enableLinks: false,
-			enableValidateUsers: true,
+			enableValidateUsers: false,
 			enableRotate: false,
 			enableGoogle: false,
+			enableBanall: true,
 		},
 		// defaults
 		'0': {
 			enableDeleteSystemMessages: false,
 			enableLinks: false,
-			enableValidateUsers: true,
+			enableValidateUsers: false,
 			enableRotate: false,
 			enableGoogle: false,
+			enableBanall: true,
 		},
 	};
 };
