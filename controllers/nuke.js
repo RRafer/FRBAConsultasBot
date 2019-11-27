@@ -2,9 +2,9 @@
 
 //ids, temporal hasta que los carguemos en la DB
 
-let groupIDs = ['-1001262375149','-1001214086516'];
+let groupIDs = ['-1001262375149','-1001214086516', '-1001155863433', '-1001249368906', '-1001387811266', '-1001172707925','-1001386498425','-1001205439751','-1001337509181','-1001259839523','-1001289702550','-1001255281308','-1001171982049','-1001203933567','-1001313951685', '-1001157259051', '-1001290861768', '-1001378858456', '-1001288012396','-1001485242696', '-1001370286549', '-1001394632264', '-1001286595347', '-1001396035324', '-1001177806644'];
 
-exports.banall = (bot, usersList, msg) => {
+exports.nuke = (bot, usersList, msg) => {
 
 	let idToBan;
 	//Check Credentials of invoking user
@@ -38,12 +38,15 @@ exports.banall = (bot, usersList, msg) => {
 				}
 			}
 			groupIDs.forEach((chatGroupId) => {
-				bot.kickChatMember(chatGroupId, idToBan).then(() => {
-				}).catch(err => {
-					console.log(err);
+				bot.getChatMember(msg.chat.id, msg.from.id).then(userMember => {                    
+					if(userMember.status == 'creator' || userMember.status == 'administrator'){
+						bot.kickChatMember(chatGroupId, idToBan).then(() => {
+						}).catch(err => {
+							console.log(err);
+						});
+					}
 				});
 			});
 		}
-    
 	});
 };
