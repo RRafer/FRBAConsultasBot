@@ -140,10 +140,7 @@ bot.on('new_member', (msg) => {
 	}
 });
 
-// Test: funcion Validar
-bot.onText(/^\/newmember/, (msg) => {
-	bot.emit('new_member', msg);
-});
+bot.onText(/^\/(ban|kick)( .*)?/, (msg, match) => onText.banKick(bot, match, savedUsers, msg));
 
 // Útil pero no debe exponerse.
 //bot.onText(/^\/id/, (msg) => {
@@ -164,8 +161,6 @@ bot.onText(/^\/newmember/, (msg) => {
 // Para implementar en newmember cuando funque bien.
 // bot.onText(/^\/prueba/, msg => mongo.insertChatId(msg.from.id, msg.chat.id));
 /*
-
-bot.onText(/^\/(ban|kick)( .*)?/, (msg, match) => onText.banKick(bot, msg, match));
 
 bot.onText(/^\/remindme [0-9]+ (d|h|m|s|w)( .*)?/, (msg, match) => onText.remindme(bot, msg, match));
 
