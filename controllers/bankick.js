@@ -3,7 +3,6 @@ let groupIDs = ['-1001262375149','-1001214086516', '-1001155863433', '-100124936
 
 //TODO: Agregar el segundo comando para el tiempo.
 exports.nuke = (bot, command, usersList, msg) => {
-
 	let idToBan;
 	//Check group
 	if (groupIDs.includes(msg.chat.id)){
