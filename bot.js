@@ -3,7 +3,7 @@
 const TelegramBot = require('node-telegram-bot-api');
 const linksController = require('./controllers/links');
 const adminControllers = require('./controllers/admin');
-const banall = require('./controllers/nuke');
+const nuke = require('./controllers/nuke');
 
 // const mongo = require('./utils/mongo');
 const config = require('./utils/config');
@@ -59,7 +59,7 @@ bot.on('message', (msg) => {
 	
 });
 
-bot.onText(/^\/rotar (.*)/, (msg, match) => {
+bot.onText(/^\/rotar (.+)/, (msg, match) => {
 	if (config.isEnabledFor('enableRotate', msg.chat.id)) 
 		rotate.execute(bot, msg, match);
 });
@@ -73,12 +73,12 @@ bot.onText(/^\/links/,(msg) => {
 // Quickupdate: Banall now called Nuke
 bot.onText(/^\/nuke/,(msg) => {
 	if (config.isEnabledFor('enableNuke', msg.chat.id)) 
-		banall.nuke(bot, savedUsers, msg);
+		nuke.nuke(bot, savedUsers, msg);
 });
 
 
 // LMGTFY
-bot.onText(/^\/google (.*)/ , (msg, match) => {
+bot.onText(/^\/google (.+)/ , (msg, match) => {
 	if (config.isEnabledFor('enableGoogle', msg.chat.id)) 
 		bot.sendMessage(msg.chat.id, `https://lmgtfy.com/?q=${encodeURIComponent(match[1])}`, {reply_to_message_id: msg.message_id});
 });
