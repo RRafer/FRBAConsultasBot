@@ -7,46 +7,51 @@ let groupIDs = ['-1001262375149','-1001214086516', '-1001155863433', '-100124936
 exports.nuke = (bot, usersList, msg) => {
 
 	let idToBan;
+	//Check group
+	if (groupIDs.includes(msg.chat.id)){
 	//Check Credentials of invoking user
-	bot.getChatMember(msg.chat.id, msg.from.id).then(userMember => {                    
-		if(userMember.status == 'creator' || userMember.status == 'administrator'){
+		bot.getChatMember(msg.chat.id, msg.from.id).then(userMember => {                    
+			if(userMember.status == 'creator' || userMember.status == 'administrator'){
 			//Bans author of the replied message
-			if (msg.reply_to_message){
-				idToBan = msg.reply_to_message.from.id;
-			}
-			else{
+				if (msg.reply_to_message){
+					idToBan = msg.reply_to_message.from.id;
+				}
+				else{
 				//If user is mentioned with @username
-				if (msg.entities){
-					msg.entities.forEach((entity) => {
+					if (msg.entities){
+						msg.entities.forEach((entity) => {
 						//If user is mentioned and it has @username
-						if (entity.type == 'text_mention'){
-							idToBan = entity.user.id;
-						}
-						else{
-							if (entity.type == 'mention'){
+							if (entity.type == 'text_mention'){
+								idToBan = entity.user.id;
+							}
+							else{
+								if (entity.type == 'mention'){
 								//If user is mentioned but has no @username
-								let nameToSearch = msg.text.substr(entity.offset+1,entity.length-1);								
-								usersList.forEach((v,k) => {
-									if (v == nameToSearch){
-										idToBan = k;
-									}
+									let nameToSearch = msg.text.substr(entity.offset+1,entity.length-1);								
+									usersList.forEach((v,k) => {
+										if (v == nameToSearch){
+											idToBan = k;
+										}
+									});
+								}
+							}
+						});
+					
+					}
+				}
+				if(idToBan != null){
+					groupIDs.forEach((chatGroupId) => {
+						bot.getChatMember(msg.chat.id, msg.from.id).then(userMember => {                    
+							if(userMember.status == 'creator' || userMember.status == 'administrator'){
+								bot.kickChatMember(chatGroupId, idToBan).then(() => {
+								}).catch(err => {
+									console.log(err);
 								});
 							}
-						}
+						});
 					});
-					
 				}
 			}
-			groupIDs.forEach((chatGroupId) => {
-				bot.getChatMember(msg.chat.id, msg.from.id).then(userMember => {                    
-					if(userMember.status == 'creator' || userMember.status == 'administrator'){
-						bot.kickChatMember(chatGroupId, idToBan).then(() => {
-						}).catch(err => {
-							console.log(err);
-						});
-					}
-				});
-			});
-		}
-	});
+		});
+	}
 };
