@@ -43,15 +43,21 @@ exports.nuke = (bot, usersList, msg) => {
 					groupIDs.forEach((chatGroupId) => {
 						bot.getChatMember(msg.chat.id, msg.from.id).then(userMember => {                    
 							if(userMember.status == 'creator' || userMember.status == 'administrator'){
-								bot.kickChatMember(chatGroupId, idToBan).then(() => {
-								}).catch(err => {
-									console.log(err);
-								});
+								bot.getChatMember(msg.chat.id, idToBan).then((userToBan) => {
+									if(userToBan.status != 'creator' || userToBan.status != 'administrator'){
+										bot.kickChatMember(chatGroupId, idToBan).then(() => {
+										}).catch(err => {
+											//Catch 'cannot ban user' errors
+											console.log(err);
+										});
+									}
+								}).catch(err => console.log(err)); //catch error: 'can't get chat member'
 							}
-						});
+						
+						}).catch(err => console.log(err));
 					});
 				}
 			}
-		});
+		}).catch(err => console.log(err)); //catch all the possible errors here so they don't bubble
 	}
 };
