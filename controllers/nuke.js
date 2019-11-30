@@ -49,7 +49,7 @@ exports.nuke = (bot, usersList, msg) => {
 							if(userMember.status == 'creator' || userMember.status == 'administrator'){
 
 								bot.getChatMember(msg.chat.id, idToBan).then((userToBan) => {
-									if(userToBan.status != 'creator' || userToBan.status != 'administrator'){
+									if(userToBan.status != 'creator' && userToBan.status != 'administrator'){
 										bot.kickChatMember(chatGroupId, idToBan).then(() => {
 											bot.sendMessage(chatGroupId, `${generateMention(msg)} ha kickeado a ${mentionToBan} !`, { parse_mode: 'Markdown' });
 										}).catch(err => {
