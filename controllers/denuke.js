@@ -48,7 +48,7 @@ exports.denuke = (bot, usersList, msg) => {
 						bot.getChatMember(msg.chat.id, msg.from.id).then(userMember => {                    
 							if(userMember.status == 'creator' || userMember.status == 'administrator'){
 								bot.getChatMember(msg.chat.id, idToBan).then((userToBan) => {
-									if(userToBan.status != 'creator' || userToBan.status != 'administrator'){
+									if(userToBan.status != 'creator' && userToBan.status != 'administrator'){
 										bot.unbanChatMember(chatGroupId, idToBan).then(() => {
 											bot.sendMessage(chatGroupId, `${generateMention(msg)} ha desbaneado a ${mentionToBan} !`, { parse_mode: 'Markdown' });
 										}).catch(err => {
