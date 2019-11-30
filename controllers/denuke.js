@@ -1,3 +1,4 @@
+// @ts-check
 /* eslint-disable no-console */
 const { generateMention } = require('../utils/generic');
 //ids, temporal hasta que los carguemos en la DB
@@ -6,9 +7,10 @@ let groupIDs = ['-1001262375149','-1001214086516', '-1001155863433', '-100124936
 
 exports.denuke = (bot, usersList, msg) => {
 
-	let idToBan, mentionToBan;
+	console.log('de-Nuking....');
+	var idToBan, mentionToBan;
 	//Check group
-	if (groupIDs.includes(msg.chat.id)){
+	if (groupIDs.includes(String(msg.chat.id))){
 	//Check Credentials of invoking user
 		bot.getChatMember(msg.chat.id, msg.from.id).then(userMember => {                    
 			if(userMember.status == 'creator' || userMember.status == 'administrator'){
@@ -16,6 +18,7 @@ exports.denuke = (bot, usersList, msg) => {
 				if (msg.reply_to_message){
 					idToBan = msg.reply_to_message.from.id;
 					mentionToBan = generateMention(msg.reply_to_message);
+					console.log(mentionToBan);
 				}
 				else{
 				//If user is mentioned with @username
@@ -50,7 +53,8 @@ exports.denuke = (bot, usersList, msg) => {
 								bot.getChatMember(msg.chat.id, idToBan).then((userToBan) => {
 									if(userToBan.status != 'creator' && userToBan.status != 'administrator'){
 										bot.unbanChatMember(chatGroupId, idToBan).then(() => {
-											bot.sendMessage(chatGroupId, `${generateMention(msg)} ha desbaneado a ${mentionToBan} !`, { parse_mode: 'Markdown' });
+											if (chatGroupId == msg.chat.id)
+												bot.sendMessage(chatGroupId, `${generateMention(msg)} ha desbaneado a ${mentionToBan} !`, { parse_mode: 'Markdown' });
 										}).catch(err => {
 											//Catch 'cannot ban user' errors
 											console.log(err);
