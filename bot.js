@@ -4,6 +4,7 @@ const TelegramBot = require('node-telegram-bot-api');
 const linksController = require('./controllers/links');
 const adminControllers = require('./controllers/admin');
 const nuke = require('./controllers/nuke');
+const denuke = require('./controllers/denuke');
 
 // const mongo = require('./utils/mongo');
 const config = require('./utils/config');
@@ -34,7 +35,7 @@ bot.on('message', (msg) => {
 	// Elimina mensajes de personas que se unen y abandonan el grupo
 	if (config.isEnabledFor('enableDeleteSystemMessages', msg.chat.id)) {
 		if (msg.new_chat_members !== undefined || msg.left_chat_member !== undefined) 
-			bot.deleteMessage(msg.chat.id, msg.message_id);
+			bot.deleteMessage(msg.chat.id, String(msg.message_id));
 	}
 
 	// verificacion de usuarios
@@ -74,6 +75,12 @@ bot.onText(/^\/links/,(msg) => {
 bot.onText(/^\/nuke/,(msg) => {
 	if (config.isEnabledFor('enableNuke', msg.chat.id)) 
 		nuke.nuke(bot, savedUsers, msg);
+});
+
+// Quickupdate: denuke
+bot.onText(/^\/denuke/,(msg) => {
+	if (config.isEnabledFor('enableNuke', msg.chat.id)) 
+		denuke.denuke(bot, savedUsers, msg);
 });
 
 
@@ -140,7 +147,7 @@ bot.on('new_member', (msg) => {
 	}
 });
 
-bot.onText(/^\/(ban|kick)( .*)?/, (msg, match) => onText.banKick(bot, match, savedUsers, msg));
+//bot.onText(/^\/(ban|kick)( .*)?/, (msg, match) => onText.banKick(bot, match, savedUsers, msg));
 
 // Útil pero no debe exponerse.
 //bot.onText(/^\/id/, (msg) => {
