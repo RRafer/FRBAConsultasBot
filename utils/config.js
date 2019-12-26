@@ -9,17 +9,19 @@ const config = (mongoEnabled) => {
 		'-1001262375149': {
 			enableDeleteSystemMessages: false,
 			enableLinks: false,
-			enableValidateUsers: true,
+			enableValidateUsers: false,
 			enableRotate: false,
 			enableGoogle: false,
+			enableNuke: true,
 		},
 		// defaults
 		'0': {
 			enableDeleteSystemMessages: false,
 			enableLinks: false,
-			enableValidateUsers: true,
+			enableValidateUsers: false,
 			enableRotate: false,
 			enableGoogle: false,
+			enableNuke: true,
 		},
 	};
 };
@@ -34,7 +36,9 @@ const config = (mongoEnabled) => {
  * @param {number} chatId 
  * @returns {boolean} If that chat supports that function
  */
+
 function isEnabledFor (feature, chatId) {return (this.features[chatId] && this.features[chatId][feature]) || this.features[0][feature]; };
+
 
 module.exports = {
 	features: config(false),

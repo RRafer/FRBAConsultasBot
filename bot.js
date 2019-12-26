@@ -3,6 +3,8 @@
 const TelegramBot = require('node-telegram-bot-api');
 const linksController = require('./controllers/links');
 const adminControllers = require('./controllers/admin');
+const nuke = require('./controllers/nuke');
+const denuke = require('./controllers/denuke');
 // Start the DB before loading config
 require('./controllers/database').getDb();
 const config = require('./utils/config');
@@ -12,13 +14,12 @@ const latex = require('./utils/onText/latex');
 const autismo = require('./utils/onText/autismo');
 const rotate = require('./utils/onText/rotate');
 
-
-
 const bot = new TelegramBot(token, { polling: true });
 
 // Juro que esto es una negrada, pero no se me ocurre
 const savedMsg = new Map();
 const savedTimers = new Map();
+const savedUsers = new Map();
 
 // let idPhoto = [];
 // let idChatPhoto = [];
@@ -36,7 +37,8 @@ bot.on('message', (msg) => {
 	// Elimina mensajes de personas que se unen y abandonan el grupo
 	if (config.isEnabledFor('enableDeleteSystemMessages', msg.chat.id)) {
 		if (msg.new_chat_members !== undefined || msg.left_chat_member !== undefined) 
-			bot.deleteMessage(msg.chat.id, msg.message_id);
+			bot.deleteMessage(msg.chat.id, String(msg.message_id));
+
 	}
 
 	// verificacion de usuarios
@@ -44,7 +46,22 @@ bot.on('message', (msg) => {
 		if (msg.new_chat_members !== undefined)
 			bot.emit('new_member', msg);
 	}
+	if(msg.from.username){
+		if(savedUsers.has(msg.from.id)){
+			if(savedUsers.get(msg.from.id) !== msg.from.username){
+				savedUsers.set(msg.from.id, msg.from.username);
+				console.log(`Actualizado ${msg.from.username} en la lista de usuarios`);
+			}
+		}
+		else
+		{
+			savedUsers.set(msg.from.id, msg.from.username);
+			console.log(`Agregado ${msg.from.username} a la lista de usuarios`);
+		}
+	}
+	
 });
+
 
 bot.onText(/^\/rotar (.*)/, (msg, match) => {
 	if (config.isEnabledFor('enableRotate', msg.chat.id)) 
@@ -52,17 +69,31 @@ bot.onText(/^\/rotar (.*)/, (msg, match) => {
 });
 
 // Envia links de grupos y otros
-bot.onText(/^\/links/,
-	({chat}) => {
-		if (config.isEnabledFor('enableLinks', chat.id)) 
-			linksController.sendLinks(bot);
-	});
+//TODO: Revisar todo esto para la parte de links
+bot.onText(/^\/links/,(msg) => {
+	if (config.isEnabledFor('enableLinks', msg.chat.id)) 
+		linksController.sendLinks(bot, msg);		
+});
+
+// Quickupdate: Banall now called Nuke
+bot.onText(/^\/nuke/,(msg) => {
+	if (config.isEnabledFor('enableNuke', msg.chat.id)) 
+		nuke.nuke(bot, savedUsers, msg);
+});
+
+// Quickupdate: denuke
+bot.onText(/^\/denuke/,(msg) => {
+	if (config.isEnabledFor('enableNuke', msg.chat.id)) 
+		denuke.denuke(bot, savedUsers, msg);
+});
+
 
 // LMGTFY
-bot.onText(/^\/google (.*)/ , (msg, match) => {
+bot.onText(/^\/google (.+)/ , (msg, match) => {
 	if (config.isEnabledFor('enableGoogle', msg.chat.id)) 
 		bot.sendMessage(msg.chat.id, `https://lmgtfy.com/?q=${encodeURIComponent(match[1])}`, {reply_to_message_id: msg.message_id});
 });
+
 
 /*
 bot.onText(/^\/catedra/, (msg) => {
@@ -179,40 +210,13 @@ bot.on('new_member', (msg) => {
 	}
 });
 
-// Test: funcion Validar
-bot.onText(/^\/newmember/, (msg) => {
-	bot.emit('new_member', msg);
-});
-
-// test
-bot.onText(/^\/remindme ([0-9]+) (d\w+|h\w+|m\w+|s\w+|w\w+)(.*)?/, (msg, match) => onText.remindme(bot, msg, match));
-
-// Para implementar en newmember cuando funque bien.
-// bot.onText(/^\/prueba/, msg => mongo.insertChatId(msg.from.id, msg.chat.id));
-/*
-
-bot.onText(/^\/(ban|kick)( .*)?/, (msg, match) => onText.banKick(bot, msg, match));
-
-
-
-*/
-/* bot.onText(/^\/start/, (msg) => {
-  if (msg.chat.type == 'private') {
-    onText.start(bot, msg);
-  }
-});
-*/
-
-// bot.onText(/^\/banall/, msg => onText.banall(bot, msg));
-
-// bot.onText(/^\/help/, msg => onText.help(bot, msg));
-// #region Comentarios
+//bot.onText(/^\/(ban|kick)( .*)?/, (msg, match) => onText.banKick(bot, match, savedUsers, msg));
 
 // Útil pero no debe exponerse.
-// bot.onText(/^\/id/, (msg) => {
-//   bot.deleteMessage(msg.chat.id, msg.message_id);
-//   bot.sendMessage(msg.chat.id, 'ID del chat: ' + msg.chat.id);
-// });
+//bot.onText(/^\/id/, (msg) => {
+//	bot.deleteMessage(msg.chat.id, msg.message_id);
+//	console.log(`ID del chat: ${msg.chat.id}`);
+//});
 
 // Para registrar a todos una vez implementado el bot.
 // bot.onText(/^\/.*/, msg => {
@@ -223,6 +227,12 @@ bot.onText(/^\/(ban|kick)( .*)?/, (msg, match) => onText.banKick(bot, msg, match
 
 // Estadisticas
 // bot.onText(/[\s\S]+/g, mongo.insertMessage);
+
+
+// Para implementar en newmember cuando funque bien.
+// bot.onText(/^\/prueba/, msg => mongo.insertChatId(msg.from.id, msg.chat.id));
+/*
+
 
 /* main.onText(/^\/stadistics/, (msg) => {
 
@@ -249,5 +259,64 @@ bot.onText(/^\/(ban|kick)( .*)?/, (msg, match) => onText.banKick(bot, msg, match
 //   bot.deleteMessage(msg.chat.id, msg.message_id);
 //   bot.sendMessage(msg.chat.id, 'Las materias de 2do a 6to año empiezan el 18\nFisica 1 curso Z empieza el 25\nRecursantes empiezan el 25 de marzo\nIngresantes empiezan el 1 de Abril\n', { reply_to_message_id: msg.message_id });
 // });
+
+/*
+bot.onText(/^\/catedra/, (msg) => {
+  const chatPos = idChatPhoto.indexOf(msg.chat.id);
+  if (chatPos === -1) {
+    bot.sendPhoto(msg.chat.id, 'AgADAQADbKgxG103QUQeGv8r315mbltxDDAABECS2Sc_YjetEiQFAAEC').then((auxid) => {
+      setTimeout(() => {
+        borrarchat = idChatPhoto.indexOf(auxid.chat.id);
+        idChatPhoto.splice(borrarchat, 1);
+        idPhoto.splice(borrarchat, 1);
+      }, 60000);
+      idChatPhoto.push(auxid.chat.id);
+      idPhoto.push(auxid.message_id);
+    });
+  } else {
+    bot.sendMessage(idChatPhoto[chatPos], 'Has solicitado el comando muy pronto. Aqui tienes la ultima vez que el comando ha sido usado', { reply_to_message_id: idPhoto[chatPos] });
+  }
+});
+
+bot.onText(/^\/sticker/, (msg) => {
+  if (msg.chat.id === -1001214086516) {
+    const posChat = stickerChat.indexOf(msg.from.id);
+    const stickerId = msg.from.id;
+    if (posChat === -1) {
+      if (Math.random() >= 0.5) {
+        bot.sendMessage(msg.chat.id, 'Cagaste bro, te re cagamo\' lo\' sticker');
+        bot.restrictChatMember(msg.chat.id, stickerId, {
+          can_send_message: true,
+          can_send_media_messages: false,
+          can_send_other_messages: false,
+          can_add_web_page_previews: false,
+        }).then(() => {
+          setTimeout(() => {
+            stickerChat.splice(posChat, 1);
+          }, 432000000);
+          stickerChat.push(stickerId);
+        });
+      } else {
+        bot.sendMessage(msg.chat.id, 'Nos cagaste.\nTe devolvimos los permisos loro');
+        bot.promoteChatMember(msg.chat.id, stickerId, {
+          can_send_message: true,
+          can_send_media_messages: true,
+          can_send_other_messages: true,
+          can_add_web_page_previews: true,
+        });
+      }
+    } else {
+      bot.sendMessage(msg.chat.id, 'No puedes utilizar este comando hasta dentro de 12hs despues de haber utilizado el comando');
+    }
+  } else {
+    bot.deleteMessage(msg.chat.id, msg.message_id);
+    const deleteMsg = bot.sendMessage(msg.chat.id, 'No puede realizar la acción en este grupo\n\nEste mensaje se borrara en unos instantes').then((deleteMsg) => {
+      setTimeout(() => {
+        bot.deleteMessage(deleteMsg.chat.id, deleteMsg.message_id);
+      }, 10000);
+    });
+  }
+});
+*/
 
 // #endregion
