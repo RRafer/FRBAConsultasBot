@@ -1,7 +1,7 @@
-exports.generateMention = msg => {
-	var fromName = msg.from.first_name + (msg.from.last_name != undefined ? ' ' + msg.from.last_name : '');
-    
-	return '[' + (msg.from.username != undefined ? '@' + msg.from.username : fromName) + '](tg://user?id=' + msg.from.id + ')';
+exports.generateMention = (msg) => {
+	const {username, first_name, last_name, id} = msg.from;
+	const fromName = `${first_name}${last_name ? ` ${last_name}` : ''}`;
+	return `[@${username||fromName}](tg://user?id=${id})`;
 };
 
 exports.generateTimeInMiliseconds = (typeOfUnit, amount) => {

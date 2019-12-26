@@ -1,81 +1,71 @@
 // @ts-check
-
+/* eslint-disable no-console */
 const { generateMention } = require('../utils/generic');
-const { groupIDs } = require('../utils/config');
-const logger = require('./logger');
+//ids, temporal hasta que los carguemos en la DB
 
-exports.nuke = async (bot, usersList, msg) => {
-	
-	logger.info('Checking if group is in the list ' + msg.chat.id);
+let groupIDs = ['-1001214086516','-1001262375149','-1001214086516', '-1001155863433', '-1001249368906', '-1001387811266', '-1001172707925','-1001386498425','-1001205439751','-1001337509181','-1001259839523','-1001289702550','-1001255281308','-1001171982049','-1001203933567','-1001313951685', '-1001157259051', '-1001290861768', '-1001378858456', '-1001288012396','-1001485242696', '-1001370286549', '-1001394632264', '-1001286595347', '-1001396035324', '-1001177806644'];
 
-	// Check group
-	if (!groupIDs.includes(msg.chat.id)) return;
-	
-	logger.info('Getting user credentials');
-	// Get Credentials of invoking user
-	let userMember = await bot.getChatMember(msg.chat.id, msg.from.id).catch(err => {return logger.error(`Nuke: Cannot get user: ${err}`);}); //catch 'Cannot get user'
+exports.nuke = (bot, usersList, msg) => {
 
-	// Check if credentials are valid
-	if(userMember.status != 'creator' && userMember.status != 'administrator') return;
-		
-	let idToBan = new Array, mentionToBan = new Array;
-
-	// Little log to check functionality
-	logger.info('Deploying Low-orbit Nuke...');
-
-	// If replying a message ban the author
-	if (msg.reply_to_message){
-		idToBan.push(msg.reply_to_message.from.id);
-		mentionToBan.push(generateMention(msg.reply_to_message));
-	}
-
-	// If user is mentioned
-	(msg.entities || []).forEach((entity) => {
-
-		// If user is mentioned and it has NO @username
-		if (entity.type == 'text_mention'){
-			idToBan.push(entity.user.id);
-			// I accept Ideas about this line, help me please this is an eldritch horror
-			mentionToBan.push(`[@${entity.user.username||(`${entity.user.first_name}${entity.user.last_name ? ` ${entity.user.last_name}` : ''}`)}](tg://user?id=${entity.user.id})`); 
-		}
-
-		// If user is mentioned but has @username
-		if (entity.type == 'mention'){
-			let nameToSearch = msg.text.substr(entity.offset+1,entity.length-1);
-			// Can I change this to map.Values to make it more efficient?							
-			usersList.forEach((v,k) => {
-				if (v == nameToSearch){
-					idToBan.push(k);
-					mentionToBan.push(`[@${v}](tg://user?id=${idToBan})`);
+	let idToBan, mentionToBan;
+	console.log('Nuking....');
+	//Check group
+	if (groupIDs.includes(msg.chat.id)){
+	//Check Credentials of invoking user
+		bot.getChatMember(msg.chat.id, msg.from.id).then(userMember => {                    
+			if(userMember.status == 'creator' || userMember.status == 'administrator'){
+			//Bans author of the replied message
+				if (msg.reply_to_message){
+					idToBan = msg.reply_to_message.from.id;
+					mentionToBan = generateMention(msg.reply_to_message);
 				}
-			});
-		}
-	});	
-	
-	logger.info(`Found a total of ${idToBan.length} users to ban`);
-
-	// return early if idToBan was empty
-	if(!idToBan.length) return;
-
-	groupIDs.forEach(async (chatGroupId) => {
-		logger.info(`Looping through group ${chatGroupId} checking credentials`);
-		// I have to check permissions for EVERY group
-		let userInvoker = await bot.getChatMember(chatGroupId, msg.from.id).catch(err => {return logger.error(`Error getting user permissions for the caller on group(${chatGroupId}): ${err}`);}); // Catch error: 'can't get chat member'	
-		
-		// Check if invoker is admin in THAT group, also: Early return? Or should I use continue?
-		if(userInvoker.status != 'creator' && userInvoker.status != 'administrator') return;
-				
-		// Loop through the idToBan (usually, should be only one)
-		idToBan.forEach(async (id) => {
-			// Get credentials for that user
-			let userToBan = await bot.getChatMember(chatGroupId, id).catch(err => {return logger.error(`Error getting chat member: ${err}`);}); // Catch error: 'can't get chat member'
-
-			// Can't ban admins in the groups - Also: Early return? Or should I use continue?
-			if(userToBan.status == 'creator' || userToBan.status == 'administrator') return;
-
-			logger.info(`Banning ${id} from group ${chatGroupId}`);
-			await bot.kickChatMember(chatGroupId, id).catch(err => { logger.error(`Error banning user: ${err}`);}); // Catch 'cannot ban user' errors			
-		});
-	});
-	bot.sendMessage(msg.chat.id, `${generateMention(msg)} ha banneado a ${mentionToBan} !`, { parse_mode: 'Markdown' }).catch(err => { return logger.error(`Error sending message after banning user: ${err}`);}); // Catch weird errors?
+				else{
+				//If user is mentioned with @username
+					if (msg.entities){
+						msg.entities.forEach((entity) => {
+						//If user is mentioned and it has NO @username
+							if (entity.type == 'text_mention'){
+								idToBan = entity.user.id;
+								let fromName = `${entity.user.first_name}${entity.user.last_name ? ` ${entity.user.last_name}` : ''}`;
+								mentionToBan = `[@${entity.user.username||fromName}](tg://user?id=${entity.user.id})`; 
+							}
+							else{
+								if (entity.type == 'mention'){
+								//If user is mentioned but has @username
+									let nameToSearch = msg.text.substr(entity.offset+1,entity.length-1);								
+									usersList.forEach((v,k) => {
+										if (v == nameToSearch){
+											idToBan = k;
+											mentionToBan = `[@${v}](tg://user?id=${idToBan})`;
+										}
+									});
+								}
+							}
+						});
+					
+					}
+				}
+				if(idToBan != null){
+					groupIDs.forEach((chatGroupId) => {
+						bot.getChatMember(msg.chat.id, msg.from.id).then(userMember => {                    
+							if(userMember.status == 'creator' || userMember.status == 'administrator'){
+								bot.getChatMember(msg.chat.id, idToBan).then((userToBan) => {
+									if(userToBan.status != 'creator' && userToBan.status != 'administrator'){
+										bot.kickChatMember(chatGroupId, idToBan).then(() => {
+											if (chatGroupId == msg.chat.id)
+												bot.sendMessage(chatGroupId, `${generateMention(msg)} ha kickeado a ${mentionToBan} !`, { parse_mode: 'Markdown' });
+										}).catch(err => {
+											//Catch 'cannot ban user' errors
+											console.log(err);
+										});
+									}
+								}).catch(err => console.log(err)); //catch error: 'can't get chat member'
+							}
+						
+						}).catch(err => console.log(err));
+					});
+				}
+			}
+		}).catch(err => console.log(err)); //catch all the possible errors here so they don't bubble
+	}
 };
