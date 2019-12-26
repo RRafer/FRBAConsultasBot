@@ -36,7 +36,9 @@ const config = (mongoEnabled) => {
  * @param {number} chatId 
  * @returns {boolean} If that chat supports that function
  */
-function isEnabledFor (feature, chatId) {return (this.features[chatId] && this.features[chatId][feature]) || this.features[0][feature]; }
+
+function isEnabledFor (feature, chatId) {return (this.features[chatId] && this.features[chatId][feature]) || this.features[0][feature]; };
+
 
 module.exports = {
 	features: config(false),

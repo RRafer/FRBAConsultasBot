@@ -16,7 +16,6 @@ exports.start = (bot, msg) => {
   });
 }
 
-
 exports.remindme = (bot, msg, match) => remindme.execute(bot, msg, match).catch(err => mongo.logError(err, msg.chat.id));
 
 exports.banKick = (bot, msg, match) => banKick.execute(bot, msg, match).catch(err => mongo.logError(err, msg.chat.id));
