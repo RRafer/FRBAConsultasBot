@@ -3,7 +3,6 @@ const help = require('./help');
 const banKick = require('./banKick');
 const remindme = require('./remindme');
 const start = require('./start');
-const banall = require('./banall');
 const catedra = require('./catedra');
 const stickers = require('./stickers');
 
@@ -16,37 +15,11 @@ exports.start = (bot, msg) => {
   });  
 }
 
-exports.banall = (bot, msg) => banall.execute(bot, msg).catch(err => mongo.logError(err, msg.chat.id));  
+exports.remindme = (bot, msg, match) => remindme.execute(bot, msg, match).catch(err => mongo.logError(err, msg.chat.id));
 
-exports.remindme = (bot, msg, match) => {
-  try
-  {
-    remindme.execute(bot, msg, match);
-  }
-  catch(err)
-  {
-    mongo.logError(err, msg.chat.id)
-  }
-}
-exports.banKick = (bot, msg, match) => {
-  try
-  {
-    banKick.execute(bot, msg, match);
-  }
-  catch(err)
-  {
-    mongo.logError(err, msg.chat.id);
-  }
-}
-exports.help = (bot, msg) => {
-  try
-  {
-    help.execute(bot, msg, mongo);
-  }
-  catch(err)
-  {
-    mongo.logError(err, msg.chat.id);
-  }
-};
+exports.banKick = (bot, msg, match) => banKick.execute(bot, msg, match).catch(err => mongo.logError(err, msg.chat.id));
+
+exports.help = (bot, msg) => help.execute(bot, msg, mongo).catch(err => mongo.logError(err, msg.chat.id));
+
 //exports.catedra
 //exports.stickers

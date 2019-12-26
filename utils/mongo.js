@@ -1,3 +1,4 @@
+
 const db = require('../controllers/database');
 const users = require('./mongo/users');
 const errors = require('./mongo/errors');
@@ -6,7 +7,6 @@ const errors = require('./mongo/errors');
 exports.insertChatId = (userId, chatId) => users.insertChatId(userId, chatId).catch(err => errors.logError(err, chatId));
 exports.getGroupIds = (userId, chatId) => users.getGroupIds(userId).catch(err => errors.logError(err, chatId));
 exports.logError = (error, chatId) => errors.logError(error, chatId);
-
 
 // Mongo Singleton Use Example
 // Placeholder name, change for each collection.
@@ -17,8 +17,6 @@ collection.find({}).toArray(function(err, docs) {
 	if (!err)
 		console.log(`Se han cargado ${docs.length} documentos`);
 });
-
-
 
 //#region Comentarios
 
