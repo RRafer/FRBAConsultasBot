@@ -3,14 +3,12 @@ let callbackObject = {
 	p: [], // Parameters
 };
 
-exports.validateUser = bot => (msg) => {
-	console.log(msg);
-	if (msg.new_chat_member !== undefined) {
-		bot.emit('new_member', msg);
-	}
-};
-
-exports.verify = (msg) => {
+/**
+ * Returns objet containing keyboard formatted for User Verification
+ * @param {Message} msg 
+ * @returns {Object} Inline Keyboard
+ */
+let verify = (msg) => {
 	callbackObject.action = 'v';
 	callbackObject.p[0] = msg.from.id;
 	callbackObject.p[1] = msg.message_id;
@@ -24,7 +22,7 @@ exports.verify = (msg) => {
 	return (inlineKeyboard);
 };
 
-exports.RemPerms = {
+const RemPerms = {
 	perms: {
 		can_send_message: false,
 		can_send_media_messages: false,
@@ -33,11 +31,17 @@ exports.RemPerms = {
 	},
 };
 
-exports.GivePerms = {
+const GivePerms = {
 	perms: {
 		can_send_message: true,
 		can_send_media_messages: false,
 		can_send_other_messages: false,
 		can_add_web_page_previews: false,
 	},
+};
+
+module.exports = {
+	verify,
+	RemPerms,
+	GivePerms,
 };
