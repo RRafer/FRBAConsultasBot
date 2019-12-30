@@ -1,5 +1,5 @@
 
-const db = require('../controllers/database').default;
+const db = require('../controllers/database');
 const users = require('./mongo/users');
 const errors = require('./mongo/errors');
 

@@ -1,11 +1,7 @@
-// @ts-check
-/* eslint-disable no-console */
-
 // Start the DB before loading config
-// @ts-check
 /* eslint-disable no-console */
 // Start the DB before loading config
-require('./controllers/database').default.initDb();
+require('./controllers/database').initDb();
 const TelegramBot = require('node-telegram-bot-api');
 const linksController = require('./controllers/links');
 const adminControllers = require('./controllers/admin');
