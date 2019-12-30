@@ -1,4 +1,5 @@
 // Start the DB before loading config
+// @ts-check
 /* eslint-disable no-console */
 // Start the DB before loading config
 require('./controllers/database').initDb();
