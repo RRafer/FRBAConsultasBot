@@ -91,5 +91,8 @@ ImageRotate/
 # vs code config
 .vscode
 
-#config..js
-utils/token.js
+#Token
+token.js
+
+#build
+build/
