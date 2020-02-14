@@ -7,13 +7,13 @@ let _db = undefined;
 let Database = function(){};
 
 Database.initDb = async function (){
-	_db = await (await MongoClient.connect(url)).db(dbName);
+	_db = (await MongoClient.connect(url)).db(dbName);
 };
 
-Database.getDb = function (){
+Database.getDb = async function (){
 	if (_db == undefined){
 		console.log('DB Not started... connecting');
-		Database.initDb();
+		await Database.initDb();
 		console.log('Connected');
 	}
 	return _db; 

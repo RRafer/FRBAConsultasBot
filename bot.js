@@ -1,12 +1,13 @@
+// Start the DB before loading config
 // @ts-check
 /* eslint-disable no-console */
+// Start the DB before loading config
+require('./controllers/database').initDb();
 const TelegramBot = require('node-telegram-bot-api');
 const linksController = require('./controllers/links');
 const adminControllers = require('./controllers/admin');
 const nuke = require('./controllers/nuke');
 const denuke = require('./controllers/denuke');
-// Start the DB before loading config
-require('./controllers/database').getDb();
 const config = require('./utils/config');
 const { token } = require('./utils/token');
 const onText = require('./utils/onText/onText');
