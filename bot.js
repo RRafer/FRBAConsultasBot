@@ -34,8 +34,12 @@ bot.on('polling_error', msg => console.log(msg));
 bot.on('message', (msg) => {
 	// Elimina mensajes de personas que se unen y abandonan el grupo
 	if (config.isEnabledFor('enableDeleteSystemMessages', msg.chat.id)) {
-		if (msg.new_chat_members !== undefined || msg.left_chat_member !== undefined) 
-			bot.deleteMessage(msg.chat.id, String(msg.message_id));
+		if (msg.new_chat_members !== undefined || msg.left_chat_member !== undefined){
+			//Mejorar esto, solo es provisorio.
+			bot.deleteMessage(msg.chat.id, String(msg.message_id)).catch(e =>{
+				console.log(`Error Eliminando mensaje: ${e}`);
+			});
+		}
 	}
 
 	// verificacion de usuarios
