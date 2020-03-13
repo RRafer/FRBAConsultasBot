@@ -1,4 +1,5 @@
 const MongoClient = require('mongodb').MongoClient;
+const logger = require('./logger');
 
 // Mongo Config
 const url = 'mongodb://localhost:27017';
@@ -12,9 +13,9 @@ Database.initDb = async function (){
 
 Database.getDb = async function (){
 	if (_db == undefined){
-		console.log('DB Not started... connecting');
+		logger.info('DB Not started... connecting');
 		await Database.initDb();
-		console.log('Connected');
+		logger.info('Connected');
 	}
 	return _db; 
 };
