@@ -5,17 +5,20 @@ const logger = require('./logger');
 const url = 'mongodb://localhost:27017';
 const dbName = 'telegrambot';
 let _db = undefined;
+let connecting = false;
 let Database = function(){};
 
 Database.initDb = async function (){
-	_db = (await MongoClient.connect(url)).db(dbName);
+	let con = await MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true})
+	_db = con.db(dbName);
 };
 
 Database.getDb = async function (){
-	if (_db == undefined){
-		logger.info('DB Not started... connecting');
+	if (_db == undefined && connecting == false){
+		console.log('DB Not started... connecting');
+		connecting = true;
 		await Database.initDb();
-		logger.info('Connected');
+		console.log('Connected');
 	}
 	return _db; 
 };
