@@ -12,11 +12,16 @@ exports.logError = (error, chatId) => errors.logError(error, chatId);
 // Placeholder name, change for each collection.
 const collectionName = 'mensajes';
 
-let collection = db.getDb().collection(collectionName);
-collection.find({}).toArray(function(err, docs) {
-	if (!err)
-		console.log(`Se han cargado ${docs.length} documentos`);
-});
+async function getdocs() {
+	let collection;
+	(await db.getDb()).then((db)=> {collection = db.collection(collectionName);});
+	collection.find({}).toArray(function(err, docs) {
+		if (!err)
+			console.log(`Se han cargado ${docs.length} documentos`);
+	});
+}
+
+getdocs();
 
 //#region Comentarios
 

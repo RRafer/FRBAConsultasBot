@@ -4,16 +4,19 @@ const MongoClient = require('mongodb').MongoClient;
 const url = 'mongodb://localhost:27017';
 const dbName = 'telegrambot';
 let _db = undefined;
+let connecting = false;
 let Database = function(){};
 
 Database.initDb = async function (){
-	_db = await (await MongoClient.connect(url)).db(dbName);
+	let con = await MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true})
+	_db = con.db(dbName);
 };
 
-Database.getDb = function (){
-	if (_db == undefined){
+Database.getDb = async function (){
+	if (_db == undefined && connecting == false){
 		console.log('DB Not started... connecting');
-		Database.initDb();
+		connecting = true;
+		await Database.initDb();
 		console.log('Connected');
 	}
 	return _db; 
