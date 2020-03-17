@@ -13,7 +13,8 @@ exports.logError = (error, chatId) => errors.logError(error, chatId);
 const collectionName = 'mensajes';
 
 async function getdocs() {
-	let collection = (await db.getDb()).collection(collectionName);
+	let collection;
+	(await db.getDb()).then((db)=> {collection = db.collection(collectionName);});
 	collection.find({}).toArray(function(err, docs) {
 		if (!err)
 			console.log(`Se han cargado ${docs.length} documentos`);

@@ -14,7 +14,7 @@ exports.sendLinks = (bot, msg) => {
 
 	bot.on('callback_query', (link) => {
 		//console.log(msgLinks);
-    console.log(link);
+		console.log(link);
 		if (link.from.id === link.message.reply_to_message.from.id) {
 			if (link.data == 0) {
 				bot.editMessageText('LINKS', {
@@ -50,5 +50,5 @@ exports.sendLinks = (bot, msg) => {
 				show_alert: true,
 			});
 		}
-  });
-}
+	});
+};

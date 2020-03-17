@@ -16,8 +16,12 @@
     "request": "^2.88.0",
     "sharp": "^0.22.1",
     "string-similarity": "^3.0.0",
+<<<<<<< HEAD
     "uuid": "^3.3.3",
     "winston": "^3.2.1"
+=======
+    "uuid": "^3.3.3"
+>>>>>>> 998f0dbb8fa4c6ae2ba321e5211f3eebc09da151
   },
   "repository": {
     "type": "git",
