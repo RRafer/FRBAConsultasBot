@@ -1,13 +1,14 @@
 // @ts-check
 /* eslint-disable no-console */
 const { generateMention } = require('../utils/generic');
-//ids, temporal hasta que los carguemos en la DB
+const logger = require('./logger');
 
+//ids, temporal hasta que los carguemos en la DB
 let groupIDs = ['-1001262375149','-1001214086516', '-1001155863433', '-1001249368906', '-1001387811266', '-1001172707925','-1001386498425','-1001205439751','-1001337509181','-1001259839523','-1001289702550','-1001255281308','-1001171982049','-1001203933567','-1001313951685', '-1001157259051', '-1001290861768', '-1001378858456', '-1001288012396','-1001485242696', '-1001370286549', '-1001394632264', '-1001286595347', '-1001396035324', '-1001177806644'];
 
 exports.denuke = (bot, usersList, msg) => {
 
-	console.log('de-Nuking....');
+	logger.info('De-Nuking....');
 	var idToBan, mentionToBan;
 	//Check group
 	if (groupIDs.includes(String(msg.chat.id))){
@@ -18,7 +19,6 @@ exports.denuke = (bot, usersList, msg) => {
 				if (msg.reply_to_message){
 					idToBan = msg.reply_to_message.from.id;
 					mentionToBan = generateMention(msg.reply_to_message);
-					console.log(mentionToBan);
 				}
 				else{
 				//If user is mentioned with @username
@@ -57,16 +57,16 @@ exports.denuke = (bot, usersList, msg) => {
 												bot.sendMessage(chatGroupId, `${generateMention(msg)} ha desbaneado a ${mentionToBan} !`, { parse_mode: 'Markdown' });
 										}).catch(err => {
 											//Catch 'cannot ban user' errors
-											console.log(err);
+											logger.error(`Error ${err}`);
 										});
 									}
-								}).catch(err => console.log(err)); //catch error: 'can't get chat member'
+								}).catch(err => logger.error(`Error ${err}`)); //catch error: 'can't get chat member'
 							}
 						
-						}).catch(err => console.log(err));
+						}).catch(err => logger.error(`Error ${err}`));
 					});
 				}
 			}
-		}).catch(err => console.log(err)); //catch all the possible errors here so they don't bubble
+		}).catch(err => logger.error(`Error ${err}`)); //catch all the possible errors here so they don't bubble
 	}
 };
