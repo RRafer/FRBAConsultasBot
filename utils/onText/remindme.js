@@ -1,3 +1,6 @@
+// @ts-check
+// Refactor this
+/*
 const moment = require('moment');
 
 exports.execute = (bot, msg, match) => {
@@ -55,3 +58,4 @@ exports.execute = (bot, msg, match) => {
 		}
 	}, 1000);
 };
+*/

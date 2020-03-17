@@ -42,7 +42,7 @@ bot.on('message', (msg) => {
 		if (msg.new_chat_members !== undefined || msg.left_chat_member !== undefined){
 			//Mejorar esto, solo es provisorio.
 			bot.deleteMessage(msg.chat.id, String(msg.message_id)).catch(e =>{
-				console.log(`Error Eliminando mensaje: ${e}`);
+				logger.error(`Error Eliminando mensaje: ${e}`);
 			});
 		}
 	}
@@ -57,12 +57,14 @@ bot.on('message', (msg) => {
 			if(savedUsers.get(msg.from.id) !== msg.from.username){
 				savedUsers.set(msg.from.id, msg.from.username);
 				console.log(`Actualizado ${msg.from.username} en la lista de usuarios`);
+				logger.info(`Actualizado ${msg.from.username} en la lista de usuarios`);
 			}
 		}
 		else
 		{
 			savedUsers.set(msg.from.id, msg.from.username);
 			console.log(`Agregado ${msg.from.username} a la lista de usuarios`);
+			logger.info(`Agregado ${msg.from.username} a la lista de usuarios`);
 		}
 	}
 	
@@ -169,20 +171,22 @@ bot.on('callback_query', (json) => {
 				// Catch obligatorio. Posibles casos de Falla:
 				// El usuario es Admin/Creator
 				// El usuario se va del chat antes de que el comando sea ejecutado
-				console.log(e);
+				logger.error(`Error promoting chat member: ${e}`);
 			});
 			bot.editMessageText('¡Has sido verificado! \u2705\n\nEste mensaje se borrara en unos segundos', {
 				chat_id: json.message.chat.id,
 				message_id: savedMsg.get(CBObject.p[0]),
 			}).then((data) => {
 				setTimeout(() => {
-					bot.deleteMessage(data.chat.id, data.message_id);
+					bot.deleteMessage(data.chat.id, data.message_id).catch((e) => {
+						logger.error(`Error deleting message ${e}`);
+					});
 				}, 10000);
 				clearTimeout(savedTimers.get(CBObject.p[0]));
 				savedMsg.delete(CBObject.p[0]);
 				savedTimers.delete(CBObject.p[0]);
 			}).catch((e) => {
-				console.log(`Falla al editar mensaje de verificacion ${e}`);
+				logger.error(`Falla al editar mensaje de verificacion ${e}`);
 			});
 		} else {
 			bot.answerCallbackQuery({
@@ -209,10 +213,11 @@ bot.on('new_member', (msg) => {
 				savedTimers.delete(msg.from.id);
 			}, 30000));
 		}).catch((e) => {
-			console.log(e);
+			// Catch multiuso?
+			logger.error(`Error en verificacion ${e}`);
 		});
 	} else {
-		console.log('Intento de verificacion doble.');
+		logger.info('Intento de verificacion doble.');
 	}
 });
 

@@ -1,3 +1,4 @@
+// Refactor this in another branch
 const mongo = require('mongodb').MongoClient;
 const url = 'mongodb://localhost:27017';
 
@@ -6,94 +7,94 @@ const url = 'mongodb://localhost:27017';
 //chatIds - array de number
 
 exports.insertChatId = (userId, chatId) => {
-  return new Promise((resolve, reject) => {
-    mongo.connect(url, (err, client) => {
-      const db = client.db('telegram');
-      const col = db.collection('users');
+	return new Promise((resolve, reject) => {
+		mongo.connect(url, (err, client) => {
+			const db = client.db('telegram');
+			const col = db.collection('users');
 
-      if(err) reject(new Error('Error de conexión con Mongo.'));
+			if(err) reject(new Error('Error de conexión con Mongo.'));
       
-      col.findOne({'userId': userId}, (error, result) => {
-        if(error)
-        {
-          reject(error);
-          return;
-        }
+			col.findOne({'userId': userId}, (error, result) => {
+				if(error)
+				{
+					reject(error);
+					return;
+				}
 
-        if(result != null)
-        {
-          if(result.chatIds.includes(chatId))
-          {
-            resolve();
-            return;
-          }
+				if(result != null)
+				{
+					if(result.chatIds.includes(chatId))
+					{
+						resolve();
+						return;
+					}
           
-          col.findOneAndUpdate({'userId': userId}, {$push: {'chatIds': chatId}}, (findErr, result) => {
-            client.close()
+					col.findOneAndUpdate({'userId': userId}, {$push: {'chatIds': chatId}}, (findErr, result) => {
+						client.close();
 
-            if(findErr)
-            {
-              reject(findErr);
-              return;
-            }
+						if(findErr)
+						{
+							reject(findErr);
+							return;
+						}
 
-            resolve();
-            return;
-          });
-        }
-        else
-        {
-          col.insertOne({'userId': userId, 'chatIds': [chatId]}, (error, result) => {
-            client.close();
+						resolve();
+						return;
+					});
+				}
+				else
+				{
+					col.insertOne({'userId': userId, 'chatIds': [chatId]}, (error, result) => {
+						client.close();
 
-            if(error)
-            {
-              reject(error);
-              return;
-            }
+						if(error)
+						{
+							reject(error);
+							return;
+						}
 
-            resolve();
-            return;
-          });
-        }        
-      });    
-    });  
-  });
-}
+						resolve();
+						return;
+					});
+				}        
+			});    
+		});  
+	});
+};
 
 exports.getGroupIds = userId => {
-  return new Promise((resolve, reject) => {
-    mongo.connect(url, (err, client) => {
-      const db = client.db('telegram');
+	return new Promise((resolve, reject) => {
+		mongo.connect(url, (err, client) => {
+			const db = client.db('telegram');
 
-      if(err)
-      {
-        reject(err);
-        return;
-      }
-      db.collection('users').findOne({"userId": userId}, (error, result) => {
-        if(error)
-        {
-          reject(error);
-          return;
-        }  
+			if(err)
+			{
+				reject(err);
+				return;
+			}
+			db.collection('users').findOne({'userId': userId}, (error, result) => {
+				if(error)
+				{
+					reject(error);
+					return;
+				}  
 
-        if(result == null)
-        {
-          reject(new Error('No hay chatIds registrados para el userId ' + userId));
-        }
-        else
-        {
-          resolve(result.chatIds);
-        }
+				if(result == null)
+				{
+					reject(new Error('No hay chatIds registrados para el userId ' + userId));
+				}
+				else
+				{
+					resolve(result.chatIds);
+				}
 
-        client.close();
+				client.close();
 
-        return;
-      });
-    });
-  });
-}
+				return;
+			});
+		});
+	});
+};
 
 //#region Comentarios
 
