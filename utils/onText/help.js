@@ -1,3 +1,6 @@
+// Refactor this
+
+/*
 const generic = require('../generic');
 
 exports.execute = (bot, msg, mongo) => {
@@ -43,3 +46,4 @@ exports.execute = (bot, msg, mongo) => {
   //});
 
 //#endregion
+*/
