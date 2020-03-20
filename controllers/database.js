@@ -1,9 +1,10 @@
+require('dotenv').config();
 const MongoClient = require('mongodb').MongoClient;
 const logger = require('./logger');
 
 // Mongo Config
-const url = 'mongodb://localhost:27017';
-const dbName = 'telegrambot';
+const url = process.env.DATABASE_URL || 'mongodb://localhost:27017';
+const dbName = process.env.DATABASE_NAME || 'telegrambot';
 let _db;
 let connecting = false;
 let Database = function(){};
@@ -15,11 +16,9 @@ Database.initDb = async function (){
 
 Database.getDb = async function (){
 	if (_db == undefined && connecting == false){
-		console.log('DB Not started... connecting');
 		logger.info('DB Not started... connecting');
 		connecting = true;
 		await Database.initDb();
-		console.log('Connected');
 		logger.info('Connected');
 	}
 	return _db; 
