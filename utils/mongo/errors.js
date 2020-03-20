@@ -1,6 +1,8 @@
 // @ts-check
-// Refactor this on another branch
+// Refactored this on another branch already
 const mongo = require('mongodb').MongoClient;
+const logger = require('../../controllers/logger');
+
 const url = 'mongodb://localhost:27017';
 
 //Estructura:
@@ -9,7 +11,7 @@ const url = 'mongodb://localhost:27017';
 //type - string
 
 exports.logError = (error, chatId) => {
-	console.log('HUBO UN ERROR: ' + error);
+	logger.error(`Unpecified Error in errors.js: ${error}`);
 	mongo.connect(url, (err, client) => {
 		if(client == undefined || client == null) return;
         

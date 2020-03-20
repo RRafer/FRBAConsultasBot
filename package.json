@@ -6,6 +6,7 @@
   "author": "Loki2236/RRafer/PyriteWolf/Relar",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^8.2.0",
     "eslint-plugin-react": "^7.19.0",
     "moment": "^2.24.0",
     "mongodb": "^3.5.5",

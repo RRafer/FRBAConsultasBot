@@ -7,12 +7,13 @@ const myFormat = printf(({ level, message, timestamp }) => {
 });
   
 const logger = createLogger({
-	level: 'info',
 	format: combine(timestamp(), myFormat),
 	defaultMeta: { service: 'user-service' },
 	transports: [
 		// - Write to all logs with level `info` and below to `combined.log` 
-		new transports.File({ filename: 'log.log' })
+		new transports.File({ filename: 'log.log', level: 'warning', }),
+		new transports.File({ filename: 'info.log', level: 'info', }),
+		new transports.Console(),
 	]
 });
 module.exports = logger;
