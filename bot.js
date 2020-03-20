@@ -1,7 +1,8 @@
 // @ts-check
-/* eslint-disable no-console */
+
 // Start the DB before loading config
-//require('./controllers/database').getDb();
+require('dotenv').config();
+require('./controllers/database').initDb();
 const TelegramBot = require('node-telegram-bot-api');
 const linksController = require('./controllers/links');
 const adminControllers = require('./controllers/admin');
@@ -32,38 +33,27 @@ const savedUsers = new Map();
 bot.on('polling_error', msg => console.log(msg));
 
 bot.on('message', (msg) => {
-	// Elimina mensajes de personas que se unen y abandonan el grupo
-	if (config.isEnabledFor('enableDeleteSystemMessages', msg.chat.id)) {
-		if (msg.new_chat_members !== undefined || msg.left_chat_member !== undefined){
-			//Mejorar esto, solo es provisorio.
-			bot.deleteMessage(msg.chat.id, String(msg.message_id)).catch(e =>{
-				logger.error(`Error Eliminando mensaje: ${e}`);
-			});
-		}
+	// Deletes messages from peoplo Joining/Leaving the group
+	if (config.isEnabledFor('enableDeleteSystemMessages', msg.chat.id) && 
+     (msg.new_chat_members !== undefined || msg.left_chat_member !== undefined)){
+		// I have to work this over
+		bot.deleteMessage(msg.chat.id, String(msg.message_id)).catch(e =>{
+			logger.error(`Error Eliminando mensaje: ${e}`);
+		});
 	}
 
-	// verificacion de usuarios
-	if (config.isEnabledFor('enableValidateUsers', msg.chat.id)){
-		if (msg.new_chat_members !== undefined)
-			bot.emit('new_member', msg);
+	// User verification (to prevent bots)
+	if(config.isEnabledFor('enableValidateUsers', msg.chat.id) && (msg.new_chat_members !== undefined)){
+		bot.emit('new_member', msg);
 	}
-
-	if(msg.from.username){
-		if(savedUsers.has(msg.from.id)){
-			if(savedUsers.get(msg.from.id) !== msg.from.username){
-				savedUsers.set(msg.from.id, msg.from.username);
-				console.log(`Actualizado ${msg.from.username} en la lista de usuarios`);
-				logger.info(`Actualizado ${msg.from.username} en la lista de usuarios`);
-			}
-		}
-		else
-		{
-			savedUsers.set(msg.from.id, msg.from.username);
-			console.log(`Agregado ${msg.from.username} a la lista de usuarios`);
-			logger.info(`Agregado ${msg.from.username} a la lista de usuarios`);
-		}
-	}
-	
+  
+	if(!msg.from.username) return;
+	// I've never seen this user before
+	if(!savedUsers.has(msg.from.id) || savedUsers.get(msg.from.id) !== msg.from.username){
+		savedUsers.set(msg.from.id, msg.from.username);
+		logger.info(`Agregado/Actualizado ${msg.from.username} a la lista de usuarios`);
+     
+	} 
 });
 
 bot.onText(/^\/rotar (.+)/, (msg, match) => {
@@ -132,23 +122,23 @@ bot.on('callback_query', (json) => {
 	}
 });
 
-
+//TODO: Rework this part. Maybe a separate file?
 bot.on('new_member', (msg) => {
 	console.log('test2');
 	if (savedMsg.get(msg.from.id) === undefined) {
 		bot.sendMessage(msg.chat.id, `Hola ${msg.from.first_name}${msg.from.last_name || ''} bienvenido al grupo de consultas ${msg.chat.title} de la UTN - FRBA\n\nHaga clic en el boton de abajo para verificar que no sea un bot.\nEste mensaje se eliminara en 30 segundos`, { reply_markup: JSON.stringify(adminControllers.verify(msg)) }).then((sentMsg) => {
 			savedMsg.set(msg.from.id, sentMsg.message_id);
 			savedTimers.set(msg.from.id, setTimeout(() => {
-				// Borro el mensaje si no verifico
+				// Delete Msg if user has not verified in time.
 				bot.deleteMessage(msg.chat.id, sentMsg.message_id);
-				// Kick Only (El unban tiene que estar, si no no pueden volver a unirse)
+				// Kick Only (Unban is a must, there is no 'kick' method)
 				bot.kickChatMember(msg.chat.id, msg.from.id);
 				bot.unbanChatMember(msg.chat.id, msg.from.id);
 				savedMsg.delete(msg.from.id);
 				savedTimers.delete(msg.from.id);
 			}, 30000));
 		}).catch((e) => {
-			// Catch multiuso?
+			// Catch for all the possible errors that will bubble up: (Unable to ban / Unable to delete message)
 			logger.error(`Error en verificacion ${e}`);
 		});
 	} else {
