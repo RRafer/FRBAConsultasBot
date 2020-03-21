@@ -76,7 +76,7 @@ exports.nuke = async (bot, usersList, msg) => {
 			if(userToBan.status == 'creator' || userToBan.status == 'administrator') return;
 
 			logger.info(`Banning ${id} from group ${chatGroupId}`);
-			//await bot.kickChatMember(chatGroupId, id).catch(err => { logger.error(`Error banning user: ${err}`);}); // Catch 'cannot ban user' errors			
+			await bot.kickChatMember(chatGroupId, id).catch(err => { logger.error(`Error banning user: ${err}`);}); // Catch 'cannot ban user' errors			
 		});
 	});
 	bot.sendMessage(msg.chat.id, `${generateMention(msg)} ha banneado a ${mentionToBan} !`, { parse_mode: 'Markdown' }).catch(err => { return logger.error(`Error sending message after banning user: ${err}`);}); // Catch weird errors?
