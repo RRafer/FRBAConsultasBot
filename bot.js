@@ -9,6 +9,7 @@ const adminControllers = require('./controllers/admin');
 const logger = require('./controllers/logger');
 const nuke = require('./controllers/nuke');
 const denuke = require('./controllers/denuke');
+const excel = require('./controllers/excel');
 const config = require('./utils/config');
 const { token } = require('./utils/token');
 //const onText = require('./utils/onText/onText');
@@ -92,6 +93,12 @@ bot.onText(/^\/denuke/,(msg) => {
 bot.onText(/^\/google (.+)/ , (msg, match) => {
 	if (config.isEnabledFor('enableGoogle', msg.chat.id)) 
 		bot.sendMessage(msg.chat.id, `https://lmgtfy.com/?q=${encodeURIComponent(match[1])}`, {reply_to_message_id: msg.message_id});
+});
+
+bot.onText(/^\/excel/, msg => {
+  if(config.isEnabledFor('enableExcel', msg.chat.id)){
+    excel.excel(bot, msg);
+  }
 });
 
 

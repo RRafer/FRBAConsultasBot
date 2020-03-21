@@ -13,6 +13,7 @@ const config = (mongoEnabled) => {
 			enableRotate: false,
 			enableGoogle: false,
 			enableNuke: true,
+			enableExcel: true
 		},
 		// defaults
 		'0': {
@@ -22,7 +23,8 @@ const config = (mongoEnabled) => {
 			enableRotate: false,
 			enableGoogle: false,
 			enableNuke: true,
-		},
+			enableExcel: true
+		}
 	};
 };
 
