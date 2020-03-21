@@ -96,9 +96,8 @@ bot.onText(/^\/google (.+)/ , (msg, match) => {
 });
 
 bot.onText(/^\/excel/, msg => {
-  if(config.isEnabledFor('enableExcel', msg.chat.id)){
+  if(config.isEnabledFor('enableExcel', msg.chat.id))
     excel.excel(bot, msg);
-  }
 });
 
 
