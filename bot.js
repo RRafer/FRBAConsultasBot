@@ -68,7 +68,7 @@ bot.onText(/^\/links/,(msg) => {
 });
 
 // Quickupdate: Banall now called Nuke
-bot.onText(/^\/nuke2/,(msg) => {
+bot.onText(/^\/nuke/,(msg) => {
 	logger.info('Request for Nuking received.');
 	if (config.isEnabledFor('enableNuke', msg.chat.id))
 		nuke.nuke(bot, savedUsers, msg);
