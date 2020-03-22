@@ -1,6 +1,6 @@
 # FRBA Bot
 
-A Telegram bot with lots of flaws, but also lots of hate to share with this world. Intended as a tool for the admins of the unofficial **Universidad Tecnológica Nacional FRBA** Telegram group admins, this hectic mess grew uncontrolled. Now it's the code equivalent of a teenage kid with overbearing parents.
+A Telegram bot with lots of flaws, but also lots of hate to share with this world. Intended as a tool for the admins of the unofficial **Universidad Tecnológica Nacional FRBA** Telegram group, this hectic mess grew uncontrolled. Now it's the code equivalent of a teenage kid with overbearing parents.
 
 ## Features
 
