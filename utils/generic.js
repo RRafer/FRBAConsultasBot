@@ -13,6 +13,8 @@ exports.getUserStatus = (bot, msg) => {
 			.catch(err => logger.error(`Cannot get user: ${err}`));
 };
 
-exports.isAdmin = status => {
+exports.isAdmin = (bot, msg, userId) => {
+	const status = getUserStatus(bot, msg);
+	
 	return status == 'creator' || status == 'administrator';
 };
