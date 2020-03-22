@@ -1,4 +1,8 @@
+// @ts-check
+// Refactored this on another branch already
 const mongo = require('mongodb').MongoClient;
+const logger = require('../../controllers/logger');
+
 const url = 'mongodb://localhost:27017';
 
 //Estructura:
@@ -7,19 +11,19 @@ const url = 'mongodb://localhost:27017';
 //type - string
 
 exports.logError = (error, chatId) => {
-    console.log("HUBO UN ERROR: " + error);
-    mongo.connect(url, (err, client) => {
-        if(client == undefined || client == null) return;
+	logger.error(`Unpecified Error in errors.js: ${error}`);
+	mongo.connect(url, (err, client) => {
+		if(client == undefined || client == null) return;
         
-        const db = client.db('telegram');
-        const col = db.collection('errors');
+		const db = client.db('telegram');
+		const col = db.collection('errors');
   
-        if(err || !error) return;
+		if(err || !error) return;
         
-        col.insertOne({'chatId': chatId, 'errorMsg': error.message, 'date': new Date().toDateString()}, (err, result) => {
-            client.close();
+		col.insertOne({'chatId': chatId, 'errorMsg': error.message, 'date': new Date().toDateString()}, (err, result) => {
+			client.close();
 
-            if(err) return;
-        });
-      });
-}
+			if(err) return;
+		});
+	});
+};

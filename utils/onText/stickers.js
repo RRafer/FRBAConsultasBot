@@ -1,3 +1,0 @@
-exports.execute = (bot, msg) => {
-    
-}

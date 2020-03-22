@@ -1,23 +1,15 @@
 const fs = require('fs');
+var crypto = require('crypto');
+
 
 exports.execute = (bot, msg, match) => {
-    var path = __dirname + '\\latex\\' + tokenGenerator(10) + '.png';
-    console.log(path);
-    var sentence = match[1];
-    var render = require("mathmode")(sentence).pipe(fs.createWriteStream(path));
+	const path = __dirname + '\\latex\\' + crypto.randomBytes(15).toString('hex') + '.png';
+	// What is mathmode? Why i do not have it in package.json?
+	// Are we still going to use this function?
+	let render = require('mathmode')(match[1]).pipe(fs.createWriteStream(path));
 
-    render.on('finish', function () {
-        var formData = {
-            photo: path
-        };
-        bot.sendPhoto(msg.chat.id, formData);
-    });
-
-    function tokenGenerator(num){
-        var text = "";
-        var possible = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        for( var i=0; i < num; i++ )
-            text += possible.charAt(Math.floor(Math.random() * possible.length));
-        return text;
-    }
+	render.on('finish', () => {
+		let formData = {photo: path};
+		bot.sendPhoto(msg.chat.id, formData);
+	});
 };

@@ -1,9 +1,13 @@
 // @ts-check
-/* eslint-disable no-console */
+
+// Start the DB before loading config
+require('dotenv').config();
+require('./controllers/database').initDb();
 const TelegramBot = require('node-telegram-bot-api');
 const linksController = require('./controllers/links');
 const adminControllers = require('./controllers/admin');
-// const mongo = require('./utils/mongo');
+const nuke = require('./controllers/nuke');
+const denuke = require('./controllers/denuke');
 const config = require('./utils/config');
 const { token } = require('./utils/token');
 const onText = require('./utils/onText/onText');
@@ -15,6 +19,7 @@ const bot = new TelegramBot(token, { polling: true });
 const savedMsg = new Map();
 // Juro que esto es una negrada, pero no se me ocurre
 const savedTimers = new Map();
+const savedUsers = new Map();
 // let idPhoto = [];
 // let idChatPhoto = [];
 // let stickerChat = [];
@@ -28,36 +33,185 @@ const savedTimers = new Map();
 bot.on('polling_error', msg => console.log(msg));
 
 bot.on('message', (msg) => {
-	// Elimina mensajes de personas que se unen y abandonan el grupo
-	if (config.isEnabledFor('enableDeleteSystemMessages', msg.chat.id)) {
-		if (msg.new_chat_members !== undefined || msg.left_chat_member !== undefined) 
-			bot.deleteMessage(msg.chat.id, msg.message_id);
+	// Deletes messages from peoplo Joining/Leaving the group
+	if (config.isEnabledFor('enableDeleteSystemMessages', msg.chat.id) && 
+     (msg.new_chat_members !== undefined || msg.left_chat_member !== undefined)){
+		// I have to work this over
+		bot.deleteMessage(msg.chat.id, String(msg.message_id)).catch(e =>{
+			logger.error(`Error Eliminando mensaje: ${e}`);
+		});
 	}
 
-	// verificacion de usuarios
-	if (config.isEnabledFor('enableValidateUsers', msg.chat.id)){
-		if (msg.new_chat_members !== undefined)
-			bot.emit('new_member', msg);
+	// User verification (to prevent bots)
+	if(config.isEnabledFor('enableValidateUsers', msg.chat.id) && (msg.new_chat_members !== undefined)){
+		bot.emit('new_member', msg);
 	}
+  
+	if(!msg.from.username) return;
+	// I've never seen this user before
+	if(!savedUsers.has(msg.from.id) || savedUsers.get(msg.from.id) !== msg.from.username){
+		savedUsers.set(msg.from.id, msg.from.username);
+		logger.info(`Agregado/Actualizado ${msg.from.username} a la lista de usuarios`);
+     
+	} 
 });
 
-bot.onText(/^\/rotar (.*)/, (msg, match) => {
+bot.onText(/^\/rotar (.+)/, (msg, match) => {
 	if (config.isEnabledFor('enableRotate', msg.chat.id)) 
 		rotate.execute(bot, msg, match);
 });
 
 // Envia links de grupos y otros
-bot.onText(/^\/links/,
-	({chat}) => {
-		if (config.isEnabledFor('enableLinks', chat.id)) 
-			linksController.sendLinks(bot);
-	});
+bot.onText(/^\/links/,(msg) => {
+	if (config.isEnabledFor('enableLinks', msg.chat.id)) 
+		linksController.sendLinks(bot, msg);		
+});
+
+// Quickupdate: Banall now called Nuke
+bot.onText(/^\/nuke/,(msg) => {
+	logger.info('Request for Nuking received.');
+	if (config.isEnabledFor('enableNuke', msg.chat.id))
+		nuke.nuke(bot, savedUsers, msg);
+});
+
+// Quickupdate: denuke
+bot.onText(/^\/denuke/,(msg) => {
+	if (config.isEnabledFor('enableNuke', msg.chat.id)) 
+		denuke.denuke(bot, savedUsers, msg);
+});
+
 
 // LMGTFY
-bot.onText(/^\/google (.*)/ , (msg, match) => {
+bot.onText(/^\/google (.+)/ , (msg, match) => {
 	if (config.isEnabledFor('enableGoogle', msg.chat.id)) 
 		bot.sendMessage(msg.chat.id, `https://lmgtfy.com/?q=${encodeURIComponent(match[1])}`, {reply_to_message_id: msg.message_id});
 });
+//TODO: Revisar todo esto para la parte de links
+bot.on('callback_query', (json) => {
+	const CBObject = JSON.parse(json.data);
+	if (CBObject.action === 'v') {
+		// CBObject.p[0] = userId;
+		if (parseInt(CBObject.p[0], 10) === json.from.id) {
+			bot.promoteChatMember(json.message.chat.id, CBObject.p[0], adminControllers.GivePerms).catch((e) => {
+				// Catch obligatorio. Posibles casos de Falla:
+				// El usuario es Admin/Creator
+				// El usuario se va del chat antes de que el comando sea ejecutado
+				logger.error(`Error promoting chat member: ${e}`);
+			});
+			bot.editMessageText('¡Has sido verificado! \u2705\n\nEste mensaje se borrara en unos segundos', {
+				chat_id: json.message.chat.id,
+				message_id: savedMsg.get(CBObject.p[0]),
+			}).then((data) => {
+				setTimeout(() => {
+					bot.deleteMessage(data.chat.id, data.message_id).catch((e) => {
+						logger.error(`Error deleting message ${e}`);
+					});
+				}, 10000);
+				clearTimeout(savedTimers.get(CBObject.p[0]));
+				savedMsg.delete(CBObject.p[0]);
+				savedTimers.delete(CBObject.p[0]);
+			}).catch((e) => {
+				logger.error(`Falla al editar mensaje de verificacion ${e}`);
+			});
+		} else {
+			bot.answerCallbackQuery({
+				callback_query_id: json.id,
+				text: 'No puede verificar por otro usuario',
+				show_alert: true,
+			});
+		}
+	}
+});
+
+//TODO: Rework this part. Maybe a separate file?
+bot.on('new_member', (msg) => {
+	console.log('test2');
+	if (savedMsg.get(msg.from.id) === undefined) {
+		bot.sendMessage(msg.chat.id, `Hola ${msg.from.first_name}${msg.from.last_name || ''} bienvenido al grupo de consultas ${msg.chat.title} de la UTN - FRBA\n\nHaga clic en el boton de abajo para verificar que no sea un bot.\nEste mensaje se eliminara en 30 segundos`, { reply_markup: JSON.stringify(adminControllers.verify(msg)) }).then((sentMsg) => {
+			savedMsg.set(msg.from.id, sentMsg.message_id);
+			savedTimers.set(msg.from.id, setTimeout(() => {
+				// Delete Msg if user has not verified in time.
+				bot.deleteMessage(msg.chat.id, sentMsg.message_id);
+				// Kick Only (Unban is a must, there is no 'kick' method)
+				bot.kickChatMember(msg.chat.id, msg.from.id);
+				bot.unbanChatMember(msg.chat.id, msg.from.id);
+				savedMsg.delete(msg.from.id);
+				savedTimers.delete(msg.from.id);
+			}, 30000));
+		}).catch((e) => {
+			// Catch for all the possible errors that will bubble up: (Unable to ban / Unable to delete message)
+			logger.error(`Error en verificacion ${e}`);
+		});
+	} else {
+		logger.info('Intento de verificacion doble.');
+	}
+});
+
+//bot.onText(/^\/(ban|kick)( .*)?/, (msg, match) => onText.banKick(bot, match, savedUsers, msg));
+
+// Útil pero no debe exponerse.
+//bot.onText(/^\/id/, (msg) => {
+//	bot.deleteMessage(msg.chat.id, msg.message_id);
+//	console.log(`ID del chat: ${msg.chat.id}`);
+//});
+
+// Para registrar a todos una vez implementado el bot.
+// bot.onText(/^\/.*/, msg => {
+//   mongo.insertChatId(msg.from.id, msg.chat.id).catch(err => {
+//     mongo.logError(msg.chat.id, err);
+//   });
+// });
+
+// Estadisticas
+// bot.onText(/[\s\S]+/g, mongo.insertMessage);
+
+// Para implementar en newmember cuando funque bien.
+// bot.onText(/^\/prueba/, msg => mongo.insertChatId(msg.from.id, msg.chat.id));
+/*
+
+bot.onText(/^\/remindme [0-9]+ (d|h|m|s|w)( .*)?/, (msg, match) => onText.remindme(bot, msg, match));
+
+*/
+/* bot.onText(/^\/start/, (msg) => {
+  if (msg.chat.type == 'private') {
+    onText.start(bot, msg);
+  }
+});
+*/
+
+// bot.onText(/^\/banall/, msg => onText.banall(bot, msg));
+
+// bot.onText(/^\/help/, msg => onText.help(bot, msg));
+// #region Comentarios
+
+
+/* main.onText(/^\/stadistics/, (msg) => {
+
+    mongo.connect(url, (err, client) => {
+
+        const db = client.db('BotTelegram');
+        db.collection("messages").find({"chat.id":msg.chat.id,"from.id":msg.from.id}).count((err, count) =>{
+            if (err) {
+                throw err;
+
+                client.close();
+            }
+
+            main.sendMessage(msg.chat.id, "Mensajes enviados: " +(count-1),
+                {reply_to_message_id: msg.message_id});
+        })
+    });
+});
+
+*/
+
+// Para implementar los comienzos de cuatrimestre.
+// bot.onText(/^\/empieza/, (msg) => {
+//   bot.deleteMessage(msg.chat.id, msg.message_id);
+//   bot.sendMessage(msg.chat.id, 'Las materias de 2do a 6to año empiezan el 18\nFisica 1 curso Z empieza el 25\nRecursantes empiezan el 25 de marzo\nIngresantes empiezan el 1 de Abril\n', { reply_to_message_id: msg.message_id });
+// });
+
+
 
 /*
 bot.onText(/^\/catedra/, (msg) => {
@@ -118,128 +272,5 @@ bot.onText(/^\/sticker/, (msg) => {
 });
 */
 
-bot.on('callback_query', (json) => {
-	const CBObject = JSON.parse(json.data);
-	if (CBObject.action === 'v') {
-		// CBObject.p[0] = userId;
-		if (parseInt(CBObject.p[0], 10) === json.from.id) {
-			bot.promoteChatMember(json.message.chat.id, CBObject.p[0], adminControllers.GivePerms).catch((e) => {
-				// Catch obligatorio. Posibles casos de Falla:
-				// El usuario es Admin/Creator
-				// El usuario se va del chat antes de que el comando sea ejecutado
-				console.log(e);
-			});
-			bot.editMessageText('¡Has sido verificado! \u2705\n\nEste mensaje se borrara en unos segundos', {
-				chat_id: json.message.chat.id,
-				message_id: savedMsg.get(CBObject.p[0]),
-			}).then((data) => {
-				setTimeout(() => {
-					bot.deleteMessage(data.chat.id, data.message_id);
-				}, 10000);
-				clearTimeout(savedTimers.get(CBObject.p[0]));
-				savedMsg.delete(CBObject.p[0]);
-				savedTimers.delete(CBObject.p[0]);
-			}).catch((e) => {
-				console.log(`Falla al editar mensaje de verificacion ${e}`);
-			});
-		} else {
-			bot.answerCallbackQuery({
-				callback_query_id: json.id,
-				text: 'No puede verificar por otro usuario',
-				show_alert: true,
-			});
-		}
-	}
-});
-
-
-bot.on('new_member', (msg) => {
-	if (savedMsg.get(msg.from.id) === undefined) {
-		bot.sendMessage(msg.chat.id, `Hola ${msg.from.first_name}${msg.from.last_name || ''} bienvenido al grupo de consultas ${msg.chat.title} de la UTN - FRBA\n\nHaga clic en el boton de abajo para verificar que no sea un bot.\nEste mensaje se eliminara en 30 segundos`, { reply_markup: JSON.stringify(adminControllers.verify(msg)) }).then((sentMsg) => {
-			savedMsg.set(msg.from.id, sentMsg.message_id);
-			savedTimers.set(msg.from.id, setTimeout(() => {
-				// Borro el mensaje si no verifico
-				bot.deleteMessage(msg.chat.id, sentMsg.message_id);
-				// Kick Only (El unban tiene que estar, si no no pueden volver a unirse)
-				bot.kickChatMember(msg.chat.id, msg.from.id);
-				bot.unbanChatMember(msg.chat.id, msg.from.id);
-				savedMsg.delete(msg.from.id);
-				savedTimers.delete(msg.from.id);
-			}, 30000));
-		}).catch((e) => {
-			console.log(e);
-		});
-	} else {
-		console.log('Intento de verificacion doble.');
-	}
-});
-
-// Test: funcion Validar
-bot.onText(/^\/newmember/, (msg) => {
-	bot.emit('new_member', msg);
-});
-
-// Para implementar en newmember cuando funque bien.
-// bot.onText(/^\/prueba/, msg => mongo.insertChatId(msg.from.id, msg.chat.id));
-/*
-
-bot.onText(/^\/(ban|kick)( .*)?/, (msg, match) => onText.banKick(bot, msg, match));
-
-bot.onText(/^\/remindme [0-9]+ (d|h|m|s|w)( .*)?/, (msg, match) => onText.remindme(bot, msg, match));
-
-*/
-/* bot.onText(/^\/start/, (msg) => {
-  if (msg.chat.type == 'private') {
-    onText.start(bot, msg);
-  }
-});
-*/
-
-// bot.onText(/^\/banall/, msg => onText.banall(bot, msg));
-
-// bot.onText(/^\/help/, msg => onText.help(bot, msg));
-// #region Comentarios
-
-// Útil pero no debe exponerse.
-// bot.onText(/^\/id/, (msg) => {
-//   bot.deleteMessage(msg.chat.id, msg.message_id);
-//   bot.sendMessage(msg.chat.id, 'ID del chat: ' + msg.chat.id);
-// });
-
-// Para registrar a todos una vez implementado el bot.
-// bot.onText(/^\/.*/, msg => {
-//   mongo.insertChatId(msg.from.id, msg.chat.id).catch(err => {
-//     mongo.logError(msg.chat.id, err);
-//   });
-// });
-
-// Estadisticas
-// bot.onText(/[\s\S]+/g, mongo.insertMessage);
-
-/* main.onText(/^\/stadistics/, (msg) => {
-
-    mongo.connect(url, (err, client) => {
-
-        const db = client.db('BotTelegram');
-        db.collection("messages").find({"chat.id":msg.chat.id,"from.id":msg.from.id}).count((err, count) =>{
-            if (err) {
-                throw err;
-
-                client.close();
-            }
-
-            main.sendMessage(msg.chat.id, "Mensajes enviados: " +(count-1),
-                {reply_to_message_id: msg.message_id});
-        })
-    });
-});
-
-*/
-
-// Para implementar los comienzos de cuatrimestre.
-// bot.onText(/^\/empieza/, (msg) => {
-//   bot.deleteMessage(msg.chat.id, msg.message_id);
-//   bot.sendMessage(msg.chat.id, 'Las materias de 2do a 6to año empiezan el 18\nFisica 1 curso Z empieza el 25\nRecursantes empiezan el 25 de marzo\nIngresantes empiezan el 1 de Abril\n', { reply_to_message_id: msg.message_id });
-// });
 
 // #endregion

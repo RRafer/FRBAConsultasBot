@@ -10,14 +10,8 @@
         "SharedArrayBuffer": "readonly"
     },
     "parserOptions": {
-        "ecmaFeatures": {
-            "jsx": true
-        },
         "ecmaVersion": 2018
     },
-    "plugins": [
-        "react"
-    ],
     "rules": {
         "indent": [
             "error",
@@ -34,6 +28,10 @@
         "semi": [
             "error",
             "always"
+        ],
+        "comma-dangle": [
+            "error", 
+            "always-multiline"
         ]
     }
 }
