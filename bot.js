@@ -44,7 +44,7 @@ bot.on('message', (msg) => {
      (msg.new_chat_members !== undefined || msg.left_chat_member !== undefined)){
 		// I have to work this over
 		bot.deleteMessage(msg.chat.id, String(msg.message_id)).catch(e =>{
-			logger.error(`Error eliminando mensaje: ${e}`);
+			logger.error(`Error deleting message: ${e}`);
 		});
 	}
 
@@ -57,7 +57,7 @@ bot.on('message', (msg) => {
 	// I've never seen this user before
 	if(!savedUsers.has(msg.from.id) || savedUsers.get(msg.from.id) !== msg.from.username){
 		savedUsers.set(msg.from.id, msg.from.username);
-		logger.info(`Agregado/Actualizado ${msg.from.username} a la lista de usuarios`);
+		logger.info(`Added/updated ${msg.from.username} to the list of users`);
      
 	} 
 });

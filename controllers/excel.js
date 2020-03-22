@@ -8,7 +8,7 @@ exports.excel = async (bot, msg) => {
 	// Check group
 	if (!groupIDs.includes(msg.chat.id)) return;
 	
-	bot.sendMessage(msg.chat.id, excelMessage,
+	bot.sendMessage(msg.chat.id, `¿Te fijaste en el <a href=\'https://docs.google.com/spreadsheets/d/19XPRP8zsVut-W1HihBxSZ_mZHlyHMBy-WIKNqurdNs8/edit?pref=2&pli=1#gid=1173209158\'>Excel de profesores</a>?`,
 		{ 
 			parse_mode: 'HTML', 
 			reply_to_message_id: msg.reply_to_message ? msg.reply_to_message.message_id : '', 
