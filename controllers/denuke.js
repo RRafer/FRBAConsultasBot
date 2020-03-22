@@ -30,29 +30,28 @@ exports.denuke = async (bot, usersList, msg) => {
 	}
 
 	// If user is mentioned
-	if (msg.entities){
-		msg.entities.forEach((entity) => {
+	(msg.entities || []).forEach((entity) => {
 				
-			// If user is mentioned and it has NO @username
-			if (entity.type == 'text_mention'){
-				idToBan.push(entity.user.id);
-				// I accept Ideas about this line, help me please this is an eldritch horror
-				mentionToBan.push(`[@${entity.user.username||(`${entity.user.first_name}${entity.user.last_name ? ` ${entity.user.last_name}` : ''}`)}](tg://user?id=${entity.user.id})`); 
-			}
+		// If user is mentioned and it has NO @username
+		if (entity.type == 'text_mention'){
+			idToBan.push(entity.user.id);
+			// I accept Ideas about this line, help me please this is an eldritch horror
+			mentionToBan.push(`[@${entity.user.username||(`${entity.user.first_name}${entity.user.last_name ? ` ${entity.user.last_name}` : ''}`)}](tg://user?id=${entity.user.id})`); 
+		}
 				
-			// If user is mentioned but has @username
-			if (entity.type == 'mention'){
-				let nameToSearch = msg.text.substr(entity.offset+1,entity.length-1);
-				// Can I change this to map.Values to make it more efficient?								
-				usersList.forEach((v,k) => {
-					if (v == nameToSearch){
-						idToBan.push(k);
-						mentionToBan.push(`[@${v}](tg://user?id=${idToBan})`);
-					}
-				});
-			}
-		});		
-	}
+		// If user is mentioned but has @username
+		if (entity.type == 'mention'){
+			let nameToSearch = msg.text.substr(entity.offset+1,entity.length-1);
+			// Can I change this to map.Values to make it more efficient?								
+			usersList.forEach((v,k) => {
+				if (v == nameToSearch){
+					idToBan.push(k);
+					mentionToBan.push(`[@${v}](tg://user?id=${idToBan})`);
+				}
+			});
+		}
+	});		
+	
 	
 	logger.info(`Found a total of ${idToBan.length} users to unban`);
 
