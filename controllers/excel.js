@@ -1,5 +1,4 @@
-const { getUserStatus, isAdmin } = require('../utils/generic');
-const { groupIDs, excelMessage } = require('../utils/config');
+const { groupIDs } = require('../utils/config');
 const logger = require('./logger');
 
 exports.excel = async (bot, msg) => {

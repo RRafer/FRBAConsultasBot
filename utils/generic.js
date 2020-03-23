@@ -14,4 +14,4 @@ exports.getUserStatus = async (bot, msg) => {
 	return userMember.status;
 };
 
-exports.isAdmin = (bot, msg, userId) => ['creator', 'administrator'].includes(getUserStatus(bot, msg));
+exports.isAdmin = (bot, msg) => ['creator', 'administrator'].includes(getUserStatus(bot, msg));
