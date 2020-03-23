@@ -1,6 +1,5 @@
 const fs = require('fs');
 const sharp = require('sharp');
-const config = require(__dirname + '/../token.js');
 const request = require('request');
 const uuidv4 = require('uuid/v4');
 
@@ -29,7 +28,7 @@ exports.execute = (bot, msg, match) => {
 		let newPath = `${__dirname}/../../ImageRotate/${uuidv4()}.png`;
 
 		request
-			.get(`https://api.telegram.org/file/bot${config.token}/${imagen.file_path}`)
+			.get(`https://api.telegram.org/file/bot${process.env.BOT_TOKEN}/${imagen.file_path}`)
 			.pipe(fs.createWriteStream(path))	
 			.on('finish', () =>{ 
 				sharp(path)
