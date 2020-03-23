@@ -8,10 +8,10 @@ exports.generateMention = (msg) => {
 
 exports.getUserStatus = async (bot, msg) => {
 	logger.info('Getting user credentials');
-	const userMember = await bot.getChatMember(msg.chat.id, msg.from.id)
-							.catch(err => logger.error(`Cannot get user: ${err}`));
+	const userMember = bot.getChatMember(msg.chat.id, msg.from.id)
+			.catch(err => logger.error(`Cannot get user: ${err}`));
 
-	return userMember;
+	return userMember.status;
 };
 
 exports.isAdmin = (bot, msg, userId) => ['creator', 'administrator'].includes(getUserStatus(bot, msg));
