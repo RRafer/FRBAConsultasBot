@@ -8,7 +8,7 @@ exports.generateMention = (msg) => {
 
 exports.getUserStatus = async (bot, msg) => {
 	logger.info('Getting user credentials');
-	const userMember = bot.getChatMember(msg.chat.id, msg.from.id)
+	const userMember = await bot.getChatMember(msg.chat.id, msg.from.id)
 			.catch(err => logger.error(`Cannot get user: ${err}`));
 
 	return userMember.status;
