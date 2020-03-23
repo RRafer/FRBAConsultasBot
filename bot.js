@@ -3,19 +3,16 @@
 // Start the DB before loading config
 require('dotenv').config();
 require('./controllers/database').initDb();
+const logger = require('./controllers/logger');
 const TelegramBot = require('node-telegram-bot-api');
 const linksController = require('./controllers/links');
 const adminControllers = require('./controllers/admin');
 const nuke = require('./controllers/nuke');
 const denuke = require('./controllers/denuke');
 const config = require('./utils/config');
-const { token } = require('./utils/token');
-const onText = require('./utils/onText/onText');
-const latex = require('./utils/onText/latex');
-const autismo = require('./utils/onText/autismo');
 const rotate = require('./utils/onText/rotate');
 
-const bot = new TelegramBot(token, { polling: true });
+const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
 const savedMsg = new Map();
 // Juro que esto es una negrada, pero no se me ocurre
 const savedTimers = new Map();
