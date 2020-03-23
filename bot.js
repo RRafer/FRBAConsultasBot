@@ -3,6 +3,7 @@
 // Start the DB before loading config
 require('dotenv').config();
 require('./controllers/database').initDb();
+const logger = require('./controllers/logger');
 const TelegramBot = require('node-telegram-bot-api');
 const linksController = require('./controllers/links');
 const adminControllers = require('./controllers/admin');
