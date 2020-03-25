@@ -10,6 +10,7 @@
     "eslint-plugin-react": "^7.19.0",
     "moment": "^2.24.0",
     "mongodb": "^3.5.5",
+    "mongoose": "^5.9.5",
     "node-telegram-bot-api": "^0.40.0",
     "request": "^2.88.2",
     "sharp": "^0.25.1",

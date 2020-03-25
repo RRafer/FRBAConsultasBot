@@ -2,7 +2,8 @@
 
 // Start the DB before loading config
 require('dotenv').config();
-require('./controllers/database').initDb();
+const databaseController = require('./controllers/database');
+databaseController.initDb();
 const TelegramBot = require('node-telegram-bot-api');
 const linksController = require('./controllers/links');
 const adminControllers = require('./controllers/admin');
@@ -10,17 +11,25 @@ const nuke = require('./controllers/nuke');
 const denuke = require('./controllers/denuke');
 const excel = require('./controllers/excel');
 const config = require('./utils/config');
-const { token } = require('./utils/token');
-const onText = require('./utils/onText/onText');
-const latex = require('./utils/onText/latex');
-const autismo = require('./utils/onText/autismo');
 const rotate = require('./utils/onText/rotate');
 
-const bot = new TelegramBot(token, { polling: true });
+
+logger.info('Starting Bot');
+const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
+logger.info('Bot Started');
+
+// Juro que esto es una negrada, pero no se me ocurre
 const savedMsg = new Map();
 // Juro que esto es una negrada, pero no se me ocurre
 const savedTimers = new Map();
 const savedUsers = new Map();
+console.info('Loading Saved Users');
+databaseController.getSavedUsers().then((tsu)=>{
+	tsu.forEach((v,k) => {
+		console.info(`DB Record: ${k}=>${v}`);
+	});
+});
+
 // let idPhoto = [];
 // let idChatPhoto = [];
 // let stickerChat = [];
@@ -53,7 +62,7 @@ bot.on('message', (msg) => {
 	if(!savedUsers.has(msg.from.id) || savedUsers.get(msg.from.id) !== msg.from.username){
 		savedUsers.set(msg.from.id, msg.from.username);
 		logger.info(`Added/updated ${msg.from.username} to the list of users`);
-     
+		databaseController.saveUser(msg.from.id, msg.from.username);
 	} 
 });
 
@@ -89,8 +98,8 @@ bot.onText(/^\/google (.+)/ , (msg, match) => {
 });
 
 bot.onText(/^\/excel/, msg => {
-  if(config.isEnabledFor('enableExcel', msg.chat.id))
-    excel.excel(bot, msg);
+	if(config.isEnabledFor('enableExcel', msg.chat.id))
+		excel.excel(bot, msg);
 });
 
 
