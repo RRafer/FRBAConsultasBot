@@ -11,7 +11,7 @@ const nuke = require('./controllers/nuke');
 const denuke = require('./controllers/denuke');
 const config = require('./utils/config');
 const rotate = require('./utils/onText/rotate');
-const start = require('./utils/onText/start');
+const start = require('./controllers/start');
 
 const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
 const savedMsg = new Map();
