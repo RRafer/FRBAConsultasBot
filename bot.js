@@ -11,7 +11,7 @@ const nuke = require('./controllers/nuke');
 const denuke = require('./controllers/denuke');
 const config = require('./utils/config');
 const rotate = require('./utils/onText/rotate');
-const start = require('./controllers/start');
+const privateController = require('./controllers/privateController');
 
 const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
 const savedMsg = new Map();
@@ -171,7 +171,7 @@ bot.onText(/^\/remindme [0-9]+ (d|h|m|s|w)( .*)?/, (msg, match) => onText.remind
 
 */
 bot.onText(/^\/start/, (msg) => {
-	start.execute(bot, msg);
+	privateController.start(bot, msg);
 });
 
 // bot.onText(/^\/banall/, msg => onText.banall(bot, msg));

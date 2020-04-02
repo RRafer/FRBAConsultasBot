@@ -1,4 +1,4 @@
-exports.execute = (bot, msg) => {
+exports.start = (bot, msg) => {
     return bot.sendMessage(msg.chat.id, msg.chat.type == 'private' ? `Hola ${msg.from.first_name}!
     
 Soy un bot creado para los grupos no oficiales de la UTN FRBA en Telegram
