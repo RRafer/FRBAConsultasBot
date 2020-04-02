@@ -1,7 +1,10 @@
 exports.start = (bot, msg) => {
-    return bot.sendMessage(msg.chat.id, msg.chat.type == 'private' ? `Hola ${msg.from.first_name}!
+    if(msg.chat.type == 'private')
+        bot.sendMessage(msg.chat.id, `Hola ${msg.from.first_name}!
     
 Soy un bot creado para los grupos no oficiales de la UTN FRBA en Telegram
     
-Ingresa acá el comando que quieras usar, o usá /help para conocer todos mis comandos!` : 'Este comando funciona únicamente en los chats privados', { reply_to_message_id: msg.chat.type == 'private' ? '' : msg.message_id })
+Ingresa acá el comando que quieras usar, o usá /help para conocer todos mis comandos!`);
+    else
+        bot.sendMessage(msg.chat.id, `Este comando solo puede utilizarse en chats privados`, { reply_to_message_id: msg.message_id });
 }
