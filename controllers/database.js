@@ -8,7 +8,7 @@ const url = process.env.DATABASE_URL || 'mongodb://localhost:27017/telegrambot';
 let Database = {};
 
 Database.initDb = function (){
-	mongoose.connect(url, {useNewUrlParser: true, useUnifiedTopology: true});
+	mongoose.connect(url, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true });
 	let db = mongoose.connection;
 	db.on('error', ()=>{logger.error('DB Connection error');});
 	db.once('open', function() {
@@ -16,22 +16,16 @@ Database.initDb = function (){
 	});
 };
 
-Database.saveUser = async function (userId, userName){
-	logger.info(`Logging into database: ${userId}=>${userName}`);
-	await userModel.create({userId, userName}).catch(err => logger.error(`Can't create user: ${err}`));
+Database.saveUser = async function (nuserId, nuserName){
+	try{
+		await userModel.updateOne({userId: nuserId}, {userName: nuserName}, { new: true, upsert: true });
+	}catch(err){
+		logger.error(`Can't create user: ${err}`);
+	}
 };
 
-Database.getSavedUsers = async function (){
-	let userMap = new Map();
-
-	// Note no `await` here
-	const cursor = userModel.find().cursor();
-
-	for (let doc = await cursor.next(); doc != null; doc = await cursor.next()) {
-		userMap.set(doc.userId, doc.userName);
-	}
-
-	return userMap;
+Database.getSavedUsersCount = async function (){
+	return await userModel.estimatedDocumentCount();
 };
 
 // exports.insertMessage = (msg) => {

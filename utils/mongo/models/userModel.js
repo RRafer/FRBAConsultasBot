@@ -2,7 +2,7 @@ let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
 
 let userSchema = new Schema({
-	userId: { type: Number },
+	userId: { type: Number, index: true },
 	userName: {type: String},
 }, { versionKey: false });
 

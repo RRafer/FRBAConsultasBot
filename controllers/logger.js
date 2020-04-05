@@ -16,6 +16,6 @@ const logger = createLogger({
 		new transports.File({ filename: 'info.log', level: 'info' }),
 		new transports.Console(),
 		new MongoDB({db : process.env.DATABASE_URL , collection : 'log', level : 'warn'}),
-	]
+	],
 });
 module.exports = logger;

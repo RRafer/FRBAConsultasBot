@@ -23,11 +23,9 @@ const savedMsg = new Map();
 // Juro que esto es una negrada, pero no se me ocurre
 const savedTimers = new Map();
 const savedUsers = new Map();
-console.info('Loading Saved Users');
-databaseController.getSavedUsers().then((tsu)=>{
-	tsu.forEach((v,k) => {
-		console.info(`DB Record: ${k}=>${v}`);
-	});
+
+databaseController.getSavedUsersCount().then((tsc)=>{
+	console.info(`DB loaded ${tsc} Users`);
 });
 
 // let idPhoto = [];
@@ -43,25 +41,23 @@ databaseController.getSavedUsers().then((tsu)=>{
 bot.on('polling_error', msg => console.log(msg));
 
 bot.on('message', (msg) => {
-	// Deletes messages from peoplo Joining/Leaving the group
-	if (config.isEnabledFor('enableDeleteSystemMessages', msg.chat.id) && 
-     (msg.new_chat_members !== undefined || msg.left_chat_member !== undefined)){
-		// I have to work this over
-		bot.deleteMessage(msg.chat.id, String(msg.message_id)).catch(e =>{
-			logger.error(`Error deleting message: ${e}`);
-		});
-	}
-
 	// User verification (to prevent bots)
 	if(config.isEnabledFor('enableValidateUsers', msg.chat.id) && (msg.new_chat_members !== undefined)){
 		bot.emit('new_member', msg);
 	}
   
+	// Deletes messages from peoplo Joining/Leaving the group
+	if (config.isEnabledFor('enableDeleteSystemMessages', msg.chat.id) && 
+  (msg.new_chat_members !== undefined || msg.left_chat_member !== undefined)){
+		// I have to work this over
+		bot.deleteMessage(msg.chat.id, String(msg.message_id)).catch(e =>{
+			logger.error(`Error deleting message: ${e}`);
+		});
+	}
+  
 	if(!msg.from.username) return;
-	// I've never seen this user before
-	if(!savedUsers.has(msg.from.id) || savedUsers.get(msg.from.id) !== msg.from.username){
-		savedUsers.set(msg.from.id, msg.from.username);
-		logger.info(`Added/updated ${msg.from.username} to the list of users`);
+	else{
+	// Save user into DB
 		databaseController.saveUser(msg.from.id, msg.from.username);
 	} 
 });
