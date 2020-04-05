@@ -22,7 +22,6 @@ logger.info('Bot Started');
 const savedMsg = new Map();
 // Juro que esto es una negrada, pero no se me ocurre
 const savedTimers = new Map();
-const savedUsers = new Map();
 
 databaseController.getSavedUsersCount().then((tsc)=>{
 	console.info(`DB loaded ${tsc} Users`);
@@ -74,16 +73,15 @@ bot.onText(/^\/links/,(msg) => {
 });
 
 // Quickupdate: Banall now called Nuke
-bot.onText(/^\/nuke2/,(msg) => {
-	logger.info('Request for Nuking received.');
+bot.onText(/^\/nuke/,(msg) => {
 	if (config.isEnabledFor('enableNuke', msg.chat.id))
-		nuke.nuke(bot, savedUsers, msg);
+		nuke.nuke(bot, msg);
 });
 
 // Quickupdate: denuke
 bot.onText(/^\/denuke/,(msg) => {
 	if (config.isEnabledFor('enableNuke', msg.chat.id)) 
-		denuke.denuke(bot, savedUsers, msg);
+		denuke.denuke(bot, msg);
 });
 
 
@@ -99,6 +97,12 @@ bot.onText(/^\/excel/, msg => {
 });
 
 
+/*
+bot.onText(/^\/getuserid/, async msg => {
+	let id = await databaseController.getUserId(msg.reply_to_message.from.username);
+	bot.sendMessage(msg.chat.id, `UserID: ${id}`, {reply_to_message_id: msg.message_id});
+});
+*/
 /*
 bot.onText(/^\/catedra/, (msg) => {
   const chatPos = idChatPhoto.indexOf(msg.chat.id);

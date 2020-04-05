@@ -1,10 +1,11 @@
 // @ts-check
 const logger = require('./logger');
 const { groupIDs } = require('../utils/config');
+const databaseController = require('./database');
 
 //TODO: Agregar el segundo comando para el tiempo.
 // Can I refactor this into async / await?
-exports.ban = (bot, command, usersList, msg) => {
+exports.ban = (bot, command, msg) => {
 	let idToBan = new Array;
 
 	//Check group
@@ -26,11 +27,8 @@ exports.ban = (bot, command, usersList, msg) => {
 				if (entity.type == 'text_mention') idToBan.push(entity.user.id);
 				// If user is mentioned but has no @username	
 				if (entity.type == 'mention'){
-					let nameToSearch = msg.text.substr(entity.offset+1,entity.length-1);
-					// Can I change this to map.Values to make it more efficient?								
-					usersList.forEach((v,k) => {
-						if (v == nameToSearch) idToBan.push(k);
-					});
+					let foundId = databaseController.getUserId(msg.text.substr(entity.offset+1,entity.length-1));
+					if(foundId) idToBan.push(foundId);
 				}	
 			});
 		}

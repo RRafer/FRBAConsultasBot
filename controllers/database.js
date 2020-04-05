@@ -28,6 +28,17 @@ Database.getSavedUsersCount = async function (){
 	return await userModel.estimatedDocumentCount();
 };
 
+Database.getUserId = async function (nuserName){
+	let id;
+	try{
+		id = await userModel.findOne({userName: nuserName}, 'userId',{lean: true}); 
+	}catch(err){
+		logger.error(`Can't find user: ${err}`);
+	}
+	// Technically, lean SHOULD return an object not a document already... but...
+	return await id.userId;
+};
+
 // exports.insertMessage = (msg) => {
 // exports.hasStarted = userId => {
 // exports.setStartedUser = userId => {  

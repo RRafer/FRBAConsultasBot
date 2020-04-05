@@ -2,9 +2,10 @@
 
 const { generateMention } = require('../utils/generic');
 const { groupIDs } = require('../utils/config');
+const databaseController = require('./database');
 const logger = require('./logger');
 
-exports.denuke = async (bot, usersList, msg) => {
+exports.denuke = async (bot, msg) => {
 
 	logger.info('Checking if group is in the list ' + msg.chat.id);
 
@@ -31,7 +32,7 @@ exports.denuke = async (bot, usersList, msg) => {
 
 	// If user is mentioned
 	if (msg.entities){
-		msg.entities.forEach((entity) => {
+		msg.entities.forEach(async (entity) => {
 				
 			// If user is mentioned and it has NO @username
 			if (entity.type == 'text_mention'){
@@ -42,14 +43,11 @@ exports.denuke = async (bot, usersList, msg) => {
 				
 			// If user is mentioned but has @username
 			if (entity.type == 'mention'){
-				let nameToSearch = msg.text.substr(entity.offset+1,entity.length-1);
-				// Can I change this to map.Values to make it more efficient?								
-				usersList.forEach((v,k) => {
-					if (v == nameToSearch){
-						idToBan.push(k);
-						mentionToBan.push(`[@${v}](tg://user?id=${idToBan})`);
-					}
-				});
+				let foundId = await databaseController.getUserId(msg.text.substr(entity.offset+1,entity.length-1));
+				if(foundId){
+					idToBan.push(foundId);
+					mentionToBan.push(`[@${v}](tg://user?id=${idToBan})`);
+				}
 			}
 		});		
 	}
