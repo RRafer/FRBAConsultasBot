@@ -31,26 +31,26 @@ exports.denuke = async (bot, msg) => {
 	}
 
 	// If user is mentioned
-	if (msg.entities){
-		msg.entities.forEach(async (entity) => {
+	(msg.entities || []).forEach(async (entity) => {
 				
-			// If user is mentioned and it has NO @username
-			if (entity.type == 'text_mention'){
-				idToBan.push(entity.user.id);
-				// I accept Ideas about this line, help me please this is an eldritch horror
-				mentionToBan.push(`[@${entity.user.username||(`${entity.user.first_name}${entity.user.last_name ? ` ${entity.user.last_name}` : ''}`)}](tg://user?id=${entity.user.id})`); 
-			}
+		// If user is mentioned and it has NO @username
+		if (entity.type == 'text_mention'){
+			idToBan.push(entity.user.id);
+			// I accept Ideas about this line, help me please this is an eldritch horror
+			mentionToBan.push(`[@${entity.user.username||(`${entity.user.first_name}${entity.user.last_name ? ` ${entity.user.last_name}` : ''}`)}](tg://user?id=${entity.user.id})`); 
+		}
 				
-			// If user is mentioned but has @username
-			if (entity.type == 'mention'){
-				let foundId = await databaseController.getUserId(msg.text.substr(entity.offset+1,entity.length-1));
-				if(foundId){
-					idToBan.push(foundId);
-					mentionToBan.push(`[@${v}](tg://user?id=${idToBan})`);
-				}
+		// If user is mentioned but has @username
+		if (entity.type == 'mention'){
+			let entityString = msg.text.substr(entity.offset+1,entity.length-1);
+			let foundId = await databaseController.getUserId(entityString);
+			if(foundId){
+				idToBan.push(foundId);
+				mentionToBan.push(`[@${entityString}](tg://user?id=${idToBan})`);
 			}
-		});		
-	}
+		}
+	});		
+
 	
 	logger.info(`Found a total of ${idToBan.length} users to unban`);
 

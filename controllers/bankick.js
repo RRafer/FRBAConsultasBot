@@ -21,17 +21,16 @@ exports.ban = (bot, command, msg) => {
 		if (msg.reply_to_message) idToBan.push(msg.reply_to_message.from.id);
 		
 		// If user is mentioned
-		if (msg.entities){		
-			msg.entities.forEach(async (entity) => {
-				// If user is mentioned and it has @username also If multiple entities, push them into an array.
-				if (entity.type == 'text_mention') idToBan.push(entity.user.id);
-				// If user is mentioned but has no @username	
-				if (entity.type == 'mention'){
-					let foundId = await databaseController.getUserId(msg.text.substr(entity.offset+1,entity.length-1));
-					if(foundId) idToBan.push(foundId);
-				}	
-			});
-		}
+		
+		(msg.entities || []).forEach(async (entity) => {
+			// If user is mentioned and it has @username also If multiple entities, push them into an array.
+			if (entity.type == 'text_mention') idToBan.push(entity.user.id);
+			// If user is mentioned but has no @username	
+			if (entity.type == 'mention'){
+				let foundId = await databaseController.getUserId(msg.text.substr(entity.offset+1,entity.length-1));
+				if(foundId) idToBan.push(foundId);
+			}	
+		});
 		
 		// Return on empty array
 		if(!idToBan.length) return;

@@ -6,10 +6,10 @@ exports.generateMention = (msg) => {
 	return `[@${username||fromName}](tg://user?id=${id})`;
 };
 
-exports.getUserStatus = async (bot, msg) => {
+getUserStatus = async (bot, msg) => {
 	logger.info('Getting user credentials');
 	const userMember = await bot.getChatMember(msg.chat.id, msg.from.id)
-			.catch(err => logger.error(`Cannot get user: ${err}`));
+		.catch(err => logger.error(`Cannot get user: ${err}`));
 
 	return userMember.status;
 };
