@@ -28,7 +28,7 @@ exports.execute = (bot, msg, match) => {
 		let newPath = `${__dirname}/../../ImageRotate/${uuidv4()}.png`;
 
 		request
-			.get(`https://api.telegram.org/file/bot${process.env.token}/${imagen.file_path}`)
+			.get(`https://api.telegram.org/file/bot${process.env.BOT_TOKEN}/${imagen.file_path}`)
 			.pipe(fs.createWriteStream(path))	
 			.on('finish', () =>{ 
 				sharp(path)

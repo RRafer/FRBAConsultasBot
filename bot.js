@@ -3,7 +3,7 @@
 // Start the DB before loading config
 require('dotenv').config();
 const databaseController = require('./controllers/database');
-databaseController.initDb();
+
 const logger = require('./controllers/logger');
 const TelegramBot = require('node-telegram-bot-api');
 const linksController = require('./controllers/links');
@@ -14,6 +14,7 @@ const excel = require('./controllers/excel');
 const config = require('./utils/config');
 const rotate = require('./utils/onText/rotate');
 const privateController = require('./controllers/private');
+databaseController.initDb();
 
 logger.info('Starting Bot');
 const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
@@ -27,9 +28,6 @@ databaseController.getSavedUsersCount().then((tsc)=>{
 	console.info(`DB loaded ${tsc} Users`);
 });
 
-// let idPhoto = [];
-// let idChatPhoto = [];
-// let stickerChat = [];
 /* const callbackObject = {
   action: '',
   p: [],
@@ -54,11 +52,9 @@ bot.on('message', (msg) => {
 		});
 	}
   
-	if(!msg.from.username) return;
-	else{
 	// Save user into DB
+	if(msg.from.username) 
 		databaseController.saveUser(msg.from.id, msg.from.username);
-	} 
 });
 
 bot.onText(/^\/rotar (.+)/, (msg, match) => {
@@ -66,19 +62,19 @@ bot.onText(/^\/rotar (.+)/, (msg, match) => {
 		rotate.execute(bot, msg, match);
 });
 
-// Envia links de grupos y otros
+// Sends group links
 bot.onText(/^\/links/,(msg) => {
 	if (config.isEnabledFor('enableLinks', msg.chat.id)) 
 		linksController.sendLinks(bot, msg);		
 });
 
-// Quickupdate: Banall now called Nuke
+// Nuking users from All groups
 bot.onText(/^\/nuke/,(msg) => {
 	if (config.isEnabledFor('enableNuke', msg.chat.id))
 		nuke.nuke(bot, msg);
 });
 
-// Quickupdate: denuke
+// De nuking users
 bot.onText(/^\/denuke/,(msg) => {
 	if (config.isEnabledFor('enableNuke', msg.chat.id)) 
 		denuke.denuke(bot, msg);
@@ -91,15 +87,18 @@ bot.onText(/^\/google (.+)/ , (msg, match) => {
 		bot.sendMessage(msg.chat.id, `https://lmgtfy.com/?q=${encodeURIComponent(match[1])}`, {reply_to_message_id: msg.message_id});
 });
 
+// Sends a link that's always requested.
 bot.onText(/^\/excel/, msg => {
 	if(config.isEnabledFor('enableExcel', msg.chat.id))
 		excel.excel(bot, msg);
 });
 
+// Private greeting.
 bot.onText(/^\/start/, (msg) => {
 	privateController.start(bot, msg);
 });
 
+// TODO: Refactor for userValidation
 bot.on('callback_query', (json) => {
 	const CBObject = JSON.parse(json.data);
 	if (CBObject.action === 'v') {

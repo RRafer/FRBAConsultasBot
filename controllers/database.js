@@ -16,9 +16,9 @@ Database.initDb = function (){
 	});
 };
 
-Database.saveUser = async function (nuserId, nuserName){
+Database.saveUser = async function (nuserId, nusername){
 	try{
-		await userModel.updateOne({userId: nuserId}, {userName: nuserName}, { new: true, upsert: true });
+		await userModel.updateOne({userId: nuserId}, {username: nusername}, { new: true, upsert: true });
 	}catch(err){
 		logger.error(`Can't create user: ${err}`);
 	}
@@ -28,19 +28,15 @@ Database.getSavedUsersCount = async function (){
 	return await userModel.estimatedDocumentCount();
 };
 
-Database.getUserId = async function (nuserName){
+Database.getUserId = async function (nusername){
 	let id;
 	try{
-		id = await userModel.findOne({userName: nuserName}, 'userId',{lean: true}); 
+		id = await userModel.findOne({username: nusername}, 'userId',{lean: true}); 
 	}catch(err){
 		logger.error(`Can't find user: ${err}`);
 	}
 	// Technically, lean SHOULD return an object not a document already... but...
 	return await id.userId;
 };
-
-// exports.insertMessage = (msg) => {
-// exports.hasStarted = userId => {
-// exports.setStartedUser = userId => {  
 
 module.exports = Database;
