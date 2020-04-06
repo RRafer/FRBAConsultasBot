@@ -13,7 +13,7 @@ const denuke = require('./controllers/denuke');
 const excel = require('./controllers/excel');
 const config = require('./utils/config');
 const rotate = require('./utils/onText/rotate');
-
+const privateController = require('./controllers/private');
 
 logger.info('Starting Bot');
 const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
@@ -94,6 +94,10 @@ bot.onText(/^\/google (.+)/ , (msg, match) => {
 bot.onText(/^\/excel/, msg => {
 	if(config.isEnabledFor('enableExcel', msg.chat.id))
 		excel.excel(bot, msg);
+});
+
+bot.onText(/^\/start/, (msg) => {
+	privateController.start(bot, msg);
 });
 
 bot.on('callback_query', (json) => {
