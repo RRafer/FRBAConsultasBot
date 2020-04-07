@@ -29,8 +29,8 @@
             "error",
             "always"
         ],
-        "comma-dangle": [
-            "error", 
+        "comma-dangle":[
+            "error",
             "always-multiline"
         ]
     }
