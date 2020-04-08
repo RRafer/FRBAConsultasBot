@@ -6,12 +6,10 @@ exports.generateMention = (msg) => {
 	return `[@${username||fromName}](tg://user?id=${id})`;
 };
 
-getUserStatus = async (bot, msg) => {
-	logger.info('Getting user credentials');
-	const userMember = await bot.getChatMember(msg.chat.id, msg.from.id)
-		.catch(err => logger.error(`Cannot get user: ${err}`));
-
-	return userMember.status;
+getUserStatus = async (bot, msg, extraParams) => {
+	const user = await bot.getChatMember(extraParams.chatID || msg.chat.id, extraParams.userID || msg.from.id);
+	if (!user) return logger.error(`Cannot get user: ${err}`);
+	return user.status;
 };
 
-exports.isAdmin = (bot, msg) => ['creator', 'administrator'].includes(getUserStatus(bot, msg));
+exports.isAdmin = async (bot, msg, extraParams = {}) => ['creator', 'administrator'].includes(await getUserStatus(bot, msg, extraParams));
