@@ -1,8 +1,10 @@
 // @ts-check
 
+const UserService = require('../services/user');
+
 const { generateMention } = require('../utils/generic');
 const { groupIDs } = require('../utils/config');
-const databaseController = require('./database');
+
 const logger = require('./logger');
 
 exports.nuke = async (bot, msg) => {
@@ -43,7 +45,7 @@ exports.nuke = async (bot, msg) => {
 		// If user is mentioned but has @username
 		if (entity.type == 'mention'){
 			let entityString = msg.text.substr(entity.offset+1,entity.length-1);
-			let foundId = await databaseController.getUserId(entityString);
+			let foundId = await UserService.getUserId(entityString);
 			if(foundId){
 				idToBan.push(foundId);
 				mentionToBan.push(`[@${entityString}](tg://user?id=${idToBan})`);

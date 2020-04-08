@@ -1,13 +1,15 @@
 // @ts-check
 
+const UserService = require('../services/user');
+
 const { generateMention } = require('../utils/generic');
 const { groupIDs } = require('../utils/config');
-const databaseController = require('./database');
+
 const logger = require('./logger');
 
 exports.denuke = async (bot, msg) => {
 
-	logger.info('Checking if group is in the list ' + msg.chat.id);
+	logger.info(`Checking if group with ID ${msg.chat.id} is in the list`);
 
 	// Check group
 	if (!groupIDs.includes(msg.chat.id)) return;
@@ -43,7 +45,7 @@ exports.denuke = async (bot, msg) => {
 		// If user is mentioned but has @username
 		if (entity.type == 'mention'){
 			let entityString = msg.text.substr(entity.offset+1,entity.length-1);
-			let foundId = await databaseController.getUserId(entityString);
+			let foundId = await UserService.getUserId(entityString);
 			if(foundId){
 				idToBan.push(foundId);
 				mentionToBan.push(`[@${entityString}](tg://user?id=${idToBan})`);

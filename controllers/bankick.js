@@ -1,7 +1,8 @@
 // @ts-check
-const logger = require('./logger');
+const UserService = require('../services/user');
 const { groupIDs } = require('../utils/config');
-const databaseController = require('./database');
+
+const logger = require('./logger');
 
 //TODO: Agregar el segundo comando para el tiempo.
 // Can I refactor this into async / await?
@@ -27,7 +28,7 @@ exports.ban = (bot, command, msg) => {
 			if (entity.type == 'text_mention') idToBan.push(entity.user.id);
 			// If user is mentioned but has no @username	
 			if (entity.type == 'mention'){
-				let foundId = await databaseController.getUserId(msg.text.substr(entity.offset+1,entity.length-1));
+				let foundId = await UserService.getUserId(msg.text.substr(entity.offset+1,entity.length-1));
 				if(foundId) idToBan.push(foundId);
 			}	
 		});

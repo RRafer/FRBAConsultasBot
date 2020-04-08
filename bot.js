@@ -2,18 +2,23 @@
 
 // Start the DB before loading config
 require('dotenv').config();
-const databaseController = require('./controllers/database');
-
-const logger = require('./controllers/logger');
 const TelegramBot = require('node-telegram-bot-api');
+
+const databaseController = require('./controllers/database');
+const privateController = require('./controllers/private');
+const logger = require('./controllers/logger');
 const linksController = require('./controllers/links');
 const adminControllers = require('./controllers/admin');
 const nuke = require('./controllers/nuke');
 const denuke = require('./controllers/denuke');
 const excel = require('./controllers/excel');
+
+const UserService = require('./services/user');
+
 const config = require('./utils/config');
 const rotate = require('./utils/onText/rotate');
-const privateController = require('./controllers/private');
+
+
 databaseController.initDb();
 
 logger.info('Starting Bot');
@@ -24,7 +29,7 @@ logger.info('Bot Started');
 const savedMsg = new Map();
 const savedTimers = new Map();
 
-databaseController.getSavedUsersCount().then((tsc)=>{
+UserService.getSavedUsersCount().then((tsc)=>{
 	console.info(`DB loaded ${tsc} Users`);
 });
 
@@ -54,7 +59,7 @@ bot.on('message', (msg) => {
   
 	// Save user into DB
 	if(msg.from.username) 
-		databaseController.saveUser(msg.from.id, msg.from.username);
+		UserService.saveUser(msg.from.id, msg.from.username);
 });
 
 bot.onText(/^\/rotar (.+)/, (msg, match) => {
