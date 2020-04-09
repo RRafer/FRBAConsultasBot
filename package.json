@@ -25,6 +25,19 @@
   "devDependencies": {
     "@types/mongoose": "^5.7.8",
     "@types/node": "^13.11.0",
-    "eslint": "^6.8.0"
+    "eslint": "^6.8.0",
+    "husky": "^4.2.3",
+    "lint-staged": "^10.1.2"
+  },
+  "scripts": {
+    "pretest": "./node_modules/.bin/eslint --ignore-path .gitignore . --fix"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run pretest"
+    }
+  },
+  "lint-staged": {
+    "*.js": ["./node_modules/.bin/eslint — fix", "git add"]
   }
 }

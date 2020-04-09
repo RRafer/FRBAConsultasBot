@@ -6,7 +6,7 @@ const TelegramBot = require('node-telegram-bot-api');
 
 const databaseController = require('./controllers/database');
 const privateController = require('./controllers/private');
-const logger = require('./controllers/logger');
+const logger = require('./utils/logger');
 const linksController = require('./controllers/links');
 const adminControllers = require('./controllers/admin');
 const nuke = require('./controllers/nuke');
@@ -44,58 +44,58 @@ bot.on('polling_error', msg => console.log(msg));
 
 bot.on('message', (msg) => {
   // User verification (to prevent bots)
-	if(config.isEnabledFor('enableValidateUsers', msg.chat.id) && (msg.new_chat_members !== undefined)){
+  if(config.isEnabledFor('enableValidateUsers', msg.chat.id) && (msg.new_chat_members !== undefined)){
     bot.emit('new_member', msg);
-	}
+  }
   
-	// Deletes messages from peoplo Joining/Leaving the group
-	if (config.isEnabledFor('enableDeleteSystemMessages', msg.chat.id) && 
+  // Deletes messages from peoplo Joining/Leaving the group
+  if (config.isEnabledFor('enableDeleteSystemMessages', msg.chat.id) && 
   (msg.new_chat_members !== undefined || msg.left_chat_member !== undefined)){
     // I have to work this over
-		bot.deleteMessage(msg.chat.id, String(msg.message_id)).catch(e =>{
+    bot.deleteMessage(msg.chat.id, String(msg.message_id)).catch(e =>{
       logger.error(`Error deleting message: ${e}`);
-		});
-	}
+    });
+  }
   
-	// Save user into DB
-	if(msg.from.username) 
-  UserService.saveUser(msg.from.id, msg.from.username);
+  // Save user into DB
+  if(msg.from.username) 
+    UserService.saveUser(msg.from.id, msg.from.username);
 });
 
 bot.onText(/^\/rotar (.+)/, (msg, match) => {
   if (config.isEnabledFor('enableRotate', msg.chat.id)) 
-  rotate.execute(bot, msg, match);
+    rotate.execute(bot, msg, match);
 });
 
 // Sends group links
 bot.onText(/^\/links/,(msg) => {
   if (config.isEnabledFor('enableLinks', msg.chat.id)) 
-  linksController.sendLinks(bot, msg);		
+    linksController.sendLinks(bot, msg);		
 });
 
 // Nuking users from All groups
 bot.onText(/^\/nuke/,(msg) => {
   if (config.isEnabledFor('enableNuke', msg.chat.id))
-  nuke.nuke(bot, msg);
+    nuke.nuke(bot, msg);
 });
 
 // De nuking users
 bot.onText(/^\/denuke/,(msg) => {
   if (config.isEnabledFor('enableNuke', msg.chat.id)) 
-  denuke.denuke(bot, msg);
+    denuke.denuke(bot, msg);
 });
 
 
 // LMGTFY
 bot.onText(/^\/google (.+)/ , (msg, match) => {
   if (config.isEnabledFor('enableGoogle', msg.chat.id)) 
-  bot.sendMessage(msg.chat.id, `https://lmgtfy.com/?q=${encodeURIComponent(match[1])}`, {reply_to_message_id: msg.message_id});
+    bot.sendMessage(msg.chat.id, `https://lmgtfy.com/?q=${encodeURIComponent(match[1])}`, {reply_to_message_id: msg.message_id});
 });
 
 // Sends a link that's always requested.
 bot.onText(/^\/excel/, msg => {
   if(config.isEnabledFor('enableExcel', msg.chat.id))
-  excel.excel(bot, msg);
+    excel.excel(bot, msg);
 });
 
 // Private greeting.
@@ -106,62 +106,62 @@ bot.onText(/^\/start/, (msg) => {
 // TODO: Refactor for userValidation
 bot.on('callback_query', (json) => {
   const CBObject = JSON.parse(json.data);
-	if (CBObject.action === 'v') {
+  if (CBObject.action === 'v') {
     // CBObject.p[0] = userId;
-		if (parseInt(CBObject.p[0], 10) === json.from.id) {
+    if (parseInt(CBObject.p[0], 10) === json.from.id) {
       bot.promoteChatMember(json.message.chat.id, CBObject.p[0], adminControllers.GivePerms).catch((e) => {
         // Catch obligatorio. Posibles casos de Falla:
-				// El usuario es Admin/Creator
-				// El usuario se va del chat antes de que el comando sea ejecutado
-				logger.error(`Error promoting chat member: ${e}`);
-			});
-			bot.editMessageText('¡Has sido verificado! \u2705\n\nEste mensaje se borrara en unos segundos', {
+        // El usuario es Admin/Creator
+        // El usuario se va del chat antes de que el comando sea ejecutado
+        logger.error(`Error promoting chat member: ${e}`);
+      });
+      bot.editMessageText('¡Has sido verificado! \u2705\n\nEste mensaje se borrara en unos segundos', {
         chat_id: json.message.chat.id,
-				message_id: savedMsg.get(CBObject.p[0]),
-			}).then((data) => {
+        message_id: savedMsg.get(CBObject.p[0]),
+      }).then((data) => {
         setTimeout(() => {
           bot.deleteMessage(data.chat.id, data.message_id).catch((e) => {
             logger.error(`Error deleting message ${e}`);
-					});
-				}, 10000);
-				clearTimeout(savedTimers.get(CBObject.p[0]));
-				savedMsg.delete(CBObject.p[0]);
-				savedTimers.delete(CBObject.p[0]);
-			}).catch((e) => {
+          });
+        }, 10000);
+        clearTimeout(savedTimers.get(CBObject.p[0]));
+        savedMsg.delete(CBObject.p[0]);
+        savedTimers.delete(CBObject.p[0]);
+      }).catch((e) => {
         logger.error(`Falla al editar mensaje de verificacion ${e}`);
-			});
-		} else {
+      });
+    } else {
       bot.answerCallbackQuery({
         callback_query_id: json.id,
-				text: 'No puede verificar por otro usuario',
-				show_alert: true,
-			});
-		}
-	}
+        text: 'No puede verificar por otro usuario',
+        show_alert: true,
+      });
+    }
+  }
 });
 
 //TODO: Rework this part. Maybe a separate file?
 bot.on('new_member', (msg) => {
   console.log('test2');
-	if (savedMsg.get(msg.from.id) === undefined) {
+  if (savedMsg.get(msg.from.id) === undefined) {
     bot.sendMessage(msg.chat.id, `Hola ${msg.from.first_name}${msg.from.last_name || ''} bienvenido al grupo de consultas ${msg.chat.title} de la UTN - FRBA\n\nHaga clic en el boton de abajo para verificar que no sea un bot.\nEste mensaje se eliminara en 30 segundos`, { reply_markup: JSON.stringify(adminControllers.verify(msg)) }).then((sentMsg) => {
       savedMsg.set(msg.from.id, sentMsg.message_id);
-			savedTimers.set(msg.from.id, setTimeout(() => {
+      savedTimers.set(msg.from.id, setTimeout(() => {
         // Delete Msg if user has not verified in time.
-				bot.deleteMessage(msg.chat.id, sentMsg.message_id);
-				// Kick Only (Unban is a must, there is no 'kick' method)
-				bot.kickChatMember(msg.chat.id, msg.from.id);
-				bot.unbanChatMember(msg.chat.id, msg.from.id);
-				savedMsg.delete(msg.from.id);
-				savedTimers.delete(msg.from.id);
-			}, 30000));
-		}).catch((e) => {
+        bot.deleteMessage(msg.chat.id, sentMsg.message_id);
+        // Kick Only (Unban is a must, there is no 'kick' method)
+        bot.kickChatMember(msg.chat.id, msg.from.id);
+        bot.unbanChatMember(msg.chat.id, msg.from.id);
+        savedMsg.delete(msg.from.id);
+        savedTimers.delete(msg.from.id);
+      }, 30000));
+    }).catch((e) => {
       // Catch for all the possible errors that will bubble up: (Unable to ban / Unable to delete message)
-			logger.error(`Error en verificacion ${e}`);
-		});
-	} else {
+      logger.error(`Error en verificacion ${e}`);
+    });
+  } else {
     logger.info('Intento de verificacion doble.');
-	}
+  }
 });
 
 // Ban or Kick
