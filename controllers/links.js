@@ -1,8 +1,25 @@
 // @ts-check
 // TODO: Refactor this.
 const logger = require('../utils/logger');
-const inlineKeyboard = require('../resources/links.json');
+const GroupService = require('../services/group');
+const GroupsJSON = require('../resources/allgroups.json');
+//const inlineKeyboard = require('../resources/links.json');
 
+// On loading this file, save groups to DB
+GroupService.saveGroupFromFile(GroupsJSON);
+
+exports.sendLinks = async (bot, msg) => {
+  let groupsFromDB = await GroupService.loadGroupFromDB();
+  let message = '';
+  Object.values(groupsFromDB).map((x) =>{
+    message += `<b>${x.label}</b>\n${x.link}\n`;
+  });
+  bot.sendMessage(msg.chat.id, message, {reply_to_message_id: msg.message_id, parse_mode: 'HTML' , disable_web_page_preview: true});
+};
+
+
+// This will be useful for the refactor later on
+/*
 exports.sendLinks = (bot, msg) => {
   bot.sendMessage(msg.chat.id, 'LINKS', {
     reply_markup: {
@@ -29,3 +46,4 @@ exports.sendLinks = (bot, msg) => {
     groups.pop();
   });
 };
+*/
