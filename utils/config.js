@@ -8,7 +8,7 @@ const config = () => {
   return {
     '-1001262375149': {
       enableDeleteSystemMessages: true,
-      enableLinks: false,
+      enableLinks: true,
       enableValidateUsers: false,
       enableRotate: false,
       enableGoogle: false,

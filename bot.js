@@ -12,12 +12,12 @@ const adminControllers = require('./controllers/admin');
 const nuke = require('./controllers/nuke');
 const denuke = require('./controllers/denuke');
 const excel = require('./controllers/excel');
+const utils = require('./utils/generic');
 
 const UserService = require('./services/user');
 
 const config = require('./utils/config');
 const rotate = require('./utils/onText/rotate');
-
 
 databaseController.initDb();
 
@@ -67,10 +67,10 @@ bot.onText(/^\/rotar (.+)/, (msg, match) => {
     rotate.execute(bot, msg, match);
 });
 
-// Sends group links
-bot.onText(/^\/links/,(msg) => {
+// Sends group links (TODO: Refactor later)
+bot.onText(/^\/links/, async (msg) => {
   if (config.isEnabledFor('enableLinks', msg.chat.id)) 
-    linksController.sendLinks(bot, msg);		
+    linksController.sendLinks(bot, msg);	
 });
 
 // Nuking users from All groups
@@ -175,3 +175,21 @@ bot.on('new_member', (msg) => {
 // bot.onText(/[\s\S]+/g, mongo.insertMessage);
 // RemindMe
 // bot.onText(/^\/remindme [0-9]+ (d|h|m|s|w)( .*)?/, (msg, match) => onText.remindme(bot, msg, match));
+
+// Sends chatId, useful for debugging
+bot.onText(/^\/id/, async (msg) => {
+  if(await utils.isAdmin(bot, msg))
+    bot.sendMessage(msg.chat.id, `chatId: <code>${msg.chat.id}</code>`, {reply_to_message_id: msg.message_id, parse_mode: 'HTML'});
+});
+
+/*
+bot.onText(/^\/getgroups/, async () => {
+  logger.info('Getting groups');
+  let grupos = await GroupService.getGroupsIDs();
+  console.log(grupos);
+});
+bot.onText(/^\/savegroup/, async (msg) => {
+  logger.info('Saving group');
+  await GroupService.saveGroup(msg);
+});
+*/
